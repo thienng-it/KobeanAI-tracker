@@ -187,6 +187,11 @@ export class AntigravityConnector extends AgentConnector {
       const outputRate = Number(this.config.outputPrice ?? 0.60);
 
       // Upsert each turn into the SQLite sessions table
+      // If splitting into multiple turns, remove any legacy un-split parent record
+      if (turns.length > 1) {
+        await db.delete(sessions).where(eq(sessions.id, sessionId)).catch(() => {});
+      }
+
       for (const turn of turns) {
         const turnSessionId = turns.length === 1 ? sessionId : `${sessionId}-turn-${turn.index}`;
         const totalTokens = turn.inputTokens + turn.outputTokens;

@@ -78,7 +78,7 @@ export default function DashboardPage() {
           title="Estimated Cost" 
           value={`$${summary?.totalCost?.toFixed(4) || '0.0000'}`} 
           icon={<Coins size={20} />}
-          trend={summary?.costTrend ? { value: summary.costTrend.value, isPositive: !summary.costTrend.isPositive } : undefined}
+          trend={summary?.costTrend ? { value: summary.costTrend.value, isPositive: summary.costTrend.isPositive } : undefined}
           description={summary?.costTrend?.label || 'vs previous period'}
         />
       </div>
