@@ -30,6 +30,7 @@ interface SkillsState {
   error: string | null;
   
   setSearchQuery: (query: string) => void;
+  syncSkills: () => Promise<void>;
   fetchSkills: () => Promise<void>;
   getSkill: (id: string) => Promise<Skill | null>;
   createSkill: (skillData: Partial<Skill> & { agentIds?: string[] }) => Promise<string>;
@@ -44,6 +45,18 @@ export const useSkillsStore = create<SkillsState>((set, get) => ({
   error: null,
 
   setSearchQuery: (query) => set({ searchQuery: query }),
+
+  syncSkills: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      await api.post('/skills/sync', {});
+      const res = await api.get<{ data: Skill[] }>('/skills');
+      set({ skills: res.data, isLoading: false });
+    } catch (error: any) {
+      console.error('Failed to sync skills:', error);
+      set({ error: error.message, isLoading: false });
+    }
+  },
 
   fetchSkills: async () => {
     set({ isLoading: true, error: null });

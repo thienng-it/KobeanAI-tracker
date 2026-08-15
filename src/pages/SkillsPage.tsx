@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useSkillsStore } from '../stores/useSkillsStore';
 import { SkillCard } from '../components/skills/SkillCard';
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 export default function SkillsPage() {
-  const { skills, fetchSkills, searchQuery, setSearchQuery, deleteSkill, isLoading } = useSkillsStore();
+  const { skills, fetchSkills, syncSkills, searchQuery, setSearchQuery, deleteSkill, isLoading } = useSkillsStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,25 +22,43 @@ export default function SkillsPage() {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
         <div>
           <h1 className="text-2xl" style={{ margin: 0 }}>Skill Manager</h1>
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)', margin: 0 }}>Create and manage reusable prompt instructions.</p>
+          <p className="text-sm" style={{ color: 'var(--color-text-secondary)', margin: 0 }}>
+            {skills.length} available prompt skills discovered across workspace & plugins.
+          </p>
         </div>
-        <button 
-          onClick={() => navigate('/skills/new')}
-          style={{ 
-            background: 'var(--color-brand-primary)', 
-            border: 'none', 
-            padding: 'var(--space-2) var(--space-4)', 
-            borderRadius: 'var(--radius-md)',
-            color: '#fff',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            fontWeight: 500
-          }}
-        >
-          <Plus size={16} /> Create Skill
-        </button>
+        <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+          <button 
+            onClick={() => syncSkills()}
+            disabled={isLoading}
+            className="btn-secondary"
+            style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              padding: 'var(--space-2) var(--space-4)',
+              cursor: isLoading ? 'not-allowed' : 'pointer'
+            }}
+          >
+            <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} /> Sync System Skills
+          </button>
+          <button 
+            onClick={() => navigate('/skills/new')}
+            style={{ 
+              background: 'var(--color-brand-primary)', 
+              border: 'none', 
+              padding: 'var(--space-2) var(--space-4)', 
+              borderRadius: 'var(--radius-md)',
+              color: '#fff',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              fontWeight: 500
+            }}
+          >
+            <Plus size={16} /> Create Skill
+          </button>
+        </div>
       </header>
 
       <div style={{ marginBottom: 'var(--space-6)', position: 'relative' }}>

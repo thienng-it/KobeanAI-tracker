@@ -9,12 +9,24 @@ const router = Router();
 // GET /api/skills
 router.get('/', async (req, res) => {
   try {
-    const allSkills = await db.query.skills.findMany({
+    let allSkills = await db.query.skills.findMany({
       with: {
         agentSkills: { with: { agent: true } },
         skillTags: { with: { tag: true } }
       }
     });
+
+    // If only dummy skills or empty, auto-sync
+    if (allSkills.length <= 1) {
+      const { SkillScanner } = await import('../services/skill-scanner.js');
+      await SkillScanner.syncAll();
+      allSkills = await db.query.skills.findMany({
+        with: {
+          agentSkills: { with: { agent: true } },
+          skillTags: { with: { tag: true } }
+        }
+      });
+    }
 
     // Flatten relations for easier consumption
     const formatted = allSkills.map(s => ({
@@ -27,6 +39,18 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// POST /api/skills/sync
+router.post('/sync', async (req, res) => {
+  try {
+    const { SkillScanner } = await import('../services/skill-scanner.js');
+    const result = await SkillScanner.syncAll();
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to sync skills' });
   }
 });
 

@@ -110,6 +110,14 @@ const server = app.listen(PORT, async () => {
   const telemetryService = TelemetryService.getInstance();
   await telemetryService.start();
 
+  // Auto-discover workspace & global skills, rules, and commands
+  try {
+    const { SkillScanner } = await import('./services/skill-scanner.js');
+    await SkillScanner.syncAll();
+  } catch (err) {
+    console.error('[Server] Skill discovery error:', err);
+  }
+
   // Graceful shutdown handler
   const shutdown = async (signal: string) => {
     console.log(`[Server] Received ${signal}. Shutting down gracefully...`);
