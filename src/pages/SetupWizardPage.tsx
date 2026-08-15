@@ -198,6 +198,7 @@ export default function SetupWizardPage() {
     setStep, 
     nextStep, 
     prevStep, 
+    completed,
     completeWizard, 
     workspaceName, 
     workspacePath, 
@@ -208,6 +209,15 @@ export default function SetupWizardPage() {
     setImportOption
   } = useWizardStore();
   const navigate = useNavigate();
+
+  // If already completed and no explicit reconfigure query, automatically bypass to dashboard
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isReconfiguring = params.get('reconfigure') === 'true';
+    if (completed && !isReconfiguring) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [completed, navigate]);
 
   const handleComplete = () => {
     completeWizard();
@@ -676,6 +686,36 @@ export default function SetupWizardPage() {
       background: 'radial-gradient(ellipse at 50% 10%, rgba(59, 130, 246, 0.15), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(147, 51, 234, 0.1), transparent 50%), var(--color-bg-app)'
     }}>
       <div style={{ width: '100%', maxWidth: '820px', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="live-dot" />
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+              {completed ? 'Setup Configured (Active)' : 'Quick Setup Wizard'}
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              completeWizard();
+              navigate('/dashboard');
+            }}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--color-border-subtle)',
+              padding: '4px 12px',
+              borderRadius: 'var(--radius-full)',
+              color: 'var(--color-brand-primary)',
+              fontSize: 'var(--text-xs)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <span>Skip to Dashboard →</span>
+          </button>
+        </div>
+
         <Stepper currentStep={currentStep} onSelectStep={setStep} />
         
         <div className="glass-panel" style={{

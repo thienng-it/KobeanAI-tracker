@@ -27,7 +27,7 @@ function App() {
   return (
     <ErrorBoundary>
       <Routes>
-        <Route path="/" element={<Navigate to="/setup" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/setup" element={<SetupWizardPage />} />
         
         {/* Routes with Sidebar & Header */}

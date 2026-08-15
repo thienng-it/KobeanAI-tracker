@@ -32,7 +32,7 @@ export const useWizardStore = create<WizardState>()(
         codex: true
       },
       importOption: 'auto',
-      completed: false,
+      completed: true,
       
       nextStep: () => set((state) => ({ currentStep: Math.min(state.currentStep + 1, 7) })),
       prevStep: () => set((state) => ({ currentStep: Math.max(state.currentStep - 1, 1) })),
