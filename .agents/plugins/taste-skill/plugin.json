@@ -1,0 +1,7 @@
+{
+  "name": "taste-skill",
+  "version": "1.0.0",
+  "description": "Design taste and fluid animation standards plugin for KobeanAI Tracker.",
+  "skills": ["taste-skill"],
+  "rules": ["ui-motion-taste"]
+}

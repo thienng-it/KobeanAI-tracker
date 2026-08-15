@@ -1,0 +1,145 @@
+# .betterleak - Secret & Sensitive Data Leak Prevention Configuration
+# Compatible with Betterleaks & Gitleaks secret scanners
+
+title = "KobeanAI Tracker Secret Leak Detection Configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist for build artifacts, lockfiles, and documentation examples"
+paths = [
+    '''node_modules/''',
+    '''dist/''',
+    '''\.git/''',
+    '''package-lock\.json$''',
+    '''pnpm-lock\.yaml$''',
+    '''\.env\.example$''',
+    '''sqlite\.db''',
+    '''data/''',
+    '''\.product-knowledge/''',
+]
+regexes = [
+    '''sk-\.\.\.''',
+    '''sk-test-[a-zA-Z0-9_-]+''',
+    '''sk-\*{4}[a-zA-Z0-9]+''',
+    '''temp-uuid''',
+    '''EXAMPLE''',
+    '''your_api_key_here''',
+    '''AIzaSy[0-9a-zA-Z_-]{7}EXAMPLE''',
+]
+
+# ==============================================================================
+# AI Provider API Keys
+# ==============================================================================
+
+[[rules]]
+id = "openai-api-key"
+description = "OpenAI API Key / Project Key"
+regex = '''(?i)\b(sk-(?:proj-|admin-)?[a-zA-Z0-9_-]{32,100})\b'''
+secretGroup = 1
+keywords = ["sk-proj-", "sk-admin-", "sk-"]
+entropy = 3.5
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic Claude API Key"
+regex = '''(?i)\b(sk-ant-[a-zA-Z0-9_-]{30,100})\b'''
+secretGroup = 1
+keywords = ["sk-ant-"]
+entropy = 3.5
+
+[[rules]]
+id = "google-gemini-api-key"
+description = "Google Gemini / Google Cloud API Key"
+regex = '''\b(AIzaSy[0-9a-zA-Z_-]{33})\b'''
+secretGroup = 1
+keywords = ["AIzaSy"]
+
+[[rules]]
+id = "huggingface-token"
+description = "HuggingFace Access Token"
+regex = '''(?i)\b(hf_[a-zA-Z0-9]{34,60})\b'''
+secretGroup = 1
+keywords = ["hf_"]
+
+[[rules]]
+id = "cohere-api-key"
+description = "Cohere API Key"
+regex = '''(?i)(?:cohere[_-]?key|cohere[_-]?api[_-]?key)\s*[:=]\s*["']?([a-zA-Z0-9]{40})["']?'''
+secretGroup = 1
+keywords = ["cohere"]
+
+# ==============================================================================
+# Cloud Infrastructure Keys
+# ==============================================================================
+
+[[rules]]
+id = "aws-access-key-id"
+description = "AWS Access Key ID"
+regex = '''\b((?:AKIA|ASIA|ABIA|ACCA)[0-9A-Z]{16})\b'''
+secretGroup = 1
+keywords = ["AKIA", "ASIA", "ABIA", "ACCA"]
+
+[[rules]]
+id = "aws-secret-access-key"
+description = "AWS Secret Access Key"
+regex = '''(?i)(?:aws_secret_access_key|aws_secret_key|aws_key)\s*[:=]\s*["']?([a-zA-Z0-9/+=]{40})["']?'''
+secretGroup = 1
+keywords = ["aws_secret_access_key", "aws_secret_key"]
+entropy = 3.7
+
+[[rules]]
+id = "gcp-service-account"
+description = "Google Cloud Service Account Private Key"
+regex = '''"type":\s*"service_account"'''
+keywords = ["service_account", "private_key"]
+
+[[rules]]
+id = "azure-client-secret"
+description = "Azure Client Secret"
+regex = '''(?i)(?:azure[_-]?client[_-]?secret|azure[_-]?secret)\s*[:=]\s*["']?([a-zA-Z0-9_~.-]{34,44})["']?'''
+secretGroup = 1
+keywords = ["azure_client_secret", "azure_secret"]
+
+# ==============================================================================
+# Git & Platform Tokens
+# ==============================================================================
+
+[[rules]]
+id = "github-pat"
+description = "GitHub Personal Access Token (classic & fine-grained)"
+regex = '''\b((?:ghp|gho|ghu|ghs|ghr)_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9_]{82})\b'''
+secretGroup = 1
+keywords = ["ghp_", "gho_", "ghu_", "ghs_", "ghr_", "github_pat_"]
+
+[[rules]]
+id = "gitlab-pat"
+description = "GitLab Personal Access Token"
+regex = '''\b(glpat-[a-zA-Z0-9_-]{20,30})\b'''
+secretGroup = 1
+keywords = ["glpat-"]
+
+[[rules]]
+id = "slack-token"
+description = "Slack Bot / User Token"
+regex = '''\b(xox[baprs]-[0-9]{10,13}-[0-9]{10,13}-[a-zA-Z0-9]{24,32})\b'''
+secretGroup = 1
+keywords = ["xoxb-", "xoxp-", "xoxa-", "xoxr-", "xoxs-"]
+
+# ==============================================================================
+# Cryptographic Private Keys & Database URIs
+# ==============================================================================
+
+[[rules]]
+id = "private-key"
+description = "Private Key (RSA, OpenSSH, EC, PGP, Generic)"
+regex = '''-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----'''
+keywords = ["-----BEGIN"]
+
+[[rules]]
+id = "database-uri-with-password"
+description = "Database Connection String with embedded credentials"
+regex = '''(?i)\b(?:postgres|postgresql|mysql|mongodb(?:\+srv)?|redis):\/\/[a-zA-Z0-9_-]+:([^@\s'"]+)@[a-zA-Z0-9.-]+'''
+secretGroup = 1
+keywords = ["postgres://", "postgresql://", "mysql://", "mongodb://", "mongodb+srv://", "redis://"]

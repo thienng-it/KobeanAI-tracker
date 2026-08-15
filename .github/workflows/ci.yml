@@ -1,0 +1,44 @@
+name: CI / Build & Typecheck
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate:
+    name: Lint, Typecheck & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck Frontend
+        run: npx tsc -b
+
+      - name: Typecheck Server
+        run: npx tsc -p tsconfig.server.json
+
+      - name: Build Production Bundle
+        run: npm run build
+
+      - name: Run Secret Leak Scanner
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .betterleak
+
+      - name: Validate Production Server Output
+        run: test -f dist/server/index.js && test -f dist/index.html
+

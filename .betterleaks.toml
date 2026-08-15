@@ -1,0 +1,5 @@
+# .betterleaks.toml / .gitleaks.toml configuration
+# See .betterleak for primary configuration
+
+[extend]
+path = ".betterleak"
