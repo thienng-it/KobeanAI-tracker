@@ -2,19 +2,21 @@ import { useSessionsStore } from '../../stores/useSessionsStore';
 import { TagBadge } from '../tags/TagBadge';
 import { Terminal, Flame, Zap, Sparkles } from 'lucide-react';
 
-// Helper to determine AI effort level
-function getEffortLevel(tokens: number = 0) {
-  if (tokens > 50000) {
+// Helper to determine AI effort level from real telemetry
+function getEffortLevel(session: any) {
+  const effort = session.effortLevel || session.metadata?.effortLevel || (session.model?.includes('3.7') ? 'High' : 'Medium');
+
+  if (effort === 'High' || session.model?.includes('3.7')) {
     return {
-      level: 'High',
+      level: 'High (1.00)',
       icon: <Flame size={11} />,
       bg: 'rgba(168, 85, 247, 0.12)',
       border: '1px solid rgba(168, 85, 247, 0.25)',
       color: '#a855f7'
     };
-  } else if (tokens >= 15000) {
+  } else if (effort === 'Medium') {
     return {
-      level: 'Med',
+      level: 'Med (0.50)',
       icon: <Zap size={11} />,
       bg: 'rgba(245, 158, 11, 0.12)',
       border: '1px solid rgba(245, 158, 11, 0.25)',
@@ -106,7 +108,7 @@ export const SessionsTable = () => {
         </thead>
         <tbody>
           {sessions.map(session => {
-            const effort = getEffortLevel(session.totalTokens || 0);
+            const effort = getEffortLevel(session);
             const tags = getSessionTags(session);
 
             return (

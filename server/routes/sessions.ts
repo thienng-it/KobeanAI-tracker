@@ -81,19 +81,28 @@ router.get('/', async (req, res) => {
     });
 
     // We also need total count for pagination (omitted for brevity, just returning fake total for now if not calculated)
-    const formatted = fetchedSessions.map(session => ({
-      id: session.id,
-      agentName: session.agent?.name || 'Unknown Agent',
-      agentId: session.agentId,
-      model: session.model,
-      startedAt: session.startedAt,
-      durationMs: session.durationMs,
-      totalTokens: session.totalTokens,
-      estimatedCost: session.estimatedCost,
-      status: session.status,
-      summary: session.summary,
-      tags: session.sessionTags.map(st => st.tag)
-    }));
+    const formatted = fetchedSessions.map(session => {
+      const meta = typeof session.metadata === 'string' ? JSON.parse(session.metadata || '{}') : (session.metadata || {});
+      const effortLevel = meta.effortLevel || (session.model.includes('3.7') || session.model.includes('flash') ? 'High' : 'Medium');
+
+      return {
+        id: session.id,
+        agentName: session.agent?.name || 'Unknown Agent',
+        agentId: session.agentId,
+        model: session.model,
+        startedAt: session.startedAt,
+        durationMs: session.durationMs,
+        inputTokens: session.inputTokens,
+        outputTokens: session.outputTokens,
+        totalTokens: session.totalTokens,
+        estimatedCost: session.estimatedCost,
+        status: session.status,
+        summary: session.summary,
+        metadata: meta,
+        effortLevel,
+        tags: session.sessionTags.map(st => st.tag)
+      };
+    });
 
     res.json({
       data: formatted,

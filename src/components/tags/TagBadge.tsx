@@ -8,6 +8,8 @@ interface TagBadgeProps {
 
 export const TagBadge: React.FC<TagBadgeProps> = ({ tag, size = 'md' }) => {
   const isSm = size === 'sm';
+  const label = tag.action ? `[${tag.action}]` : (tag.raw || `[${tag.identifier}]`);
+  const color = tag.color || '#3b82f6';
   
   return (
     <span
@@ -15,18 +17,17 @@ export const TagBadge: React.FC<TagBadgeProps> = ({ tag, size = 'md' }) => {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        padding: isSm ? '2px 6px' : '4px 10px',
-        borderRadius: 'var(--radius-sm)',
-        fontSize: isSm ? 'var(--text-xs)' : 'var(--text-sm)',
-        fontWeight: 500,
-        backgroundColor: tag.color || 'var(--color-bg-surface-hover)',
-        color: 'var(--color-text-primary)',
-        border: '1px solid var(--color-border-subtle)',
+        padding: isSm ? '2px 8px' : '3px 10px',
+        borderRadius: 'var(--radius-md)',
+        fontSize: isSm ? '0.6875rem' : '0.75rem',
+        fontWeight: 600,
+        backgroundColor: `${color}20`,
+        color: color,
+        border: `1px solid ${color}45`,
         fontFamily: 'var(--font-mono)'
       }}
     >
-      <span style={{ opacity: 0.7, marginRight: '4px' }}>[{tag.prefix}-{tag.identifier}]</span>
-      <span>{tag.action}</span>
+      {label}
     </span>
   );
 };

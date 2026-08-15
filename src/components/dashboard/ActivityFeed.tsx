@@ -7,22 +7,23 @@ interface ActivityFeedProps {
   sessions: Session[];
 }
 
-// Helper to determine AI effort level (High / Medium / Low)
+// Helper to determine AI effort level (High / Medium / Low) from real telemetry
 function getEffortLevel(session: Session) {
-  const tokens = session.totalTokens || 0;
-  if (tokens > 50000) {
+  const effort = (session as any).effortLevel || (session as any).metadata?.effortLevel || (session.model?.includes('3.7') ? 'High' : 'Medium');
+
+  if (effort === 'High' || session.model?.includes('3.7')) {
     return {
       level: 'High',
-      label: 'High Effort',
+      label: 'High Effort (1.00)',
       icon: <Flame size={12} />,
       bg: 'rgba(168, 85, 247, 0.12)',
       border: '1px solid rgba(168, 85, 247, 0.3)',
       color: '#a855f7'
     };
-  } else if (tokens >= 15000) {
+  } else if (effort === 'Medium') {
     return {
       level: 'Medium',
-      label: 'Medium Effort',
+      label: 'Medium Effort (0.50)',
       icon: <Zap size={12} />,
       bg: 'rgba(245, 158, 11, 0.12)',
       border: '1px solid rgba(245, 158, 11, 0.3)',
@@ -179,9 +180,9 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ sessions }) => {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                  {/* Effort Level Badge */}
+                  {/* Real Effort Level Badge */}
                   <div 
-                    title={`AI processing effort: ${effort.level}`}
+                    title={`AI reasoning & thinking configuration: ${effort.label}`}
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',

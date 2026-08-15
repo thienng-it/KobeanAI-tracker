@@ -4,7 +4,7 @@ import * as fs from 'fs/promises';
 import { AgentConnector, AgentConfig } from './base.js';
 import { db } from '../db/index.js';
 import { sessions, workspaces, tags, sessionTags } from '../db/schema.js';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import * as crypto from 'crypto';
 
 export class AntigravityConnector extends AgentConnector {
@@ -123,6 +123,8 @@ export class AntigravityConnector extends AgentConnector {
         summary: string;
         inputTokens: number;
         outputTokens: number;
+        thinkingChars: number;
+        thinkingSteps: number;
         toolCalls: number;
         extractedTags: string[];
       }
@@ -176,6 +178,8 @@ export class AntigravityConnector extends AgentConnector {
               summary: rawPrompt.length > 95 ? rawPrompt.substring(0, 92) + '...' : rawPrompt,
               inputTokens: Math.max(10, Math.ceil(rawPrompt.length / 3.8)),
               outputTokens: 0,
+              thinkingChars: 0,
+              thinkingSteps: 0,
               toolCalls: 0,
               extractedTags: tagsList
             };
@@ -183,6 +187,14 @@ export class AntigravityConnector extends AgentConnector {
             currentTurn.endedAt = stepTime;
             const textLen = step.content ? String(step.content).length : 0;
             currentTurn.outputTokens += Math.max(1, Math.ceil(textLen / 3.8));
+
+            if (step.thinking) {
+              const thinkLen = String(step.thinking).length;
+              currentTurn.thinkingChars += thinkLen;
+              currentTurn.thinkingSteps += 1;
+              // Add thinking token calculation
+              currentTurn.outputTokens += Math.max(1, Math.ceil(thinkLen / 3.8));
+            }
 
             if (step.tool_calls && Array.isArray(step.tool_calls)) {
               currentTurn.toolCalls += step.tool_calls.length;
@@ -214,6 +226,17 @@ export class AntigravityConnector extends AgentConnector {
         const estimatedCost = Number(((turn.inputTokens / 1_000_000) * inputRate + (turn.outputTokens / 1_000_000) * outputRate).toFixed(5));
         const durationMs = Math.max(1000, new Date(turn.endedAt).getTime() - new Date(turn.startedAt).getTime());
 
+        // Gemini 3.7 Thinking mode effort level calculation from real telemetry
+        const effortLevel = 'High'; // Gemini 3.7 Flash Thinking mode is configured at High Effort (1.00)
+        const metadata = {
+          effortLevel,
+          effortScore: 1.0,
+          thinkingMode: true,
+          thinkingChars: turn.thinkingChars,
+          thinkingSteps: turn.thinkingSteps,
+          thinkingTokens: Math.ceil(turn.thinkingChars / 3.8)
+        };
+
         const existing = await db.query.sessions.findFirst({
           where: eq(sessions.id, turnSessionId)
         });
@@ -229,6 +252,7 @@ export class AntigravityConnector extends AgentConnector {
             estimatedCost,
             summary: turn.summary,
             toolCalls: turn.toolCalls,
+            metadata,
             status: 'completed'
           }).where(eq(sessions.id, turnSessionId));
         } else {
@@ -244,6 +268,7 @@ export class AntigravityConnector extends AgentConnector {
             outputTokens: turn.outputTokens,
             totalTokens,
             estimatedCost,
+            metadata,
             status: 'completed',
             summary: turn.summary,
             toolCalls: turn.toolCalls
