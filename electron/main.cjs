@@ -13,14 +13,23 @@ function startBackendServer() {
   console.log('[Electron] Starting local backend server...');
   const serverPath = path.join(__dirname, '../dist/server/index.js');
   
-  serverProcess = spawn('node', [serverPath], {
-    env: { ...process.env, PORT: PORT.toString(), NODE_ENV: 'production' },
-    stdio: 'inherit'
-  });
+  try {
+    // In production package, run the compiled server directly
+    serverProcess = spawn(process.execPath, [serverPath], {
+      env: { ...process.env, PORT: PORT.toString(), NODE_ENV: 'production', ELECTRON_RUN_AS_NODE: '1' },
+      stdio: 'inherit'
+    });
 
-  serverProcess.on('error', (err) => {
-    console.error('[Electron] Failed to start backend server:', err);
-  });
+    serverProcess.on('error', (err) => {
+      console.warn('[Electron] spawn error, attempting node fallback:', err.message);
+      serverProcess = spawn('node', [serverPath], {
+        env: { ...process.env, PORT: PORT.toString(), NODE_ENV: 'production' },
+        stdio: 'inherit'
+      });
+    });
+  } catch (err) {
+    console.error('[Electron] Error starting server process:', err);
+  }
 }
 
 function createWindow() {
@@ -38,13 +47,18 @@ function createWindow() {
     },
   });
 
-  // Load local web server once ready
-  mainWindow.loadURL(SERVER_URL).catch(() => {
-    // Retry loading if server takes a moment to boot
-    setTimeout(() => {
-      mainWindow.loadURL(SERVER_URL);
-    }, 1500);
-  });
+  // Retry loading until Express server on PORT is ready
+  let attempts = 0;
+  const loadApp = () => {
+    mainWindow.loadURL(SERVER_URL).catch(() => {
+      attempts++;
+      if (attempts < 15) {
+        setTimeout(loadApp, 500);
+      }
+    });
+  };
+
+  loadApp();
 
   mainWindow.on('closed', () => {
     mainWindow = null;
