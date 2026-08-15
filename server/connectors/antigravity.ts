@@ -154,38 +154,11 @@ export class AntigravityConnector extends AgentConnector {
             if (rawPrompt.includes('{{ CHECKPOINT')) rawPrompt = rawPrompt.split('{{ CHECKPOINT')[0].trim();
             if (!rawPrompt) rawPrompt = 'User request';
 
-            // Check if prompt specifies a switched model
-            let turnModel = activeSessionModel;
-            const promptLower = rawPrompt.toLowerCase();
-
-            if (promptLower.includes('gemini 3.1 pro') || promptLower.includes('gemini-3.1-pro') || promptLower.includes('gemini pro 3.1') || promptLower.includes('3.1 pro')) {
-              turnModel = 'gemini-3.1-pro';
-            } else if (promptLower.includes('gemini 3.7') || promptLower.includes('gemini-3.7-flash') || promptLower.includes('3.7 flash')) {
-              turnModel = 'gemini-3.7-flash';
-            } else if (promptLower.includes('gemini 2.0') || promptLower.includes('gemini-2.0-flash')) {
-              turnModel = 'gemini-2.0-flash';
-            } else if (promptLower.includes('gemini 1.5 pro') || promptLower.includes('gemini-1.5-pro')) {
-              turnModel = 'gemini-1.5-pro';
-            } else if (promptLower.includes('claude 3.7') || promptLower.includes('claude-3-7-sonnet')) {
-              turnModel = 'claude-3-7-sonnet';
-            } else if (promptLower.includes('claude 3.5') || promptLower.includes('claude-3-5-sonnet')) {
-              turnModel = 'claude-3-5-sonnet';
-            } else if (promptLower.includes('gpt-4o-mini')) {
-              turnModel = 'gpt-4o-mini';
-            } else if (promptLower.includes('gpt-4o')) {
-              turnModel = 'gpt-4o';
-            } else if (promptLower.includes('o3-mini')) {
-              turnModel = 'o3-mini';
-            } else if (promptLower.includes('deepseek-r1') || promptLower.includes('deepseek r1')) {
-              turnModel = 'deepseek-r1';
-            }
-
-            // Check if prompt specifies effort level
-            let effortLevel = 'High';
-            if (promptLower.includes('low effort') || promptLower.includes('effort: low') || promptLower.includes('effort 0.0')) {
-              effortLevel = 'Low';
-            } else if (promptLower.includes('medium effort') || promptLower.includes('effort: medium') || promptLower.includes('effort 0.5')) {
-              effortLevel = 'Medium';
+            // Resolve model from agent configuration or explicit directive tag like [model:gemini-3.1-pro]
+            let turnModel = this.config.model || activeSessionModel || 'gemini-3.7-flash';
+            const modelTagMatch = rawPrompt.match(/\[model:([^\]]+)\]/i);
+            if (modelTagMatch) {
+              turnModel = modelTagMatch[1].trim();
             }
 
             // Extract explicit bracketed tags like [repo:org/name]
@@ -225,7 +198,7 @@ export class AntigravityConnector extends AgentConnector {
               thinkingSteps: 0,
               toolCalls: 0,
               detectedModel: turnModel,
-              effortLevel,
+              effortLevel: 'High',
               extractedTags: tagsList
             };
           } else if (currentTurn) {
@@ -275,12 +248,14 @@ export class AntigravityConnector extends AgentConnector {
           this.config.outputPrice
         );
 
+        const effortLevel = (turn.thinkingChars > 0 || resolvedModel.supportsThinking) ? 'High' : 'Medium';
+
         const metadata = {
           modelId: resolvedModel.id,
           modelName: resolvedModel.name,
           provider: resolvedModel.provider,
-          effortLevel: turn.effortLevel,
-          effortScore: turn.effortLevel === 'High' ? 1.0 : turn.effortLevel === 'Medium' ? 0.5 : 0.0,
+          effortLevel,
+          effortScore: effortLevel === 'High' ? 1.0 : effortLevel === 'Medium' ? 0.5 : 0.0,
           thinkingMode: resolvedModel.supportsThinking || thinkingTokens > 0,
           thinkingChars: turn.thinkingChars,
           thinkingSteps: turn.thinkingSteps,
