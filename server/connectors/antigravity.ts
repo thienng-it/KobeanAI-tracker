@@ -181,11 +181,16 @@ export class AntigravityConnector extends AgentConnector {
       if (currentTurn) turns.push(currentTurn);
       if (turns.length === 0) return;
 
+      // Model & Pricing calculation: Gemini 3.7 Flash ($0.15/M input, $0.60/M output default or user configured)
+      const modelName = this.config.model || 'gemini-3.7-flash';
+      const inputRate = Number(this.config.inputPrice ?? 0.15);
+      const outputRate = Number(this.config.outputPrice ?? 0.60);
+
       // Upsert each turn into the SQLite sessions table
       for (const turn of turns) {
         const turnSessionId = turns.length === 1 ? sessionId : `${sessionId}-turn-${turn.index}`;
         const totalTokens = turn.inputTokens + turn.outputTokens;
-        const estimatedCost = Number(((turn.inputTokens / 1_000_000) * 1.25 + (turn.outputTokens / 1_000_000) * 5.00).toFixed(4));
+        const estimatedCost = Number(((turn.inputTokens / 1_000_000) * inputRate + (turn.outputTokens / 1_000_000) * outputRate).toFixed(5));
         const durationMs = Math.max(1000, new Date(turn.endedAt).getTime() - new Date(turn.startedAt).getTime());
 
         const existing = await db.query.sessions.findFirst({
@@ -195,6 +200,7 @@ export class AntigravityConnector extends AgentConnector {
         if (existing) {
           await db.update(sessions).set({
             endedAt: turn.endedAt,
+            model: modelName,
             durationMs,
             inputTokens: turn.inputTokens,
             outputTokens: turn.outputTokens,
@@ -209,7 +215,7 @@ export class AntigravityConnector extends AgentConnector {
             id: turnSessionId,
             agentId: this.id,
             workspaceId: this.defaultWorkspaceId!,
-            model: 'gemini-1.5-pro',
+            model: modelName,
             startedAt: turn.startedAt,
             endedAt: turn.endedAt,
             durationMs,

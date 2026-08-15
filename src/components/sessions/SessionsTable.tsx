@@ -76,7 +76,7 @@ export const SessionsTable = () => {
                 {session.totalTokens?.toLocaleString() || 0}
               </td>
               <td style={{ padding: 'var(--space-4)', fontSize: 'var(--text-sm)', color: 'var(--color-status-warning-text)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-                ${session.estimatedCost?.toFixed(4) || '0.0000'}
+                ${session.estimatedCost ? (session.estimatedCost < 0.01 ? session.estimatedCost.toFixed(5) : session.estimatedCost.toFixed(4)) : '0.0000'}
               </td>
             </tr>
           ))}
