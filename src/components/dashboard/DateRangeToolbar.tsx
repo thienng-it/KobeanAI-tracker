@@ -84,8 +84,9 @@ export const DateRangeToolbar: React.FC<DateRangeToolbarProps> = ({
           padding: '3px',
           borderRadius: 'var(--radius-lg)',
           gap: '2px',
-          backgroundColor: 'rgba(15, 23, 42, 0.65)',
+          backgroundColor: 'var(--color-bg-surface)',
           border: '1px solid var(--color-border-subtle)',
+          boxShadow: 'var(--shadow-sm)',
           userSelect: 'none'
         }}
       >
@@ -95,9 +96,9 @@ export const DateRangeToolbar: React.FC<DateRangeToolbarProps> = ({
           disabled={disabled}
           title="Pick any specific date from calendar"
           style={{
-            background: isCustomDateActive ? 'var(--color-brand-primary)' : 'transparent',
-            color: isCustomDateActive ? '#ffffff' : 'var(--color-text-secondary)',
-            border: isCustomDateActive ? 'none' : '1px dashed var(--color-border-subtle)',
+            background: isCustomDateActive ? 'var(--color-brand-primary)' : 'var(--color-bg-surface-hover)',
+            color: isCustomDateActive ? '#ffffff' : 'var(--color-text-primary)',
+            border: isCustomDateActive ? '1px solid transparent' : '1px solid var(--color-border-default)',
             padding: '5px 10px',
             borderRadius: 'var(--radius-md)',
             fontSize: '0.75rem',
@@ -107,12 +108,13 @@ export const DateRangeToolbar: React.FC<DateRangeToolbarProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: '5px',
-            marginRight: '2px'
+            marginRight: '2px',
+            boxShadow: isCustomDateActive ? '0 1px 3px rgba(0, 0, 0, 0.25)' : 'none'
           }}
         >
           <Calendar size={13} style={{ color: isCustomDateActive ? '#ffffff' : 'var(--color-brand-primary)' }} />
           <span>{isCustomDateActive ? formatCustomLabel(activeRange) : 'Pick Date'}</span>
-          <ChevronDown size={11} style={{ opacity: 0.7 }} />
+          <ChevronDown size={11} style={{ opacity: isCustomDateActive ? 0.9 : 0.6 }} />
         </button>
 
         <div style={{ width: '1px', height: '18px', backgroundColor: 'var(--color-border-subtle)', margin: '0 2px' }} />
@@ -139,10 +141,22 @@ export const DateRangeToolbar: React.FC<DateRangeToolbarProps> = ({
                 fontWeight: isActive ? 600 : 500,
                 cursor: disabled ? 'not-allowed' : 'pointer',
                 transition: 'all var(--duration-fast) var(--ease-spring-smooth)',
-                boxShadow: isActive ? '0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)' : 'none',
+                boxShadow: isActive ? '0 1px 3px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)' : 'none',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px'
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'var(--color-bg-surface-hover)';
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = 'var(--color-text-secondary)';
+                }
               }}
             >
               {r.id === '1d' && <Clock size={11} style={{ opacity: isActive ? 1 : 0.7 }} />}
@@ -164,9 +178,9 @@ export const DateRangeToolbar: React.FC<DateRangeToolbarProps> = ({
             width: '260px',
             padding: 'var(--space-4)',
             borderRadius: 'var(--radius-lg)',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5)',
-            border: '1px solid var(--color-border-subtle)',
-            backgroundColor: '#0f172a'
+            boxShadow: 'var(--shadow-lg)',
+            border: '1px solid var(--color-border-default)',
+            backgroundColor: 'var(--color-bg-surface)'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
@@ -183,7 +197,7 @@ export const DateRangeToolbar: React.FC<DateRangeToolbarProps> = ({
           </div>
 
           <div style={{ marginBottom: 'var(--space-3)' }}>
-            <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '4px', fontWeight: 500 }}>
               Choose Date:
             </label>
             <input
@@ -194,18 +208,19 @@ export const DateRangeToolbar: React.FC<DateRangeToolbarProps> = ({
                 width: '100%',
                 padding: '6px 8px',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(30, 41, 59, 0.8)',
-                border: '1px solid var(--color-border-subtle)',
-                color: '#ffffff',
+                backgroundColor: 'var(--color-bg-surface-hover)',
+                border: '1px solid var(--color-border-default)',
+                color: 'var(--color-text-primary)',
                 fontSize: '0.8125rem',
-                outline: 'none'
+                outline: 'none',
+                colorScheme: 'auto'
               }}
             />
           </div>
 
           {/* Quick Date Chips */}
           <div style={{ marginBottom: 'var(--space-3)' }}>
-            <span style={{ display: 'block', fontSize: '0.6875rem', color: 'var(--color-text-tertiary)', marginBottom: '4px', textTransform: 'uppercase' }}>
+            <span style={{ display: 'block', fontSize: '0.6875rem', color: 'var(--color-text-tertiary)', marginBottom: '4px', textTransform: 'uppercase', fontWeight: 600 }}>
               Quick Presets:
             </span>
             <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
@@ -222,12 +237,13 @@ export const DateRangeToolbar: React.FC<DateRangeToolbarProps> = ({
                     handleApplyCustomDate(chip.value);
                   }}
                   style={{
-                    background: selectedCustomDate === chip.value ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid ' + (selectedCustomDate === chip.value ? 'var(--color-brand-primary)' : 'rgba(255, 255, 255, 0.1)'),
+                    background: selectedCustomDate === chip.value ? 'var(--color-status-info-bg)' : 'var(--color-bg-surface-hover)',
+                    border: '1px solid ' + (selectedCustomDate === chip.value ? 'var(--color-brand-primary)' : 'var(--color-border-subtle)'),
                     color: selectedCustomDate === chip.value ? 'var(--color-brand-primary)' : 'var(--color-text-secondary)',
                     padding: '3px 7px',
                     borderRadius: 'var(--radius-sm)',
                     fontSize: '0.6875rem',
+                    fontWeight: selectedCustomDate === chip.value ? 600 : 500,
                     cursor: 'pointer'
                   }}
                 >
@@ -243,13 +259,18 @@ export const DateRangeToolbar: React.FC<DateRangeToolbarProps> = ({
             className="btn-primary"
             style={{
               width: '100%',
-              padding: '6px 0',
+              padding: '7px 0',
               fontSize: '0.75rem',
+              fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '4px',
-              borderRadius: 'var(--radius-md)'
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--color-brand-primary)',
+              color: '#ffffff',
+              border: 'none',
+              cursor: 'pointer'
             }}
           >
             <Check size={13} /> Apply Selected Date

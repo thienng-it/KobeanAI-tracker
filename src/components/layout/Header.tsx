@@ -68,9 +68,9 @@ export const Header: React.FC = () => {
                 gap: '6px',
                 padding: '6px 12px',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(59, 130, 246, 0.15)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                color: '#60a5fa',
+                backgroundColor: 'var(--color-status-info-bg)',
+                border: '1px solid var(--color-border-subtle)',
+                color: 'var(--color-brand-primary)',
                 fontSize: 'var(--text-xs)',
                 fontWeight: 600,
                 cursor: (isSyncing || isLoading) ? 'not-allowed' : 'pointer'
