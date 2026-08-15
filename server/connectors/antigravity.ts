@@ -3,8 +3,8 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { AgentConnector, AgentConfig } from './base.js';
 import { db } from '../db/index.js';
-import { sessions, workspaces } from '../db/schema.js';
-import { eq } from 'drizzle-orm';
+import { sessions, workspaces, tags, sessionTags } from '../db/schema.js';
+import { eq, and } from 'drizzle-orm';
 import * as crypto from 'crypto';
 
 export class AntigravityConnector extends AgentConnector {
@@ -25,28 +25,23 @@ export class AntigravityConnector extends AgentConnector {
     // Get or create a default workspace
     await this.ensureDefaultWorkspace();
 
-    const resolvedPath = this.config.logPath.startsWith('~/') 
+    // Resolve ~ if present
+    const resolvedPath = this.config.logPath.startsWith('~') 
       ? this.config.logPath.replace('~', process.env.HOME || '') 
       : this.config.logPath;
 
-    const watchPattern = resolvedPath;
-    
-    this.watcher = chokidar.watch(watchPattern, {
+    console.log(`[AntigravityConnector] Started watching: ${resolvedPath}`);
+    this.watcher = chokidar.watch(resolvedPath, {
       persistent: true,
-      ignoreInitial: false, // Process existing files on boot
-      awaitWriteFinish: {
-        stabilityThreshold: 1000,
-        pollInterval: 100
-      }
+      ignoreInitial: false, // Ingest existing logs on startup
+      depth: 5
     });
 
-    this.watcher
-      .on('add', (filepath) => this.handleFileChange(filepath))
-      .on('change', (filepath) => this.handleFileChange(filepath))
-      .on('error', (error) => console.error(`[AntigravityConnector] Watcher error:`, error));
+    this.watcher.on('add', (filepath: string) => this.handleFileChange(filepath));
+    this.watcher.on('change', (filepath: string) => this.handleFileChange(filepath));
+    this.watcher.on('error', (err: unknown) => console.error('[AntigravityConnector] Watcher error:', err));
 
     this.isWatching = true;
-    console.log(`[AntigravityConnector] Started watching: ${watchPattern}`);
   }
 
   public async stopWatching(): Promise<void> {
@@ -55,28 +50,27 @@ export class AntigravityConnector extends AgentConnector {
       this.watcher = null;
     }
     this.isWatching = false;
-    console.log(`[AntigravityConnector] Stopped watching`);
+    console.log('[AntigravityConnector] Stopped watching');
   }
 
   private async ensureDefaultWorkspace() {
-    const allWorkspaces = await db.query.workspaces.findMany();
-    if (allWorkspaces.length > 0) {
-      this.defaultWorkspaceId = allWorkspaces[0].id;
+    const existing = await db.query.workspaces.findFirst();
+    if (existing) {
+      this.defaultWorkspaceId = existing.id;
     } else {
-      const newId = crypto.randomUUID();
+      const id = crypto.randomUUID();
       await db.insert(workspaces).values({
-        id: newId,
+        id,
         name: 'Default Workspace',
         path: process.cwd()
       });
-      this.defaultWorkspaceId = newId;
+      this.defaultWorkspaceId = id;
     }
   }
 
   public async scanHistory(): Promise<number> {
-    await this.ensureDefaultWorkspace();
     let scanned = 0;
-    const resolvedPath = (this.config.logPath || '~/.gemini/antigravity-ide/brain').startsWith('~/') 
+    const resolvedPath = (this.config.logPath || '~/.gemini/antigravity-ide/brain').startsWith('~') 
       ? (this.config.logPath || '~/.gemini/antigravity-ide/brain').replace('~', process.env.HOME || '') 
       : (this.config.logPath || '~/.gemini/antigravity-ide/brain');
 
@@ -149,9 +143,31 @@ export class AntigravityConnector extends AgentConnector {
             if (rawPrompt.includes('{{ CHECKPOINT')) rawPrompt = rawPrompt.split('{{ CHECKPOINT')[0].trim();
             if (!rawPrompt) rawPrompt = 'User request';
 
-            // Extract tags like [repo:org/name] or [issue-123]
+            // Extract explicit bracketed tags like [repo:org/name]
             const tagMatches = rawPrompt.match(/\[([^\]]+)\]/g) || [];
             const tagsList = tagMatches.map(t => t.replace(/[\[\]]/g, '').trim()).filter(Boolean);
+
+            // If no explicit tags, classify intent automatically
+            if (tagsList.length === 0) {
+              const lower = rawPrompt.toLowerCase();
+              if (/\b(fix|bug|issue|error|fail|broken|crash|wrong|duplicate|duplicated|inverted)\b/.test(lower)) {
+                tagsList.push('Fix');
+              } else if (/\b(refactor|clean|cleanup|dedup|reorganize|structure)\b/.test(lower)) {
+                tagsList.push('Refactor');
+              } else if (/\b(implement|feature|add|create|build|support|new|enhance|toolbar|picker)\b/.test(lower)) {
+                tagsList.push('Implement');
+              } else if (/\b(ui|ux|theme|dark|light|style|color|css|layout|motion|button|contrast)\b/.test(lower)) {
+                tagsList.push('UI/UX');
+              } else if (/\b(doc|docs|documentation|guide|readme|help|explain|how to)\b/.test(lower)) {
+                tagsList.push('Docs');
+              } else if (/\b(test|validate|verify|check|audit|benchmark|correct|static)\b/.test(lower)) {
+                tagsList.push('Validate');
+              } else if (/\b(config|rule|skill|agent|model|token|price|env|key|codegraph)\b/.test(lower)) {
+                tagsList.push('Config');
+              } else {
+                tagsList.push('Unknown');
+              }
+            }
 
             currentTurn = {
               index: turns.length + 1,
@@ -233,10 +249,46 @@ export class AntigravityConnector extends AgentConnector {
             toolCalls: turn.toolCalls
           }).onConflictDoNothing();
         }
+
+        // Link extracted intent tags in database
+        for (const tagName of turn.extractedTags) {
+          const tagRaw = `[${tagName}]`;
+          let tagRecord = await db.query.tags.findFirst({
+            where: eq(tags.raw, tagRaw)
+          });
+          if (!tagRecord) {
+            const newTagId = `tag-${tagName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+            let color = '#6b7280';
+            if (tagName === 'Fix') color = '#ef4444';
+            else if (tagName === 'Refactor') color = '#8b5cf6';
+            else if (tagName === 'Implement') color = '#10b981';
+            else if (tagName === 'UI/UX') color = '#3b82f6';
+            else if (tagName === 'Docs') color = '#06b6d4';
+            else if (tagName === 'Validate') color = '#f59e0b';
+            else if (tagName === 'Config') color = '#ec4899';
+            else if (tagName === 'Unknown') color = '#64748b';
+
+            await db.insert(tags).values({
+              id: newTagId,
+              raw: tagRaw,
+              prefix: 'intent',
+              identifier: tagName.toLowerCase(),
+              action: tagName,
+              color
+            }).onConflictDoNothing();
+            tagRecord = await db.query.tags.findFirst({ where: eq(tags.raw, tagRaw) });
+          }
+
+          if (tagRecord) {
+            await db.insert(sessionTags).values({
+              sessionId: turnSessionId,
+              tagId: tagRecord.id
+            }).onConflictDoNothing();
+          }
+        }
       }
     } catch (err) {
       console.error(`[AntigravityConnector] Error processing file ${filepath}:`, err);
     }
   }
 }
-
