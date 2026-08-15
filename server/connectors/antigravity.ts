@@ -149,13 +149,20 @@ export class AntigravityConnector extends AgentConnector {
           if (step.type === 'USER_INPUT') {
             if (currentTurn) turns.push(currentTurn);
 
-            let rawPrompt = String(step.content || '').replace(/<USER_REQUEST>|<\/USER_REQUEST>/g, '').trim();
+            const fullContent = String(step.content || '');
+            let rawPrompt = fullContent.replace(/<USER_REQUEST>|<\/USER_REQUEST>/g, '').trim();
             if (rawPrompt.includes('<ADDITIONAL_METADATA>')) rawPrompt = rawPrompt.split('<ADDITIONAL_METADATA>')[0].trim();
             if (rawPrompt.includes('{{ CHECKPOINT')) rawPrompt = rawPrompt.split('{{ CHECKPOINT')[0].trim();
             if (!rawPrompt) rawPrompt = 'User request';
 
+            // Detect active model from IDE settings change injections
+            const settingsMatch = fullContent.match(/<USER_SETTINGS_CHANGE>[\s\S]*?from (.*?) to (.*?)\. No need to comment/i);
+            if (settingsMatch) {
+              activeSessionModel = settingsMatch[2].trim();
+            }
+
             // Resolve model from agent configuration or explicit directive tag like [model:gemini-3.1-pro]
-            let turnModel = this.config.model || activeSessionModel || 'gemini-3.7-flash';
+            let turnModel = activeSessionModel || this.config.model || 'gemini-3.7-flash';
             const modelTagMatch = rawPrompt.match(/\[model:([^\]]+)\]/i);
             if (modelTagMatch) {
               turnModel = modelTagMatch[1].trim();
