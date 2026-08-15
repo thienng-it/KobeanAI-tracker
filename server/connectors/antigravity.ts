@@ -122,96 +122,106 @@ export class AntigravityConnector extends AgentConnector {
       const lines = content.split('\n').filter(Boolean);
       if (lines.length === 0) return;
 
-      let inputTokens = 0;
-      let outputTokens = 0;
-      let toolCalls = 0;
-      let firstUserPrompt = '';
-      
-      let startTime = new Date().toISOString();
-      let endTime = new Date().toISOString();
-      let status = 'completed';
+      interface TurnData {
+        index: number;
+        startedAt: string;
+        endedAt: string;
+        summary: string;
+        inputTokens: number;
+        outputTokens: number;
+        toolCalls: number;
+        extractedTags: string[];
+      }
+
+      const turns: TurnData[] = [];
+      let currentTurn: TurnData | null = null;
 
       for (let i = 0; i < lines.length; i++) {
         try {
-          const parsed = JSON.parse(lines[i]);
-          
-          if (i === 0 && parsed.created_at) startTime = parsed.created_at;
-          if (parsed.created_at) endTime = parsed.created_at;
+          const step = JSON.parse(lines[i]);
+          const stepTime = step.created_at || new Date().toISOString();
 
-          // Extract user input prompt
-          if (parsed.type === 'USER_INPUT' && parsed.content && !firstUserPrompt) {
-            firstUserPrompt = String(parsed.content).replace(/<USER_REQUEST>|<\/USER_REQUEST>/g, '').trim();
-            // Truncate summary if too long
-            if (firstUserPrompt.length > 90) {
-              firstUserPrompt = firstUserPrompt.substring(0, 87) + '...';
+          if (step.type === 'USER_INPUT') {
+            if (currentTurn) turns.push(currentTurn);
+
+            let rawPrompt = String(step.content || '').replace(/<USER_REQUEST>|<\/USER_REQUEST>/g, '').trim();
+            if (rawPrompt.includes('<ADDITIONAL_METADATA>')) rawPrompt = rawPrompt.split('<ADDITIONAL_METADATA>')[0].trim();
+            if (rawPrompt.includes('{{ CHECKPOINT')) rawPrompt = rawPrompt.split('{{ CHECKPOINT')[0].trim();
+            if (!rawPrompt) rawPrompt = 'User request';
+
+            // Extract tags like [repo:org/name] or [issue-123]
+            const tagMatches = rawPrompt.match(/\[([^\]]+)\]/g) || [];
+            const tagsList = tagMatches.map(t => t.replace(/[\[\]]/g, '').trim()).filter(Boolean);
+
+            currentTurn = {
+              index: turns.length + 1,
+              startedAt: stepTime,
+              endedAt: stepTime,
+              summary: rawPrompt.length > 95 ? rawPrompt.substring(0, 92) + '...' : rawPrompt,
+              inputTokens: Math.max(10, Math.ceil(rawPrompt.length / 3.8)),
+              outputTokens: 0,
+              toolCalls: 0,
+              extractedTags: tagsList
+            };
+          } else if (currentTurn) {
+            currentTurn.endedAt = stepTime;
+            const textLen = step.content ? String(step.content).length : 0;
+            currentTurn.outputTokens += Math.max(1, Math.ceil(textLen / 3.8));
+
+            if (step.tool_calls && Array.isArray(step.tool_calls)) {
+              currentTurn.toolCalls += step.tool_calls.length;
+              currentTurn.outputTokens += step.tool_calls.length * 45;
             }
           }
-
-          // Count characters and convert to tokens (~3.8 chars per token)
-          const textLength = (parsed.content ? String(parsed.content).length : 0);
-          if (parsed.type === 'USER_INPUT') {
-            inputTokens += Math.max(1, Math.ceil(textLength / 3.8));
-          } else {
-            outputTokens += Math.max(1, Math.ceil(textLength / 3.8));
-          }
-
-          // Count tool calls
-          if (parsed.tool_calls && Array.isArray(parsed.tool_calls)) {
-            toolCalls += parsed.tool_calls.length;
-            outputTokens += parsed.tool_calls.length * 45; // tool payload overhead
-          }
         } catch (e) {
-          // invalid json line, skip
+          // ignore invalid json line
         }
       }
 
-      // If token calculations yielded minimum values, enforce realistic baseline for multi-turn sessions
-      if (inputTokens === 0) inputTokens = Math.max(120, lines.length * 60);
-      if (outputTokens === 0) outputTokens = Math.max(80, lines.length * 95);
-      const totalTokens = inputTokens + outputTokens;
+      if (currentTurn) turns.push(currentTurn);
+      if (turns.length === 0) return;
 
-      // Model & Pricing calculation: Gemini 1.5 Pro ($1.25/M input, $5.00/M output)
-      const estimatedCost = Number(((inputTokens / 1_000_000) * 1.25 + (outputTokens / 1_000_000) * 5.00).toFixed(4));
-      const durationMs = Math.max(1000, new Date(endTime).getTime() - new Date(startTime).getTime());
-      const summaryText = firstUserPrompt || `Agent session ${sessionId.substring(0, 8)}`;
+      // Upsert each turn into the SQLite sessions table
+      for (const turn of turns) {
+        const turnSessionId = turns.length === 1 ? sessionId : `${sessionId}-turn-${turn.index}`;
+        const totalTokens = turn.inputTokens + turn.outputTokens;
+        const estimatedCost = Number(((turn.inputTokens / 1_000_000) * 1.25 + (turn.outputTokens / 1_000_000) * 5.00).toFixed(4));
+        const durationMs = Math.max(1000, new Date(turn.endedAt).getTime() - new Date(turn.startedAt).getTime());
 
-      // Upsert the session in SQLite
-      const existingSession = await db.query.sessions.findFirst({
-        where: eq(sessions.id, sessionId)
-      });
+        const existing = await db.query.sessions.findFirst({
+          where: eq(sessions.id, turnSessionId)
+        });
 
-      if (existingSession) {
-        await db.update(sessions)
-          .set({
-            endedAt: endTime,
+        if (existing) {
+          await db.update(sessions).set({
+            endedAt: turn.endedAt,
             durationMs,
-            inputTokens,
-            outputTokens,
+            inputTokens: turn.inputTokens,
+            outputTokens: turn.outputTokens,
             totalTokens,
             estimatedCost,
-            status,
-            summary: summaryText,
-            toolCalls
-          })
-          .where(eq(sessions.id, sessionId));
-      } else {
-        await db.insert(sessions).values({
-          id: sessionId,
-          agentId: this.id,
-          workspaceId: this.defaultWorkspaceId!,
-          model: 'gemini-1.5-pro',
-          startedAt: startTime,
-          endedAt: endTime,
-          durationMs,
-          inputTokens,
-          outputTokens,
-          totalTokens,
-          estimatedCost,
-          status,
-          summary: summaryText,
-          toolCalls
-        });
-        console.log(`[AntigravityConnector] Synced session ${sessionId} (${totalTokens} tokens, $${estimatedCost})`);
+            summary: turn.summary,
+            toolCalls: turn.toolCalls,
+            status: 'completed'
+          }).where(eq(sessions.id, turnSessionId));
+        } else {
+          await db.insert(sessions).values({
+            id: turnSessionId,
+            agentId: this.id,
+            workspaceId: this.defaultWorkspaceId!,
+            model: 'gemini-1.5-pro',
+            startedAt: turn.startedAt,
+            endedAt: turn.endedAt,
+            durationMs,
+            inputTokens: turn.inputTokens,
+            outputTokens: turn.outputTokens,
+            totalTokens,
+            estimatedCost,
+            status: 'completed',
+            summary: turn.summary,
+            toolCalls: turn.toolCalls
+          }).onConflictDoNothing();
+        }
       }
     } catch (err) {
       console.error(`[AntigravityConnector] Error processing file ${filepath}:`, err);
