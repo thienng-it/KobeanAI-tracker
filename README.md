@@ -11,6 +11,9 @@
 [![SQLite](https://img.shields.io/badge/SQLite-WAL_Mode-003B57.svg?style=flat-square&logo=sqlite)]()
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?style=flat-square&logo=docker)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)]()
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Docs-22c55e.svg?style=flat-square&logo=github)](https://thienng-it.github.io/KobeanAI-tracker/docs)
+
+📖 **[Live Documentation & Online Guide](https://thienng-it.github.io/KobeanAI-tracker/docs)**
 
 [Features](#-key-features) • [Architecture](#-architecture) • [Quick Start](#-quick-start) • [Multi-Repo Guide](#-multi-repo-contributor-workflow) • [Security](#-secret-leak-protection-betterleak) • [Tech Stack](#-tech-stack)
 
