@@ -1,22 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Tab Switching
+  // 1. Tab Switching with URL Hash Support
   const tabButtons = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
+
+  function switchTab(targetId) {
+    tabButtons.forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-tab') === targetId);
+    });
+    tabContents.forEach(c => {
+      c.classList.toggle('active', c.id === targetId);
+    });
+    // Update hash without jump
+    history.replaceState(null, null, `#${targetId.replace('tab-', '')}`);
+  }
 
   tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const targetId = btn.getAttribute('data-tab');
-
-      tabButtons.forEach(b => b.classList.remove('active'));
-      tabContents.forEach(c => c.classList.remove('active'));
-
-      btn.classList.add('active');
-      const targetContent = document.getElementById(targetId);
-      if (targetContent) {
-        targetContent.classList.add('active');
-      }
+      if (targetId) switchTab(targetId);
     });
   });
+
+  // Check initial hash on load
+  const hash = window.location.hash.replace('#', '');
+  if (hash) {
+    const matchingTab = document.getElementById(`tab-${hash}`);
+    if (matchingTab) {
+      switchTab(`tab-${hash}`);
+    }
+  }
 
   // 2. Theme Toggle with LocalStorage
   const themeBtn = document.getElementById('theme-toggle');
@@ -57,11 +69,44 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalText = btn.textContent;
         btn.textContent = '✓ Copied!';
         btn.style.color = '#10b981';
+        btn.style.borderColor = '#10b981';
         setTimeout(() => {
           btn.textContent = originalText;
           btn.style.color = '';
+          btn.style.borderColor = '';
         }, 2000);
       }
     });
   });
+
+  // 4. FAQ Accordion Toggle
+  const faqQuestions = document.querySelectorAll('.faq-question');
+  faqQuestions.forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      if (item) {
+        item.classList.toggle('open');
+      }
+    });
+  });
+
+  // 5. Documentation Live Search
+  const searchInput = document.getElementById('docs-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const activeTabContent = document.querySelector('.tab-content.active');
+      if (!activeTabContent) return;
+
+      const cards = activeTabContent.querySelectorAll('.card, .step-item, .faq-item');
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (!query || text.includes(query)) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  }
 });

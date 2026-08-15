@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KobeanAI Tracker — Documentation & Contributor Guide</title>
-  <meta name="description" content="Official documentation for KobeanAI Tracker: Next-gen local-first AI observability, token metrics, multi-repo tracking, and secret protection.">
+  <meta name="description" content="Complete guide for KobeanAI Tracker: Local-first AI telemetry, token spend, multi-repo tracking, and secret leak protection.">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- Navigation Bar -->
+    <!-- Top Navigation Bar -->
     <header class="navbar">
       <a href="#" class="logo">
         <div class="logo-badge">⚡</div>
@@ -31,205 +31,351 @@
     <!-- Hero Header -->
     <section class="hero">
       <div class="hero-pill">
-        <span>✨ Next-Gen AI Observability</span>
+        <span>✨ Next-Gen AI Observability Hub</span>
       </div>
       <h1 class="hero-title">
-        The Privacy-First AI Observability Hub for <span>10+ GitHub Repos</span>
+        The Privacy-First Telemetry Hub for <span>10+ GitHub Repos</span>
       </h1>
       <p class="hero-desc">
-        Trace token volumes, subagent executions, and model costs across Google Antigravity, Claude Code, Cursor, and Copilot—completely local on your machine.
+        Trace token volumes, tool calls, and model costs across Google Antigravity, Claude Code, Cursor, and Copilot—completely local on your machine with zero cloud exfiltration.
       </p>
       <div class="hero-buttons">
-        <a href="#guide" class="btn-primary">Explore Documentation ↓</a>
-        <a href="https://github.com/thienng-it/KobeanAI-tracker" target="_blank" rel="noopener" class="btn-secondary">View on GitHub</a>
+        <a href="#guide" class="btn-primary">Explore Documentation & Guides ↓</a>
+        <a href="https://github.com/thienng-it/KobeanAI-tracker" target="_blank" rel="noopener" class="btn-secondary">GitHub Repository ↗</a>
       </div>
     </section>
 
-    <!-- Interactive Tabs Navigation -->
+    <!-- Visual 3-Step Overview Flow -->
+    <section class="glass-panel" style="margin-bottom: 2.5rem; padding: 1.75rem 2rem;">
+      <h3 style="font-size: 1.15rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        ⚡ How KobeanAI Tracker Operates in 3 Simple Steps
+      </h3>
+      <div class="grid-3">
+        <div class="card" style="margin-bottom: 0;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">STEP 01</div>
+          <h4 style="margin-bottom: 0.35rem;">Code with Any AI Tool</h4>
+          <p>Prompt your favorite coding assistant (Google Antigravity, Claude Code, Cursor, Copilot) as you normally do.</p>
+        </div>
+        <div class="card" style="margin-bottom: 0;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-purple); margin-bottom: 0.25rem;">STEP 02</div>
+          <h4 style="margin-bottom: 0.35rem;">Silent Local Ingestion</h4>
+          <p>KobeanAI Tracker silently detects transcripts in the background, parsing token counts, tool calls, and duration in real time.</p>
+        </div>
+        <div class="card" style="margin-bottom: 0;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-success); margin-bottom: 0.25rem;">STEP 03</div>
+          <h4 style="margin-bottom: 0.35rem;">Deep Analytics & Spend</h4>
+          <p>Open the dashboard to view real dollar spend, repository breakdowns, agent comparisons, and leak audit status.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Documentation Hub -->
     <section id="guide" class="glass-panel">
+      <!-- Search Filter Bar -->
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          id="docs-search" 
+          class="search-input" 
+          placeholder="Filter guide topics, commands, paths, or tips..." 
+          aria-label="Search Documentation"
+        />
+      </div>
+
+      <!-- Navigation Tabs -->
       <div class="tabs-nav">
         <button class="tab-btn active" data-tab="tab-quickstart">🚀 Quickstart & Setup</button>
         <button class="tab-btn" data-tab="tab-tokens">🔑 API Tokens & Connectors</button>
-        <button class="tab-btn" data-tab="tab-multirepo">🐙 Multi-Repo Guide</button>
+        <button class="tab-btn" data-tab="tab-multirepo">🐙 Multi-Repo Contributor Guide</button>
         <button class="tab-btn" data-tab="tab-desktop">🖥️ Local Web & Desktop App</button>
         <button class="tab-btn" data-tab="tab-security">🛡️ Secret Leaks (.betterleak)</button>
         <button class="tab-btn" data-tab="tab-frameworks">🧠 Ponytail & Taste-Skill</button>
+        <button class="tab-btn" data-tab="tab-faq">❓ FAQ & Troubleshooting</button>
       </div>
 
-      <!-- Tab 1: Quickstart -->
+      <!-- ==================== Tab 1: Quickstart ==================== -->
       <div id="tab-quickstart" class="tab-content active">
         <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🚀 Quickstart Guide</h2>
         <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
           Get KobeanAI Tracker running locally on your machine in less than 2 minutes.
         </p>
 
-        <div class="grid-3">
-          <div class="card">
-            <h3>1. Clone Repository</h3>
-            <p>Clone the tracker to your development machine.</p>
-            <div class="code-container">
-              <pre><code id="code-clone">git clone https://github.com/thienng-it/KobeanAI-tracker.git
+        <div class="step-container">
+          <div class="step-item">
+            <div class="step-badge">1</div>
+            <div class="step-body">
+              <h4>Clone the GitHub Repository</h4>
+              <p>Download the codebase to your local environment.</p>
+              <div class="code-container">
+                <pre><code id="code-clone">git clone https://github.com/thienng-it/KobeanAI-tracker.git
 cd KobeanAI-tracker</code></pre>
-              <button class="copy-btn" data-target="code-clone">Copy</button>
+                <button class="copy-btn" data-target="code-clone">Copy</button>
+              </div>
             </div>
           </div>
 
-          <div class="card">
-            <h3>2. Install & Start</h3>
-            <p>Install dependencies and launch the dev environment.</p>
-            <div class="code-container">
-              <pre><code id="code-run">npm install
+          <div class="step-item">
+            <div class="step-badge">2</div>
+            <div class="step-body">
+              <h4>Install Dependencies & Launch Dev Server</h4>
+              <p>Starts both the Vite frontend (:5173) and hardened Express backend (:3000) concurrently.</p>
+              <div class="code-container">
+                <pre><code id="code-run">npm install
 npm run dev</code></pre>
-              <button class="copy-btn" data-target="code-run">Copy</button>
+                <button class="copy-btn" data-target="code-run">Copy</button>
+              </div>
             </div>
           </div>
 
-          <div class="card">
-            <h3>3. Open Dashboard</h3>
-            <p>Open in browser to see your live telemetry.</p>
-            <div class="code-container">
-              <pre><code>http://localhost:5173
-(Backend on :3000)</code></pre>
+          <div class="step-item">
+            <div class="step-badge">3</div>
+            <div class="step-body">
+              <h4>Open Local Dashboard</h4>
+              <p>Visit <a href="http://localhost:5173" target="_blank" style="color: var(--color-primary); font-weight: 600;">http://localhost:5173</a> to see real-time sessions and telemetry figures.</p>
             </div>
           </div>
         </div>
 
-        <div class="card" style="background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.25);">
-          <h3>🐳 Run with Docker (Alternative)</h3>
-          <p style="margin-bottom: 0.75rem;">Prefer running everything inside an isolated container with zero setup?</p>
-          <div class="code-container">
-            <pre><code id="code-docker">docker compose up -d</code></pre>
-            <button class="copy-btn" data-target="code-docker">Copy</button>
+        <div class="callout callout-tip">
+          <div class="callout-icon">💡</div>
+          <div>
+            <strong>Docker Container Option:</strong> If you don't want to run Node.js locally, run <code>docker compose up -d</code>. It builds the production container with health probes ready on port <code>3000</code>.
           </div>
-          <p style="font-size: 0.85rem; color: var(--text-tertiary);">App ready at <strong>http://localhost:3000</strong> with automated health checks.</p>
         </div>
       </div>
 
-      <!-- Tab 2: API Tokens & Connectors -->
+      <!-- ==================== Tab 2: API Tokens & Connectors ==================== -->
       <div id="tab-tokens" class="tab-content">
-        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🔑 API Tokens & Live Transcript Ingestion</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-          KobeanAI Tracker does <strong>not</strong> send your private code to remote tracking clouds. It monitors local transcript files generated on your computer:
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🔑 API Tokens & Live Transcript Connectors</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
+          KobeanAI Tracker uses a <strong>Zero-Cloud Privacy Model</strong>. It does not transmit private source code over the wire. Instead, it observes local agent transcript files:
         </p>
 
         <div class="grid-2">
           <div class="card">
-            <h3 style="color: #4285f4">Google Antigravity / Gemini CLI</h3>
-            <p>Transcripts are parsed from:</p>
-            <pre style="margin-top: 0.5rem; font-size: 0.8rem;">~/.gemini/antigravity-ide/brain/&lt;session-id&gt;/.system_generated/logs/transcript.jsonl</pre>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h3 style="color: #4285f4; margin-bottom: 0;">Google Antigravity</h3>
+              <span class="badge-tag blue">Connected</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Monitors agent execution logs in:</p>
+            <pre style="font-size: 0.78rem;">~/.gemini/antigravity-ide/brain/**/transcript.jsonl</pre>
+            <p style="font-size: 0.82rem; color: var(--text-tertiary); margin-top: 0.5rem;">Tracks prompts, subagent tool calls, and Gemini 1.5 Pro pricing.</p>
           </div>
 
           <div class="card">
-            <h3 style="color: #d97757">Claude Code & Desktop</h3>
-            <p>Transcripts are parsed from:</p>
-            <pre style="margin-top: 0.5rem; font-size: 0.8rem;">~/.claude/transcripts/*.jsonl</pre>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h3 style="color: #d97757; margin-bottom: 0;">Claude Code / Desktop</h3>
+              <span class="badge-tag green">Connected</span>
+            </div>
+            <p style="margin-bottom: 0.5rem;">Monitors Claude transcript sessions in:</p>
+            <pre style="font-size: 0.78rem;">~/.claude/transcripts/*.jsonl</pre>
+            <p style="font-size: 0.82rem; color: var(--text-tertiary); margin-top: 0.5rem;">Calculates input/output tokens and Claude 3.5 Sonnet pricing.</p>
           </div>
         </div>
 
-        <div class="card">
-          <h3>Configuring Environment API Keys (Optional)</h3>
-          <p style="margin-bottom: 0.75rem;">If you run autonomous scripts or subagents that make direct API calls, export your keys in your shell or root <code>.env</code> file:</p>
+        <div class="card" style="margin-top: 1rem;">
+          <h3>Customizing Connector Paths</h3>
+          <p style="margin-bottom: 0.75rem;">If your agent logs are stored in a custom folder, navigate to <strong>Agents Config</strong> in the app or update your <code>.env</code> file:</p>
           <div class="code-container">
-            <pre><code id="code-keys">export GEMINI_API_KEY="AIzaSy..."
-export ANTHROPIC_API_KEY="sk-ant-..."
-export OPENAI_API_KEY="sk-proj-..."</code></pre>
-            <button class="copy-btn" data-target="code-keys">Copy</button>
+            <pre><code id="code-custom-paths"># .env (Optional custom log paths)
+ANTIGRAVITY_LOG_PATH="~/.gemini/antigravity-ide/brain/**"
+CLAUDE_LOG_PATH="~/.claude/transcripts/*.jsonl"
+CURSOR_LOG_PATH="~/Library/Application Support/Cursor/User/workspaceStorage/**"</code></pre>
+            <button class="copy-btn" data-target="code-custom-paths">Copy</button>
           </div>
         </div>
       </div>
 
-      <!-- Tab 3: Multi-Repo Contributor Guide -->
+      <!-- ==================== Tab 3: Multi-Repo Contributor Guide ==================== -->
       <div id="tab-multirepo" class="tab-content">
-        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🐙 Multi-Repository Contributor Guide</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-          How to track your AI coding contributions across 10+ GitHub repositories seamlessly in one single dashboard.
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🐙 Multi-Repository Contributor Workflow</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
+          As an active open-source contributor or freelancer working across 10+ GitHub repositories, here is the optimal daily workflow:
         </p>
 
-        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-          <div class="card" style="border-left: 4px solid var(--color-primary);">
-            <h3>Strategy 1: Universal Background Daemon (Zero Setup)</h3>
-            <p>Leave KobeanAI Tracker running in background (<code>npm run dev</code> or <code>docker compose up -d</code>). As you switch between repositories and use your AI assistant, transcripts are automatically aggregated in SQLite.</p>
+        <div class="step-container">
+          <div class="step-item">
+            <div class="step-badge">1</div>
+            <div class="step-body">
+              <h4>Leave the Background Daemon Running</h4>
+              <p>Start KobeanAI Tracker once at the beginning of your work day (<code>npm run dev</code> or in Docker). It will passively listen for all AI sessions across any directory you open in your terminal or IDE.</p>
+            </div>
           </div>
 
-          <div class="card" style="border-left: 4px solid var(--color-success);">
-            <h3>Strategy 2: Prompt Tagging Conventions</h3>
-            <p style="margin-bottom: 0.5rem;">Prefix prompts with repository tags so you can filter stats on the Sessions page:</p>
-            <pre style="color: var(--color-success);">[repo:facebook/react][issue-1234] Refactor useState hook microtask queue</pre>
+          <div class="step-item">
+            <div class="step-badge">2</div>
+            <div class="step-body">
+              <h4>Use Tagging in Your AI Prompts</h4>
+              <p>Prefix your AI prompts with bracketed repository or issue tags. KobeanAI Tracker automatically indexes these tags:</p>
+              <div class="code-container">
+                <pre><code id="code-prompt-tag">[repo:facebook/react][issue-4821] Refactor microtask fiber scheduling
+[repo:vercel/next.js][pr-902] Fix server action response header streaming
+[repo:my-company/payment-svc] Add Stripe webhook idempotency check</code></pre>
+                <button class="copy-btn" data-target="code-prompt-tag">Copy</button>
+              </div>
+            </div>
           </div>
 
-          <div class="card" style="border-left: 4px solid var(--color-purple);">
-            <h3>Strategy 3: One-Click Log Re-Sync</h3>
-            <p>Whenever you want to pull historical sessions from disk, open the <strong>Sessions</strong> page and click <strong>"Sync Real Logs"</strong>.</p>
+          <div class="step-item">
+            <div class="step-badge">3</div>
+            <div class="step-body">
+              <h4>Filter & Export Telemetry by Project</h4>
+              <p>Open the <strong>Sessions Table</strong> in the dashboard and filter by tag (e.g. <code>repo:facebook/react</code>) to see the exact token usage and dollar cost spent on that specific repository.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">⚡</div>
+          <div>
+            <strong>One-Click Sync:</strong> Switched computers or want to pull past sessions? Click <strong>"Sync Real Logs"</strong> on the Sessions page to batch-import historical sessions instantly.
           </div>
         </div>
       </div>
 
-      <!-- Tab 4: Local Web & Desktop App -->
+      <!-- ==================== Tab 4: Local Web vs Desktop ==================== -->
       <div id="tab-desktop" class="tab-content">
         <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🖥️ Local Web vs. Desktop Application</h2>
         <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-          KobeanAI Tracker is built for local execution with direct SQLite database access.
+          Choose the deployment mode that matches your personal workflow:
         </p>
 
         <div class="grid-2">
           <div class="card">
-            <h3>🌐 Local Web Hosting</h3>
-            <p style="margin-bottom: 0.75rem;">Runs on <code>localhost:3000</code> with full REST API, Helmet security, rate limiting, and real-time Chokidar file watchers.</p>
+            <h3>🌐 Mode 1: Local Web Server</h3>
+            <p style="margin-bottom: 0.75rem;">Ideal for developers who prefer running services in terminal tabs or Docker.</p>
             <div class="code-container">
-              <pre><code id="code-web-start">npm start
-# Opens http://localhost:3000</code></pre>
-              <button class="copy-btn" data-target="code-web-start">Copy</button>
+              <pre><code id="code-local-web"># Development mode
+npm run dev
+
+# Production mode
+npm run build && npm start
+# Available at: http://localhost:3000</code></pre>
+              <button class="copy-btn" data-target="code-local-web">Copy</button>
             </div>
           </div>
 
           <div class="card">
-            <h3>🖥️ Desktop App (Electron)</h3>
-            <p style="margin-bottom: 0.75rem;">Native desktop window with system tray token tracking and background agent monitoring.</p>
+            <h3>🖥️ Mode 2: Desktop Application</h3>
+            <p style="margin-bottom: 0.75rem;">Native desktop window with system tray and background server lifecycle.</p>
             <div class="code-container">
-              <pre><code id="code-desktop-run">npm run desktop:dev
-# Package: npm run desktop:build</code></pre>
-              <button class="copy-btn" data-target="code-desktop-run">Copy</button>
+              <pre><code id="code-desktop-exec"># Launch Desktop Window
+npm run desktop:start</code></pre>
+              <button class="copy-btn" data-target="code-desktop-exec">Copy</button>
             </div>
+            <p style="font-size: 0.82rem; color: var(--text-tertiary); margin-top: 0.5rem;">Includes native macOS title bar, window state persistence, and auto server shutdown.</p>
           </div>
         </div>
       </div>
 
-      <!-- Tab 5: Secret Leaks -->
+      <!-- ==================== Tab 5: Secret Leaks ==================== -->
       <div id="tab-security" class="tab-content">
         <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🛡️ Secret Leak Protection (.betterleak)</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-          Prevent accidental leaks of API tokens (OpenAI, Gemini, Anthropic, AWS, GitHub PATs) in public pull requests.
+        <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
+          Accidentally committing AI API tokens to public GitHub repositories can cost thousands of dollars. KobeanAI Tracker provides proactive leak prevention:
         </p>
 
         <div class="card">
-          <h3>Pre-Commit Git Hook</h3>
-          <p style="margin-bottom: 0.75rem;">Add this script to <code>.git/hooks/pre-commit</code> in any repository you contribute to:</p>
+          <h3>1. Standard Pre-Commit Hook</h3>
+          <p style="margin-bottom: 0.75rem;">Add this script to <code>.git/hooks/pre-commit</code> in any repo you contribute to:</p>
           <div class="code-container">
-            <pre><code id="code-hook">#!/bin/sh
-echo "🔍 Running .betterleak secret scan..."
-git diff --cached | grep -E "(AIzaSy[0-9A-Za-z_-]{33}|sk-ant-[a-zA-Z0-9_-]{20,}|sk-[a-zA-Z0-9]{32,})"
+            <pre><code id="code-git-hook">#!/bin/sh
+echo "🔍 Running KobeanAI .betterleak secret check..."
+# Scans staged diff for Google, OpenAI, Anthropic, AWS, and GitHub keys
+git diff --cached | grep -E "(AIzaSy[0-9A-Za-z_-]{33}|sk-ant-[a-zA-Z0-9_-]{20,}|sk-[a-zA-Z0-9]{32,}|ghp_[a-zA-Z0-9]{36})"
 if [ $? -eq 0 ]; then
-  echo "❌ Sensitive API key detected in staged files! Aborting commit."
+  echo "❌ CRITICAL: Sensitive API key detected in staged files! Aborting commit."
   exit 1
 fi
-echo "✅ No sensitive secrets found."</code></pre>
-            <button class="copy-btn" data-target="code-hook">Copy</button>
+echo "✅ No sensitive tokens detected in commit."</code></pre>
+            <button class="copy-btn" data-target="code-git-hook">Copy</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.25rem;">
+          <h3>2. GitHub Actions CI Secret Audit</h3>
+          <p style="margin-bottom: 0.5rem;">The included <code>.github/workflows/ci.yml</code> workflow automatically scans every Pull Request against <code>.betterleak</code> definitions to guarantee zero leaked credentials.</p>
+        </div>
+      </div>
+
+      <!-- ==================== Tab 6: Frameworks ==================== -->
+      <div id="tab-frameworks" class="tab-content">
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🧠 Installed Agent Frameworks</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
+          Two powerful built-in plugins enforce high code quality and tactile user experiences:
+        </p>
+
+        <div class="grid-2">
+          <div class="card" style="border-top: 3px solid var(--color-primary);">
+            <h3 style="color: var(--color-primary)">🧠 Ponytail Framework</h3>
+            <p style="margin-bottom: 0.75rem;">Anti-overengineering & smart coding reasoning ladder:</p>
+            <ul style="padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.35rem;">
+              <li><strong>Ladder 1:</strong> YAGNI (You Aren't Gonna Need It).</li>
+              <li><strong>Ladder 2:</strong> Standard library first over npm packages.</li>
+              <li><strong>Ladder 3:</strong> Native web platform capabilities.</li>
+              <li><strong>Ladder 4:</strong> Minimal, concise, readable code generation.</li>
+            </ul>
+          </div>
+
+          <div class="card" style="border-top: 3px solid var(--color-purple);">
+            <h3 style="color: var(--color-purple)">🎨 Taste-Skill Motion</h3>
+            <p style="margin-bottom: 0.75rem;">Modern UI/UX design tokens & fluid animations:</p>
+            <ul style="padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.35rem;">
+              <li><strong>Spring Curves:</strong> <code>cubic-bezier(0.16, 1, 0.3, 1)</code> for tactile feedback.</li>
+              <li><strong>Glass Highlights:</strong> Multi-layered backdrop blurs and subtle borders.</li>
+              <li><strong>Micro-Interactions:</strong> Pulsing indicators and interactive elevations.</li>
+            </ul>
           </div>
         </div>
       </div>
 
-      <!-- Tab 6: Frameworks -->
-      <div id="tab-frameworks" class="tab-content">
-        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🧠 Installed Agent Plugins</h2>
-        <div class="grid-2">
-          <div class="card">
-            <h3 style="color: var(--color-primary)">🧠 Ponytail Framework</h3>
-            <p>Enforces the 6-step Decision Ladder: YAGNI first, standard library first, native web platform capabilities, and zero bloated third-party dependencies.</p>
+      <!-- ==================== Tab 7: FAQ & Troubleshooting ==================== -->
+      <div id="tab-faq" class="tab-content">
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">❓ Frequently Asked Questions & Troubleshooting</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
+          Quick answers to common questions and troubleshooting steps.
+        </p>
+
+        <div class="faq-list">
+          <div class="faq-item open">
+            <div class="faq-question">
+              <span>Is my source code or prompt data sent to external servers?</span>
+              <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+              <strong>No.</strong> KobeanAI Tracker operates with 100% local-first privacy. All transcript parsing, token calculations, and database records are stored in a local SQLite file on your computer. Zero telemetry leaves your machine.
+            </div>
           </div>
 
-          <div class="card">
-            <h3 style="color: var(--color-purple)">🎨 Taste-Skill Motion</h3>
-            <p>Curated spring physics curves (<code>--ease-spring-smooth</code>), glassmorphism highlights, glowing indicator pulses, and interactive micro-animations.</p>
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>Why does my dashboard show 0 sessions initially?</span>
+              <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+              Make sure you have interacted with your AI assistant (e.g. Google Antigravity or Claude Code) so that local transcript logs exist. Then go to the <strong>Sessions</strong> page and click <strong>"Sync Real Logs"</strong> to scan your drive.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>Does KobeanAI Tracker slow down my computer or IDE?</span>
+              <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+              <strong>No.</strong> KobeanAI Tracker uses lightweight asynchronous file watchers (Chokidar) that react only to file modification events. CPU and memory overhead is typically below 0.1%.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>Can I track custom local models (e.g., Ollama or vLLM)?</span>
+              <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+              Yes! You can add custom connectors in <code>server/connectors/</code> and set the cost per million tokens to $0.00 for local models.
+            </div>
           </div>
         </div>
       </div>
