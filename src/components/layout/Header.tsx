@@ -1,12 +1,14 @@
 import React from 'react';
 import { useLocation } from 'react-router';
 import { useDashboardStore } from '../../stores/useDashboardStore';
+import { useLayoutStore } from '../../stores/useLayoutStore';
 import { DateRangeToolbar } from '../dashboard/DateRangeToolbar';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, PanelRightOpen } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const location = useLocation();
   const { dateRange, setDateRange, syncAllLatest, isSyncing, isLoading } = useDashboardStore();
+  const { isSidebarOpen, toggleSidebar } = useLayoutStore();
   const isDashboard = location.pathname === '/' || location.pathname.startsWith('/dashboard');
 
   // Basic route to title mapping
@@ -39,15 +41,45 @@ export const Header: React.FC = () => {
       zIndex: 10,
       transition: 'background-color var(--duration-normal) ease, border-color var(--duration-normal) ease'
     }}>
-      <h2 style={{ 
-        margin: 0, 
-        fontSize: '1.25rem', 
-        fontWeight: 600, 
-        letterSpacing: '-0.02em',
-        animation: 'slideIn var(--duration-normal) var(--ease-spring-smooth)'
-      }}>
-        {getPageTitle()}
-      </h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+        {!isSidebarOpen && (
+          <button 
+            onClick={toggleSidebar}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--color-text-secondary)',
+              cursor: 'pointer',
+              padding: '6px',
+              borderRadius: 'var(--radius-sm)',
+              transition: 'background 0.2s, color 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--color-bg-surface-hover)';
+              e.currentTarget.style.color = 'var(--color-text-primary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--color-text-secondary)';
+            }}
+            title="Open Sidebar"
+          >
+            <PanelRightOpen size={20} />
+          </button>
+        )}
+        <h2 style={{ 
+          margin: 0, 
+          fontSize: '1.25rem', 
+          fontWeight: 600, 
+          letterSpacing: '-0.02em',
+          animation: 'slideIn var(--duration-normal) var(--ease-spring-smooth)'
+        }}>
+          {getPageTitle()}
+        </h2>
+      </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
         {isDashboard && (
