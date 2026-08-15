@@ -10,7 +10,8 @@
     "build:frontend": "tsc -b && vite build",
     "build:backend": "tsc -p tsconfig.server.json",
     "build": "npm run build:frontend && npm run build:backend",
-    "start": "NODE_ENV=production node dist/server/index.js"
+    "start": "NODE_ENV=production node dist/server/index.js",
+    "desktop:start": "electron electron/main.cjs"
   },
   "keywords": [],
   "author": "",
