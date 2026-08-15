@@ -29,12 +29,17 @@ router.get('/', async (req, res) => {
     }
 
     if (dateRange && typeof dateRange === 'string' && dateRange !== 'all') {
-      let days = 0;
-      if (dateRange === '7d') days = 7;
-      if (dateRange === '30d') days = 30;
-      if (days > 0) {
-        const thresholdDate = subDays(new Date(), days).toISOString();
-        conditions.push(gte(sessions.startedAt, thresholdDate));
+      const now = new Date();
+      let thresholdDate: Date | null = null;
+      if (dateRange === '1d') thresholdDate = subDays(now, 1);
+      else if (dateRange === '7d') thresholdDate = subDays(now, 7);
+      else if (dateRange === '30d') thresholdDate = subDays(now, 30);
+      else if (dateRange === '90d') thresholdDate = subDays(now, 90);
+      else if (dateRange === '180d') thresholdDate = subDays(now, 180);
+      else if (dateRange === '365d') thresholdDate = subDays(now, 365);
+
+      if (thresholdDate) {
+        conditions.push(gte(sessions.startedAt, thresholdDate.toISOString()));
       }
     }
 

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-15T06:32:27.530Z",
-  "totalFiles": 59,
+  "generatedAt": "2026-08-15T06:36:55.447Z",
+  "totalFiles": 62,
   "nodes": [
     {
       "relativePath": "server/connectors/antigravity.js",
@@ -59,9 +59,11 @@
         "server/index.ts",
         "server/routes/agents.ts",
         "server/routes/commands.ts",
+        "server/routes/dashboard.js",
         "server/routes/dashboard.ts",
         "server/routes/health.ts",
         "server/routes/rules.ts",
+        "server/routes/sessions.js",
         "server/routes/sessions.ts",
         "server/routes/skills.js",
         "server/routes/skills.ts",
@@ -82,8 +84,10 @@
         "server/db/index.ts",
         "server/routes/agents.ts",
         "server/routes/commands.ts",
+        "server/routes/dashboard.js",
         "server/routes/dashboard.ts",
         "server/routes/rules.ts",
+        "server/routes/sessions.js",
         "server/routes/sessions.ts",
         "server/routes/skills.js",
         "server/routes/skills.ts",
@@ -99,8 +103,8 @@
         "server/services/telemetry-service.js",
         "server/middleware/error.ts",
         "server/routes/health.ts",
-        "server/routes/dashboard.ts",
-        "server/routes/sessions.ts",
+        "server/routes/dashboard.js",
+        "server/routes/sessions.js",
         "server/routes/skills.js",
         "server/routes/agents.ts",
         "server/routes/commands.ts",
@@ -116,8 +120,8 @@
         "server/services/telemetry-service.js",
         "server/middleware/error.ts",
         "server/routes/health.ts",
-        "server/routes/dashboard.ts",
-        "server/routes/sessions.ts",
+        "server/routes/dashboard.js",
+        "server/routes/sessions.js",
         "server/routes/skills.js",
         "server/routes/agents.ts",
         "server/routes/commands.ts",
@@ -159,7 +163,7 @@
       ]
     },
     {
-      "relativePath": "server/routes/dashboard.ts",
+      "relativePath": "server/routes/dashboard.js",
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
@@ -169,6 +173,15 @@
         "server/index.js",
         "server/index.ts"
       ]
+    },
+    {
+      "relativePath": "server/routes/dashboard.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": []
     },
     {
       "relativePath": "server/routes/health.ts",
@@ -194,7 +207,7 @@
       ]
     },
     {
-      "relativePath": "server/routes/sessions.ts",
+      "relativePath": "server/routes/sessions.js",
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
@@ -204,6 +217,15 @@
         "server/index.js",
         "server/index.ts"
       ]
+    },
+    {
+      "relativePath": "server/routes/sessions.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": []
     },
     {
       "relativePath": "server/routes/skills.js",
@@ -325,6 +347,16 @@
       "relativePath": "src/components/dashboard/AgentDistributionChart.tsx",
       "category": "UI Components",
       "imports": [],
+      "importedBy": [
+        "src/pages/DashboardPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/dashboard/DateRangeToolbar.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useDashboardStore.ts"
+      ],
       "importedBy": [
         "src/pages/DashboardPage.tsx"
       ]
@@ -478,7 +510,8 @@
         "src/components/dashboard/QuickActions.tsx",
         "src/components/tags/TagBadge.tsx",
         "src/components/dashboard/TrendsChart.tsx",
-        "src/components/dashboard/AgentDistributionChart.tsx"
+        "src/components/dashboard/AgentDistributionChart.tsx",
+        "src/components/dashboard/DateRangeToolbar.tsx"
       ],
       "importedBy": [
         "src/App.tsx"
@@ -574,6 +607,7 @@
       ],
       "importedBy": [
         "src/components/dashboard/ActivityFeed.tsx",
+        "src/components/dashboard/DateRangeToolbar.tsx",
         "src/components/sessions/SessionsFilterBar.tsx",
         "src/components/tags/TagBadge.tsx",
         "src/pages/DashboardPage.tsx",

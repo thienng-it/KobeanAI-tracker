@@ -1,38 +1,148 @@
 import { Router } from 'express';
 import { db } from '../db/index.js';
 import { sessions, tags, sessionTags, agents } from '../db/schema.js';
-import { desc, eq, sql } from 'drizzle-orm';
+import { desc, eq, sql, gte, lt, and } from 'drizzle-orm';
+import { subDays, subHours } from 'date-fns';
 
 const router = Router();
 
-// GET /api/dashboard/summary
+function getDateThresholds(dateRange: string) {
+  const now = new Date();
+  let currentThreshold: Date | null = null;
+  let previousThreshold: Date | null = null;
+  let label = 'vs previous period';
+
+  switch (dateRange) {
+    case '1d':
+      currentThreshold = subHours(now, 24);
+      previousThreshold = subHours(now, 48);
+      label = 'vs yesterday';
+      break;
+    case '7d':
+      currentThreshold = subDays(now, 7);
+      previousThreshold = subDays(now, 14);
+      label = 'vs last week';
+      break;
+    case '30d':
+      currentThreshold = subDays(now, 30);
+      previousThreshold = subDays(now, 60);
+      label = 'vs last month';
+      break;
+    case '90d':
+      currentThreshold = subDays(now, 90);
+      previousThreshold = subDays(now, 180);
+      label = 'vs last quarter';
+      break;
+    case '180d':
+      currentThreshold = subDays(now, 180);
+      previousThreshold = subDays(now, 360);
+      label = 'vs last 6 months';
+      break;
+    case '365d':
+      currentThreshold = subDays(now, 365);
+      previousThreshold = subDays(now, 730);
+      label = 'vs last year';
+      break;
+    case 'all':
+    default:
+      currentThreshold = null;
+      previousThreshold = null;
+      label = 'overall';
+      break;
+  }
+
+  return { currentThreshold, previousThreshold, label };
+}
+
+// GET /api/dashboard/summary?dateRange=...
 router.get('/summary', async (req, res) => {
   try {
-    const totalStatsResult = await db.select({
+    const dateRange = (req.query.dateRange as string) || '7d';
+    const { currentThreshold, previousThreshold, label } = getDateThresholds(dateRange);
+
+    // Current period stats
+    let currentQuery = db.select({
       totalSessions: sql<number>`count(*)`,
       totalTokens: sql<number>`sum(${sessions.totalTokens})`,
       totalCost: sql<number>`sum(${sessions.estimatedCost})`
     }).from(sessions);
 
-    const stats = totalStatsResult[0] || { totalSessions: 0, totalTokens: 0, totalCost: 0 };
-    
-    // Defaulting nulls to 0
+    if (currentThreshold) {
+      currentQuery = currentQuery.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
+    }
+
+    const currentStatsResult = await currentQuery;
+    const current = currentStatsResult[0] || { totalSessions: 0, totalTokens: 0, totalCost: 0 };
+
+    const totalSessions = current.totalSessions || 0;
+    const totalTokens = current.totalTokens || 0;
+    const totalCost = current.totalCost || 0;
+
+    // Previous period stats for trend comparison
+    let sessionTrend = { value: 0, isPositive: true, label };
+    let tokenTrend = { value: 0, isPositive: true, label };
+    let costTrend = { value: 0, isPositive: true, label };
+
+    if (currentThreshold && previousThreshold) {
+      const prevStatsResult = await db.select({
+        totalSessions: sql<number>`count(*)`,
+        totalTokens: sql<number>`sum(${sessions.totalTokens})`,
+        totalCost: sql<number>`sum(${sessions.estimatedCost})`
+      })
+      .from(sessions)
+      .where(
+        and(
+          gte(sessions.startedAt, previousThreshold.toISOString()),
+          lt(sessions.startedAt, currentThreshold.toISOString())
+        )
+      );
+
+      const prev = prevStatsResult[0] || { totalSessions: 0, totalTokens: 0, totalCost: 0 };
+      const prevSessions = prev.totalSessions || 0;
+      const prevTokens = prev.totalTokens || 0;
+      const prevCost = prev.totalCost || 0;
+
+      const calcTrend = (curr: number, prior: number) => {
+        if (prior === 0) return curr > 0 ? { value: 100, isPositive: true, label } : { value: 0, isPositive: true, label };
+        const diff = ((curr - prior) / prior) * 100;
+        return {
+          value: Math.min(Math.round(Math.abs(diff)), 999),
+          isPositive: diff >= 0,
+          label
+        };
+      };
+
+      sessionTrend = calcTrend(totalSessions, prevSessions);
+      tokenTrend = calcTrend(totalTokens, prevTokens);
+      costTrend = calcTrend(totalCost, prevCost);
+    }
+
     res.json({
-      totalSessions: stats.totalSessions || 0,
-      totalTokens: stats.totalTokens || 0,
-      totalCost: stats.totalCost || 0
+      totalSessions,
+      totalTokens,
+      totalCost,
+      sessionTrend,
+      tokenTrend,
+      costTrend,
+      dateRange
     });
   } catch (error) {
-    console.error(error);
+    console.error('[dashboard/summary] Error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// GET /api/dashboard/recent-sessions
+// GET /api/dashboard/recent-sessions?dateRange=...
 router.get('/recent-sessions', async (req, res) => {
   try {
+    const dateRange = (req.query.dateRange as string) || '7d';
+    const { currentThreshold } = getDateThresholds(dateRange);
+
+    const whereClause = currentThreshold ? gte(sessions.startedAt, currentThreshold.toISOString()) : undefined;
+
     const recentSessions = await db.query.sessions.findMany({
-      limit: 10,
+      where: whereClause,
+      limit: 15,
       orderBy: [desc(sessions.startedAt)],
       with: {
         agent: true,
@@ -59,7 +169,7 @@ router.get('/recent-sessions', async (req, res) => {
 
     res.json({ data: formatted });
   } catch (error) {
-    console.error(error);
+    console.error('[dashboard/recent-sessions] Error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -67,7 +177,6 @@ router.get('/recent-sessions', async (req, res) => {
 // GET /api/dashboard/recent-tags
 router.get('/recent-tags', async (req, res) => {
   try {
-    // A simplified query to get the most frequently used tags.
     const popularTags = await db.select({
       id: tags.id,
       prefix: tags.prefix,
@@ -85,52 +194,89 @@ router.get('/recent-tags', async (req, res) => {
 
     res.json({ data: popularTags });
   } catch (error) {
-    console.error(error);
+    console.error('[dashboard/recent-tags] Error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// GET /api/dashboard/trends
+// GET /api/dashboard/trends?dateRange=...
 router.get('/trends', async (req, res) => {
   try {
-    const trendData = await db.select({
+    const dateRange = (req.query.dateRange as string) || '7d';
+    const { currentThreshold } = getDateThresholds(dateRange);
+
+    if (dateRange === '1d') {
+      // Group by hour for 1d view (e.g. 2026-08-15 13:00)
+      let query = db.select({
+        date: sql<string>`substr(${sessions.startedAt}, 12, 2) || ':00'`,
+        tokens: sql<number>`sum(${sessions.totalTokens})`,
+        cost: sql<number>`sum(${sessions.estimatedCost})`
+      })
+      .from(sessions);
+
+      if (currentThreshold) {
+        query = query.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
+      }
+
+      const trendData = await query
+        .groupBy(sql`substr(${sessions.startedAt}, 12, 2)`)
+        .orderBy(sql`substr(${sessions.startedAt}, 12, 2) ASC`);
+
+      return res.json({ data: trendData });
+    }
+
+    // Group by date (YYYY-MM-DD) for 7d, 30d, 90d, 180d, 365d, all
+    let query = db.select({
       date: sql<string>`substr(${sessions.startedAt}, 1, 10)`,
       tokens: sql<number>`sum(${sessions.totalTokens})`,
       cost: sql<number>`sum(${sessions.estimatedCost})`
     })
-    .from(sessions)
-    .groupBy(sql`substr(${sessions.startedAt}, 1, 10)`)
-    .orderBy(sql`substr(${sessions.startedAt}, 1, 10) ASC`)
-    .limit(30); // last 30 active days
+    .from(sessions);
+
+    if (currentThreshold) {
+      query = query.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
+    }
+
+    const trendData = await query
+      .groupBy(sql`substr(${sessions.startedAt}, 1, 10)`)
+      .orderBy(sql`substr(${sessions.startedAt}, 1, 10) ASC`);
 
     res.json({ data: trendData });
   } catch (error) {
-    console.error(error);
+    console.error('[dashboard/trends] Error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// GET /api/dashboard/agent-distribution
+// GET /api/dashboard/agent-distribution?dateRange=...
 router.get('/agent-distribution', async (req, res) => {
   try {
-    const distribution = await db.select({
+    const dateRange = (req.query.dateRange as string) || '7d';
+    const { currentThreshold } = getDateThresholds(dateRange);
+
+    let query = db.select({
       agentName: agents.name,
       sessionCount: sql<number>`count(${sessions.id})`
     })
     .from(sessions)
-    .leftJoin(agents, eq(sessions.agentId, agents.id))
-    .groupBy(agents.name)
-    .orderBy(desc(sql`count(${sessions.id})`));
+    .leftJoin(agents, eq(sessions.agentId, agents.id));
 
-    // Handle sessions with no linked agent in DB (just in case)
+    if (currentThreshold) {
+      query = query.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
+    }
+
+    const distribution = await query
+      .groupBy(agents.name)
+      .orderBy(desc(sql`count(${sessions.id})`));
+
     const formatted = distribution.map(d => ({
-      name: d.agentName || 'Unknown',
+      name: d.agentName || 'Unknown Agent',
       value: d.sessionCount
     }));
 
     res.json({ data: formatted });
   } catch (error) {
-    console.error(error);
+    console.error('[dashboard/agent-distribution] Error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -141,7 +287,7 @@ router.get('/agents', async (req, res) => {
     const allAgents = await db.select().from(agents);
     res.json({ data: allAgents });
   } catch (error) {
-    console.error(error);
+    console.error('[dashboard/agents] Error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

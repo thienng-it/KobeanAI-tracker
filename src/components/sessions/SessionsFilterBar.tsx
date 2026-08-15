@@ -84,8 +84,12 @@ export const SessionsFilterBar = () => {
         }}
       >
         <option value="all">All Time</option>
-        <option value="7d">Last 7 Days</option>
-        <option value="30d">Last 30 Days</option>
+        <option value="1d">Past 24 Hours</option>
+        <option value="7d">Last 7 Days (1 Week)</option>
+        <option value="30d">Last 30 Days (1 Month)</option>
+        <option value="90d">Last 90 Days (1 Quarter)</option>
+        <option value="180d">Last 180 Days (Half Year)</option>
+        <option value="365d">Last 365 Days (1 Year)</option>
       </select>
 
       <select 
