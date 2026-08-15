@@ -1,18 +1,24 @@
 import React from 'react';
 import { useLocation } from 'react-router';
+import { useDashboardStore } from '../../stores/useDashboardStore';
+import { DateRangeToolbar } from '../dashboard/DateRangeToolbar';
+import { RefreshCw } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const location = useLocation();
-  
+  const { dateRange, setDateRange, syncAllLatest, isSyncing, isLoading } = useDashboardStore();
+  const isDashboard = location.pathname === '/' || location.pathname.startsWith('/dashboard');
+
   // Basic route to title mapping
   const getPageTitle = () => {
     const path = location.pathname;
-    if (path.startsWith('/dashboard')) return 'Dashboard';
+    if (path === '/' || path.startsWith('/dashboard')) return 'Dashboard';
     if (path.startsWith('/sessions')) return 'Sessions';
     if (path.startsWith('/skills')) return 'Skills Registry';
     if (path.startsWith('/commands')) return 'Commands';
     if (path.startsWith('/rules')) return 'Rules Engine';
     if (path.startsWith('/settings/agents')) return 'Agents Configuration';
+    if (path.startsWith('/docs')) return 'Documentation';
     if (path.startsWith('/setup')) return 'Setup Wizard';
     return 'KobeanAI Tracker';
   };
@@ -44,6 +50,38 @@ export const Header: React.FC = () => {
       </h2>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+        {isDashboard && (
+          <>
+            <DateRangeToolbar
+              activeRange={dateRange}
+              onChange={setDateRange}
+              disabled={isLoading || isSyncing}
+            />
+            <button
+              onClick={() => syncAllLatest()}
+              disabled={isSyncing || isLoading}
+              title="Sync latest session logs and refresh"
+              className="interactive-card"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                color: '#60a5fa',
+                fontSize: 'var(--text-xs)',
+                fontWeight: 600,
+                cursor: (isSyncing || isLoading) ? 'not-allowed' : 'pointer'
+              }}
+            >
+              <RefreshCw size={13} className={isSyncing ? 'animate-spin' : ''} />
+              <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
+            </button>
+          </>
+        )}
+
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -63,4 +101,3 @@ export const Header: React.FC = () => {
     </header>
   );
 };
-

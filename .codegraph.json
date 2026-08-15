@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-15T06:36:55.447Z",
+  "generatedAt": "2026-08-15T06:39:19.569Z",
   "totalFiles": 62,
   "nodes": [
     {
@@ -358,6 +358,7 @@
         "src/stores/useDashboardStore.ts"
       ],
       "importedBy": [
+        "src/components/layout/Header.tsx",
         "src/pages/DashboardPage.tsx"
       ]
     },
@@ -399,7 +400,10 @@
     {
       "relativePath": "src/components/layout/Header.tsx",
       "category": "UI Components",
-      "imports": [],
+      "imports": [
+        "src/stores/useDashboardStore.ts",
+        "src/components/dashboard/DateRangeToolbar.tsx"
+      ],
       "importedBy": [
         "src/components/layout/AppLayout.tsx"
       ]
@@ -608,6 +612,7 @@
       "importedBy": [
         "src/components/dashboard/ActivityFeed.tsx",
         "src/components/dashboard/DateRangeToolbar.tsx",
+        "src/components/layout/Header.tsx",
         "src/components/sessions/SessionsFilterBar.tsx",
         "src/components/tags/TagBadge.tsx",
         "src/pages/DashboardPage.tsx",
