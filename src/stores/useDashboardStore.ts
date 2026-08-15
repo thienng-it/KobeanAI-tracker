@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { api } from '../lib/api';
 
-export type DateRange = '1d' | '7d' | '30d' | '90d' | '180d' | '365d' | 'all';
+export type DateRange = '1d' | '7d' | '30d' | '90d' | '180d' | '365d' | 'all' | (string & {});
 
 export interface TrendMetric {
   value: number;

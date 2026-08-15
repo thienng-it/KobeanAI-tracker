@@ -9,14 +9,31 @@ const router = Router();
 function getDateThresholds(dateRange: string) {
   const now = new Date();
   let currentThreshold: Date | null = null;
+  let endThreshold: Date | null = null;
   let previousThreshold: Date | null = null;
+  let previousEndThreshold: Date | null = null;
   let label = 'vs previous period';
+  let isSingleDay = false;
+
+  // Check if dateRange is a specific date: YYYY-MM-DD or date:YYYY-MM-DD
+  const dateMatch = dateRange.match(/(?:date:)?(\d{4}-\d{2}-\d{2})/);
+  if (dateMatch) {
+    const dateStr = dateMatch[1];
+    currentThreshold = new Date(`${dateStr}T00:00:00.000Z`);
+    endThreshold = new Date(`${dateStr}T23:59:59.999Z`);
+    previousThreshold = subDays(currentThreshold, 1);
+    previousEndThreshold = new Date(`${subDays(currentThreshold, 1).toISOString().slice(0, 10)}T23:59:59.999Z`);
+    label = `vs prior day (${subDays(currentThreshold, 1).toISOString().slice(5, 10)})`;
+    isSingleDay = true;
+    return { currentThreshold, endThreshold, previousThreshold, previousEndThreshold, label, isSingleDay, dateStr };
+  }
 
   switch (dateRange) {
     case '1d':
       currentThreshold = subHours(now, 24);
       previousThreshold = subHours(now, 48);
       label = 'vs yesterday';
+      isSingleDay = true;
       break;
     case '7d':
       currentThreshold = subDays(now, 7);
@@ -51,14 +68,14 @@ function getDateThresholds(dateRange: string) {
       break;
   }
 
-  return { currentThreshold, previousThreshold, label };
+  return { currentThreshold, endThreshold, previousThreshold, previousEndThreshold, label, isSingleDay };
 }
 
 // GET /api/dashboard/summary?dateRange=...
 router.get('/summary', async (req, res) => {
   try {
     const dateRange = (req.query.dateRange as string) || '7d';
-    const { currentThreshold, previousThreshold, label } = getDateThresholds(dateRange);
+    const { currentThreshold, endThreshold, previousThreshold, label } = getDateThresholds(dateRange);
 
     // Current period stats
     let currentQuery = db.select({
@@ -67,7 +84,14 @@ router.get('/summary', async (req, res) => {
       totalCost: sql<number>`sum(${sessions.estimatedCost})`
     }).from(sessions);
 
-    if (currentThreshold) {
+    if (currentThreshold && endThreshold) {
+      currentQuery = currentQuery.where(
+        and(
+          gte(sessions.startedAt, currentThreshold.toISOString()),
+          lt(sessions.startedAt, endThreshold.toISOString())
+        )
+      ) as any;
+    } else if (currentThreshold) {
       currentQuery = currentQuery.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
     }
 
@@ -136,9 +160,17 @@ router.get('/summary', async (req, res) => {
 router.get('/recent-sessions', async (req, res) => {
   try {
     const dateRange = (req.query.dateRange as string) || '7d';
-    const { currentThreshold } = getDateThresholds(dateRange);
+    const { currentThreshold, endThreshold } = getDateThresholds(dateRange);
 
-    const whereClause = currentThreshold ? gte(sessions.startedAt, currentThreshold.toISOString()) : undefined;
+    let whereClause = undefined;
+    if (currentThreshold && endThreshold) {
+      whereClause = and(
+        gte(sessions.startedAt, currentThreshold.toISOString()),
+        lt(sessions.startedAt, endThreshold.toISOString())
+      );
+    } else if (currentThreshold) {
+      whereClause = gte(sessions.startedAt, currentThreshold.toISOString());
+    }
 
     const recentSessions = await db.query.sessions.findMany({
       where: whereClause,
@@ -203,10 +235,10 @@ router.get('/recent-tags', async (req, res) => {
 router.get('/trends', async (req, res) => {
   try {
     const dateRange = (req.query.dateRange as string) || '7d';
-    const { currentThreshold } = getDateThresholds(dateRange);
+    const { currentThreshold, endThreshold, isSingleDay } = getDateThresholds(dateRange);
 
-    if (dateRange === '1d') {
-      // Group by hour for 1d view (e.g. 2026-08-15 13:00)
+    if (isSingleDay) {
+      // Group by hour for single day view (e.g. 13:00)
       let query = db.select({
         date: sql<string>`substr(${sessions.startedAt}, 12, 2) || ':00'`,
         tokens: sql<number>`sum(${sessions.totalTokens})`,
@@ -214,7 +246,14 @@ router.get('/trends', async (req, res) => {
       })
       .from(sessions);
 
-      if (currentThreshold) {
+      if (currentThreshold && endThreshold) {
+        query = query.where(
+          and(
+            gte(sessions.startedAt, currentThreshold.toISOString()),
+            lt(sessions.startedAt, endThreshold.toISOString())
+          )
+        ) as any;
+      } else if (currentThreshold) {
         query = query.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
       }
 
@@ -252,7 +291,7 @@ router.get('/trends', async (req, res) => {
 router.get('/agent-distribution', async (req, res) => {
   try {
     const dateRange = (req.query.dateRange as string) || '7d';
-    const { currentThreshold } = getDateThresholds(dateRange);
+    const { currentThreshold, endThreshold } = getDateThresholds(dateRange);
 
     let query = db.select({
       agentName: agents.name,
@@ -261,7 +300,14 @@ router.get('/agent-distribution', async (req, res) => {
     .from(sessions)
     .leftJoin(agents, eq(sessions.agentId, agents.id));
 
-    if (currentThreshold) {
+    if (currentThreshold && endThreshold) {
+      query = query.where(
+        and(
+          gte(sessions.startedAt, currentThreshold.toISOString()),
+          lt(sessions.startedAt, endThreshold.toISOString())
+        )
+      ) as any;
+    } else if (currentThreshold) {
       query = query.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
     }
 
