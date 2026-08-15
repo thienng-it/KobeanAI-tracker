@@ -1,0 +1,7 @@
+{
+  "name": "codegraph",
+  "version": "1.0.0",
+  "description": "Code graph and dependency analyzer plugin for KobeanAI Tracker development",
+  "author": "KobeanAI",
+  "skills": ["codegraph"]
+}

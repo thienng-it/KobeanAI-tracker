@@ -1,0 +1,17 @@
+{
+  "safety-gate": {
+    "enabled": true,
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const data = JSON.parse(require('fs').readFileSync(0, 'utf8')); const cmd = (data.toolCall && data.toolCall.args && data.toolCall.args.CommandLine) || ''; if (cmd.includes('rm -rf /') || cmd.includes(':(){ :|:& };:')) { console.log(JSON.stringify({ decision: 'deny', reason: 'Destructive command blocked by safety gate.' })); } else { console.log(JSON.stringify({ decision: 'allow' })); }\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

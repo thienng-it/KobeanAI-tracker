@@ -16,7 +16,8 @@
     "desktop:build": "npm run build && electron-builder",
     "desktop:build:mac": "npm run build && electron-builder --mac",
     "desktop:build:win": "npm run build && electron-builder --win",
-    "desktop:build:linux": "npm run build && electron-builder --linux"
+    "desktop:build:linux": "npm run build && electron-builder --linux",
+    "codegraph": "node scripts/generate-codegraph.js"
   },
   "build": {
     "appId": "com.kobeanai.tracker",

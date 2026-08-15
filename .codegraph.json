@@ -1,0 +1,652 @@
+{
+  "generatedAt": "2026-08-15T06:32:27.530Z",
+  "totalFiles": 59,
+  "nodes": [
+    {
+      "relativePath": "server/connectors/antigravity.js",
+      "category": "Connector Layer",
+      "imports": [
+        "server/connectors/base.js",
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": [
+        "server/services/telemetry-service.js",
+        "server/services/telemetry-service.ts"
+      ]
+    },
+    {
+      "relativePath": "server/connectors/antigravity.ts",
+      "category": "Connector Layer",
+      "imports": [
+        "server/connectors/base.js",
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/connectors/base.d.ts",
+      "category": "Connector Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/connectors/base.js",
+      "category": "Connector Layer",
+      "imports": [],
+      "importedBy": [
+        "server/connectors/antigravity.js",
+        "server/connectors/antigravity.ts",
+        "server/services/telemetry-service.ts"
+      ]
+    },
+    {
+      "relativePath": "server/connectors/base.ts",
+      "category": "Connector Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/db/index.ts",
+      "category": "Database Layer",
+      "imports": [
+        "server/db/schema.ts"
+      ],
+      "importedBy": [
+        "server/connectors/antigravity.js",
+        "server/connectors/antigravity.ts",
+        "server/index.ts",
+        "server/routes/agents.ts",
+        "server/routes/commands.ts",
+        "server/routes/dashboard.ts",
+        "server/routes/health.ts",
+        "server/routes/rules.ts",
+        "server/routes/sessions.ts",
+        "server/routes/skills.js",
+        "server/routes/skills.ts",
+        "server/scripts/seed.ts",
+        "server/services/skill-scanner.js",
+        "server/services/skill-scanner.ts",
+        "server/services/telemetry-service.js",
+        "server/services/telemetry-service.ts"
+      ]
+    },
+    {
+      "relativePath": "server/db/schema.ts",
+      "category": "Database Layer",
+      "imports": [],
+      "importedBy": [
+        "server/connectors/antigravity.js",
+        "server/connectors/antigravity.ts",
+        "server/db/index.ts",
+        "server/routes/agents.ts",
+        "server/routes/commands.ts",
+        "server/routes/dashboard.ts",
+        "server/routes/rules.ts",
+        "server/routes/sessions.ts",
+        "server/routes/skills.js",
+        "server/routes/skills.ts",
+        "server/scripts/seed.ts",
+        "server/services/skill-scanner.js",
+        "server/services/skill-scanner.ts"
+      ]
+    },
+    {
+      "relativePath": "server/index.js",
+      "category": "Backend Core",
+      "imports": [
+        "server/services/telemetry-service.js",
+        "server/middleware/error.ts",
+        "server/routes/health.ts",
+        "server/routes/dashboard.ts",
+        "server/routes/sessions.ts",
+        "server/routes/skills.js",
+        "server/routes/agents.ts",
+        "server/routes/commands.ts",
+        "server/routes/rules.ts"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/index.ts",
+      "category": "Backend Core",
+      "imports": [
+        "server/db/index.ts",
+        "server/services/telemetry-service.js",
+        "server/middleware/error.ts",
+        "server/routes/health.ts",
+        "server/routes/dashboard.ts",
+        "server/routes/sessions.ts",
+        "server/routes/skills.js",
+        "server/routes/agents.ts",
+        "server/routes/commands.ts",
+        "server/routes/rules.ts"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/middleware/error.ts",
+      "category": "Backend Core",
+      "imports": [],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/agents.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/commands.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/dashboard.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/health.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/rules.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/sessions.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/skills.js",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/skills.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/scripts/seed.ts",
+      "category": "Backend Core",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/skill-scanner.d.ts",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/skill-scanner.js",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/skill-scanner.ts",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/telemetry-service.js",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.ts",
+        "server/connectors/antigravity.js"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/services/telemetry-service.ts",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.ts",
+        "server/connectors/base.js",
+        "server/connectors/antigravity.js"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "src/App.tsx",
+      "category": "Frontend Core",
+      "imports": [
+        "src/pages/SetupWizardPage.tsx",
+        "src/pages/DashboardPage.tsx",
+        "src/pages/SessionsPage.tsx",
+        "src/pages/SkillsPage.tsx",
+        "src/pages/SkillEditorPage.tsx",
+        "src/pages/AgentsConfigPage.tsx",
+        "src/pages/CommandsPage.tsx",
+        "src/pages/RulesPage.tsx",
+        "src/pages/DocsPage.tsx",
+        "src/components/layout/AppLayout.tsx",
+        "src/components/common/ErrorBoundary.tsx",
+        "src/stores/useThemeStore.ts"
+      ],
+      "importedBy": [
+        "src/main.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/common/ErrorBoundary.tsx",
+      "category": "UI Components",
+      "imports": [],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/dashboard/ActivityFeed.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useDashboardStore.ts",
+        "src/components/tags/TagBadge.tsx"
+      ],
+      "importedBy": [
+        "src/pages/DashboardPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/dashboard/AgentDistributionChart.tsx",
+      "category": "UI Components",
+      "imports": [],
+      "importedBy": [
+        "src/pages/DashboardPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/dashboard/QuickActions.tsx",
+      "category": "UI Components",
+      "imports": [],
+      "importedBy": [
+        "src/pages/DashboardPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/dashboard/StatCard.tsx",
+      "category": "UI Components",
+      "imports": [],
+      "importedBy": [
+        "src/pages/DashboardPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/dashboard/TrendsChart.tsx",
+      "category": "UI Components",
+      "imports": [],
+      "importedBy": [
+        "src/pages/DashboardPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/layout/AppLayout.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/components/layout/Sidebar.tsx",
+        "src/components/layout/Header.tsx"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/layout/Header.tsx",
+      "category": "UI Components",
+      "imports": [],
+      "importedBy": [
+        "src/components/layout/AppLayout.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/layout/Sidebar.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useThemeStore.ts"
+      ],
+      "importedBy": [
+        "src/components/layout/AppLayout.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/sessions/SessionsFilterBar.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useSessionsStore.ts",
+        "src/stores/useDashboardStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/SessionsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/sessions/SessionsTable.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useSessionsStore.ts",
+        "src/components/tags/TagBadge.tsx"
+      ],
+      "importedBy": [
+        "src/pages/SessionsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/skills/SkillCard.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useSkillsStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/SkillsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/tags/TagBadge.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useDashboardStore.ts"
+      ],
+      "importedBy": [
+        "src/components/dashboard/ActivityFeed.tsx",
+        "src/components/sessions/SessionsTable.tsx",
+        "src/pages/DashboardPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/lib/api.ts",
+      "category": "Client Libs",
+      "imports": [],
+      "importedBy": [
+        "src/stores/useAgentsStore.ts",
+        "src/stores/useCommandsStore.ts",
+        "src/stores/useDashboardStore.ts",
+        "src/stores/useRulesStore.ts",
+        "src/stores/useSessionsStore.ts",
+        "src/stores/useSkillsStore.ts"
+      ]
+    },
+    {
+      "relativePath": "src/main.tsx",
+      "category": "Frontend Core",
+      "imports": [
+        "src/App.tsx"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "src/pages/AgentsConfigPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/useAgentsStore.ts"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/pages/CommandsPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/useCommandsStore.ts",
+        "src/stores/useSkillsStore.ts"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/pages/DashboardPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/useDashboardStore.ts",
+        "src/components/dashboard/StatCard.tsx",
+        "src/components/dashboard/ActivityFeed.tsx",
+        "src/components/dashboard/QuickActions.tsx",
+        "src/components/tags/TagBadge.tsx",
+        "src/components/dashboard/TrendsChart.tsx",
+        "src/components/dashboard/AgentDistributionChart.tsx"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/pages/DocsPage.tsx",
+      "category": "Pages",
+      "imports": [],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/pages/RulesPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/useRulesStore.ts"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/pages/SessionsPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/useSessionsStore.ts",
+        "src/components/sessions/SessionsFilterBar.tsx",
+        "src/components/sessions/SessionsTable.tsx"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/pages/SetupWizardPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/useWizardStore.ts"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/pages/SkillEditorPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/useSkillsStore.ts"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/pages/SkillsPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/useSkillsStore.ts",
+        "src/components/skills/SkillCard.tsx"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/stores/useAgentsStore.ts",
+      "category": "Zustand Stores",
+      "imports": [
+        "src/lib/api.ts",
+        "src/stores/useSkillsStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/AgentsConfigPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/stores/useCommandsStore.ts",
+      "category": "Zustand Stores",
+      "imports": [
+        "src/lib/api.ts"
+      ],
+      "importedBy": [
+        "src/pages/CommandsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/stores/useDashboardStore.ts",
+      "category": "Zustand Stores",
+      "imports": [
+        "src/lib/api.ts"
+      ],
+      "importedBy": [
+        "src/components/dashboard/ActivityFeed.tsx",
+        "src/components/sessions/SessionsFilterBar.tsx",
+        "src/components/tags/TagBadge.tsx",
+        "src/pages/DashboardPage.tsx",
+        "src/stores/useSessionsStore.ts",
+        "src/stores/useSkillsStore.ts"
+      ]
+    },
+    {
+      "relativePath": "src/stores/useRulesStore.ts",
+      "category": "Zustand Stores",
+      "imports": [
+        "src/lib/api.ts"
+      ],
+      "importedBy": [
+        "src/pages/RulesPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/stores/useSessionsStore.ts",
+      "category": "Zustand Stores",
+      "imports": [
+        "src/lib/api.ts",
+        "src/stores/useDashboardStore.ts"
+      ],
+      "importedBy": [
+        "src/components/sessions/SessionsFilterBar.tsx",
+        "src/components/sessions/SessionsTable.tsx",
+        "src/pages/SessionsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/stores/useSkillsStore.ts",
+      "category": "Zustand Stores",
+      "imports": [
+        "src/lib/api.ts",
+        "src/stores/useDashboardStore.ts"
+      ],
+      "importedBy": [
+        "src/components/skills/SkillCard.tsx",
+        "src/pages/CommandsPage.tsx",
+        "src/pages/SkillEditorPage.tsx",
+        "src/pages/SkillsPage.tsx",
+        "src/stores/useAgentsStore.ts"
+      ]
+    },
+    {
+      "relativePath": "src/stores/useThemeStore.ts",
+      "category": "Zustand Stores",
+      "imports": [],
+      "importedBy": [
+        "src/App.tsx",
+        "src/components/layout/Sidebar.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/stores/useWizardStore.ts",
+      "category": "Zustand Stores",
+      "imports": [],
+      "importedBy": [
+        "src/pages/SetupWizardPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/vite-env.d.ts",
+      "category": "Frontend Core",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "electron/main.cjs",
+      "category": "Desktop Layer",
+      "imports": [],
+      "importedBy": []
+    }
+  ]
+}
