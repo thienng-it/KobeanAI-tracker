@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { db } from './db/index.js';
 import { TelemetryService } from './services/telemetry-service.js';
 import { errorHandler } from './middleware/error.js';
@@ -74,8 +75,19 @@ app.post('/api/setup/complete', (req, res) => {
 });
 
 // Serve Frontend in Production / when dist exists
-const distPath = path.resolve(process.cwd(), 'dist');
-if (fs.existsSync(distPath)) {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const candidatePaths = [
+  path.resolve(process.cwd(), 'dist'),
+  path.resolve(__dirname, '..'),
+  path.resolve(__dirname, '../../dist'),
+  path.resolve((process as any).resourcesPath || '', 'app/dist'),
+];
+
+const distPath = candidatePaths.find(p => fs.existsSync(path.join(p, 'index.html')));
+if (distPath) {
+  console.log(`[Server] Serving frontend static assets from: ${distPath}`);
   app.use(express.static(distPath));
   app.use((req, res, next) => {
     if (req.method === 'GET' && !req.path.startsWith('/api')) {
@@ -83,6 +95,8 @@ if (fs.existsSync(distPath)) {
     }
     next();
   });
+} else {
+  console.warn('[Server] Notice: Frontend dist directory not found in candidate paths.');
 }
 
 // Centralized Error Handling Middleware
