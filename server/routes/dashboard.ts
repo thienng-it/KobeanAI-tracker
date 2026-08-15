@@ -3,6 +3,7 @@ import { db } from '../db/index.js';
 import { sessions, tags, sessionTags, agents } from '../db/schema.js';
 import { desc, eq, sql, gte, lt, and } from 'drizzle-orm';
 import { subDays, subHours } from 'date-fns';
+import { ModelRegistry } from '../services/model-registry.js';
 
 const router = Router();
 
@@ -188,12 +189,17 @@ router.get('/recent-sessions', async (req, res) => {
 
     const formatted = recentSessions.map(session => {
       const meta = typeof session.metadata === 'string' ? JSON.parse(session.metadata || '{}') : (session.metadata || {});
-      const effortLevel = meta.effortLevel || (session.model.includes('3.7') || session.model.includes('flash') ? 'High' : 'Medium');
+      const modelInfo = ModelRegistry.resolve(session.model);
+      const effortLevel = meta.effortLevel || (modelInfo.supportsThinking ? 'High' : 'Medium');
 
       return {
         id: session.id,
         agentName: session.agent?.name || 'Unknown Agent',
         model: session.model,
+        modelName: meta.modelName || modelInfo.name,
+        provider: meta.provider || modelInfo.provider,
+        modelColor: modelInfo.color,
+        modelBg: modelInfo.badgeBg,
         startedAt: session.startedAt,
         durationMs: session.durationMs,
         inputTokens: session.inputTokens,

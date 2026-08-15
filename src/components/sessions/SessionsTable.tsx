@@ -1,12 +1,16 @@
+import React from 'react';
 import { useSessionsStore } from '../../stores/useSessionsStore';
 import { TagBadge } from '../tags/TagBadge';
+import { ModelBadge } from '../common/ModelBadge';
 import { Terminal, Flame, Zap, Sparkles } from 'lucide-react';
 
 // Helper to determine AI effort level from real telemetry
 function getEffortLevel(session: any) {
-  const effort = session.effortLevel || session.metadata?.effortLevel || (session.model?.includes('3.7') ? 'High' : 'Medium');
+  const effort = session.effortLevel || session.metadata?.effortLevel;
+  const model = (session.model || '').toLowerCase();
+  const isThinkingModel = model.includes('3.7') || model.includes('3.1') || model.includes('r1') || model.includes('o1') || model.includes('o3') || model.includes('thinking');
 
-  if (effort === 'High' || session.model?.includes('3.7')) {
+  if (effort === 'High' || (!effort && isThinkingModel)) {
     return {
       level: 'High (1.00)',
       icon: <Flame size={11} />,
@@ -78,30 +82,42 @@ function getSessionTags(session: any) {
   ];
 }
 
-export const SessionsTable = () => {
-  const { sessions, isLoading } = useSessionsStore();
+export const SessionsTable: React.FC = () => {
+  const { sessions, isLoading, error } = useSessionsStore();
 
-  if (isLoading && sessions.length === 0) {
-    return <div style={{ padding: 'var(--space-6)', textAlign: 'center', color: 'var(--color-text-secondary)' }}>Loading sessions...</div>;
+  if (isLoading) {
+    return (
+      <div className="glass-panel" style={{ padding: 'var(--space-8)', textAlign: 'center', borderRadius: 'var(--radius-lg)' }}>
+        <p style={{ color: 'var(--color-text-secondary)' }}>Loading session traces...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="glass-panel" style={{ padding: 'var(--space-8)', textAlign: 'center', borderRadius: 'var(--radius-lg)' }}>
+        <p style={{ color: 'var(--color-status-error-text)' }}>Failed to load sessions: {error}</p>
+      </div>
+    );
   }
 
   if (sessions.length === 0) {
     return (
       <div className="glass-panel" style={{ padding: 'var(--space-8)', textAlign: 'center', borderRadius: 'var(--radius-lg)' }}>
-        <p style={{ color: 'var(--color-text-secondary)' }}>No sessions found matching these filters.</p>
+        <p style={{ color: 'var(--color-text-secondary)' }}>No sessions found matching criteria.</p>
       </div>
     );
   }
 
   return (
-    <div className="glass-panel animate-slide-up" style={{ borderRadius: 'var(--radius-xl)', overflowX: 'auto' }}>
+    <div className="glass-panel" style={{ overflowX: 'auto', borderRadius: 'var(--radius-lg)' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
         <thead>
-          <tr style={{ borderBottom: '1px solid var(--color-border-subtle)', backgroundColor: 'var(--color-bg-surface)' }}>
-            <th style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Date</th>
-            <th style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Agent</th>
-            <th style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Prompt / Summary</th>
-            <th style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Intent Tags</th>
+          <tr style={{ borderBottom: '1px solid var(--color-border-subtle)', background: 'var(--color-bg-surface-hover)' }}>
+            <th style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Time</th>
+            <th style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Agent & Model</th>
+            <th style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Prompt / Task Summary</th>
+            <th style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tags</th>
             <th style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Effort / Tokens</th>
             <th style={{ padding: 'var(--space-4)', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cost</th>
           </tr>
@@ -110,6 +126,7 @@ export const SessionsTable = () => {
           {sessions.map(session => {
             const effort = getEffortLevel(session);
             const tags = getSessionTags(session);
+            const sessionAny = session as any;
 
             return (
               <tr 
@@ -140,7 +157,16 @@ export const SessionsTable = () => {
                     </div>
                     <span style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{session.agentName}</span>
                   </div>
-                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)', marginLeft: '32px', fontFamily: 'var(--font-mono)' }}>{session.model}</div>
+                  <div style={{ marginTop: '4px', marginLeft: '32px' }}>
+                    <ModelBadge 
+                      model={session.model} 
+                      modelName={sessionAny.modelName} 
+                      provider={sessionAny.provider}
+                      modelColor={sessionAny.modelColor}
+                      modelBg={sessionAny.modelBg}
+                      size="sm"
+                    />
+                  </div>
                 </td>
                 <td style={{ padding: 'var(--space-4)', fontSize: 'var(--text-sm)', maxWidth: '320px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--color-text-primary)' }}>
                   {session.summary || '-'}
@@ -177,8 +203,8 @@ export const SessionsTable = () => {
                     </span>
                   </div>
                 </td>
-                <td style={{ padding: 'var(--space-4)', fontSize: 'var(--text-sm)', color: 'var(--color-status-warning-text)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-                  ${session.estimatedCost ? (session.estimatedCost < 0.01 ? session.estimatedCost.toFixed(5) : session.estimatedCost.toFixed(4)) : '0.0000'}
+                <td style={{ padding: 'var(--space-4)', fontSize: 'var(--text-sm)', fontWeight: 600, fontFamily: 'var(--font-mono)', color: 'var(--color-status-warning-text)' }}>
+                  ${session.estimatedCost?.toFixed(4) || '0.0000'}
                 </td>
               </tr>
             );

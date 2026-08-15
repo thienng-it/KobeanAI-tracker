@@ -6,6 +6,7 @@ import { db } from '../db/index.js';
 import { sessions, workspaces, tags, sessionTags } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import * as crypto from 'crypto';
+import { ModelRegistry } from '../services/model-registry.js';
 
 export class AntigravityConnector extends AgentConnector {
   private watcher: chokidar.FSWatcher | null = null;
@@ -126,16 +127,24 @@ export class AntigravityConnector extends AgentConnector {
         thinkingChars: number;
         thinkingSteps: number;
         toolCalls: number;
+        detectedModel: string;
+        effortLevel: string;
         extractedTags: string[];
       }
 
       const turns: TurnData[] = [];
       let currentTurn: TurnData | null = null;
+      let activeSessionModel = this.config.model || 'gemini-3.7-flash';
 
       for (let i = 0; i < lines.length; i++) {
         try {
           const step = JSON.parse(lines[i]);
           const stepTime = step.created_at || new Date().toISOString();
+
+          // Check if step explicitly states a model (e.g. step.model or in system content)
+          if (step.model || step.model_name) {
+            activeSessionModel = step.model || step.model_name;
+          }
 
           if (step.type === 'USER_INPUT') {
             if (currentTurn) turns.push(currentTurn);
@@ -144,6 +153,40 @@ export class AntigravityConnector extends AgentConnector {
             if (rawPrompt.includes('<ADDITIONAL_METADATA>')) rawPrompt = rawPrompt.split('<ADDITIONAL_METADATA>')[0].trim();
             if (rawPrompt.includes('{{ CHECKPOINT')) rawPrompt = rawPrompt.split('{{ CHECKPOINT')[0].trim();
             if (!rawPrompt) rawPrompt = 'User request';
+
+            // Check if prompt specifies a switched model
+            let turnModel = activeSessionModel;
+            const promptLower = rawPrompt.toLowerCase();
+
+            if (promptLower.includes('gemini 3.1 pro') || promptLower.includes('gemini-3.1-pro') || promptLower.includes('gemini pro 3.1') || promptLower.includes('3.1 pro')) {
+              turnModel = 'gemini-3.1-pro';
+            } else if (promptLower.includes('gemini 3.7') || promptLower.includes('gemini-3.7-flash') || promptLower.includes('3.7 flash')) {
+              turnModel = 'gemini-3.7-flash';
+            } else if (promptLower.includes('gemini 2.0') || promptLower.includes('gemini-2.0-flash')) {
+              turnModel = 'gemini-2.0-flash';
+            } else if (promptLower.includes('gemini 1.5 pro') || promptLower.includes('gemini-1.5-pro')) {
+              turnModel = 'gemini-1.5-pro';
+            } else if (promptLower.includes('claude 3.7') || promptLower.includes('claude-3-7-sonnet')) {
+              turnModel = 'claude-3-7-sonnet';
+            } else if (promptLower.includes('claude 3.5') || promptLower.includes('claude-3-5-sonnet')) {
+              turnModel = 'claude-3-5-sonnet';
+            } else if (promptLower.includes('gpt-4o-mini')) {
+              turnModel = 'gpt-4o-mini';
+            } else if (promptLower.includes('gpt-4o')) {
+              turnModel = 'gpt-4o';
+            } else if (promptLower.includes('o3-mini')) {
+              turnModel = 'o3-mini';
+            } else if (promptLower.includes('deepseek-r1') || promptLower.includes('deepseek r1')) {
+              turnModel = 'deepseek-r1';
+            }
+
+            // Check if prompt specifies effort level
+            let effortLevel = 'High';
+            if (promptLower.includes('low effort') || promptLower.includes('effort: low') || promptLower.includes('effort 0.0')) {
+              effortLevel = 'Low';
+            } else if (promptLower.includes('medium effort') || promptLower.includes('effort: medium') || promptLower.includes('effort 0.5')) {
+              effortLevel = 'Medium';
+            }
 
             // Extract explicit bracketed tags like [repo:org/name]
             const tagMatches = rawPrompt.match(/\[([^\]]+)\]/g) || [];
@@ -181,6 +224,8 @@ export class AntigravityConnector extends AgentConnector {
               thinkingChars: 0,
               thinkingSteps: 0,
               toolCalls: 0,
+              detectedModel: turnModel,
+              effortLevel,
               extractedTags: tagsList
             };
           } else if (currentTurn) {
@@ -192,7 +237,6 @@ export class AntigravityConnector extends AgentConnector {
               const thinkLen = String(step.thinking).length;
               currentTurn.thinkingChars += thinkLen;
               currentTurn.thinkingSteps += 1;
-              // Add thinking token calculation
               currentTurn.outputTokens += Math.max(1, Math.ceil(thinkLen / 3.8));
             }
 
@@ -209,13 +253,7 @@ export class AntigravityConnector extends AgentConnector {
       if (currentTurn) turns.push(currentTurn);
       if (turns.length === 0) return;
 
-      // Model & Pricing calculation: Gemini 3.7 Flash ($0.15/M input, $0.60/M output default or user configured)
-      const modelName = this.config.model || 'gemini-3.7-flash';
-      const inputRate = Number(this.config.inputPrice ?? 0.15);
-      const outputRate = Number(this.config.outputPrice ?? 0.60);
-
       // Upsert each turn into the SQLite sessions table
-      // If splitting into multiple turns, remove any legacy un-split parent record
       if (turns.length > 1) {
         await db.delete(sessions).where(eq(sessions.id, sessionId)).catch(() => {});
       }
@@ -223,18 +261,30 @@ export class AntigravityConnector extends AgentConnector {
       for (const turn of turns) {
         const turnSessionId = turns.length === 1 ? sessionId : `${sessionId}-turn-${turn.index}`;
         const totalTokens = turn.inputTokens + turn.outputTokens;
-        const estimatedCost = Number(((turn.inputTokens / 1_000_000) * inputRate + (turn.outputTokens / 1_000_000) * outputRate).toFixed(5));
         const durationMs = Math.max(1000, new Date(turn.endedAt).getTime() - new Date(turn.startedAt).getTime());
 
-        // Gemini 3.7 Thinking mode effort level calculation from real telemetry
-        const effortLevel = 'High'; // Gemini 3.7 Flash Thinking mode is configured at High Effort (1.00)
+        // Resolve normalized model and calculate precise cost via ModelRegistry
+        const resolvedModel = ModelRegistry.resolve(turn.detectedModel);
+        const thinkingTokens = Math.ceil(turn.thinkingChars / 3.8);
+        const estimatedCost = ModelRegistry.calculateCost(
+          resolvedModel.id,
+          turn.inputTokens,
+          turn.outputTokens,
+          thinkingTokens,
+          this.config.inputPrice,
+          this.config.outputPrice
+        );
+
         const metadata = {
-          effortLevel,
-          effortScore: 1.0,
-          thinkingMode: true,
+          modelId: resolvedModel.id,
+          modelName: resolvedModel.name,
+          provider: resolvedModel.provider,
+          effortLevel: turn.effortLevel,
+          effortScore: turn.effortLevel === 'High' ? 1.0 : turn.effortLevel === 'Medium' ? 0.5 : 0.0,
+          thinkingMode: resolvedModel.supportsThinking || thinkingTokens > 0,
           thinkingChars: turn.thinkingChars,
           thinkingSteps: turn.thinkingSteps,
-          thinkingTokens: Math.ceil(turn.thinkingChars / 3.8)
+          thinkingTokens
         };
 
         const existing = await db.query.sessions.findFirst({
@@ -244,7 +294,7 @@ export class AntigravityConnector extends AgentConnector {
         if (existing) {
           await db.update(sessions).set({
             endedAt: turn.endedAt,
-            model: modelName,
+            model: resolvedModel.id,
             durationMs,
             inputTokens: turn.inputTokens,
             outputTokens: turn.outputTokens,
@@ -260,7 +310,7 @@ export class AntigravityConnector extends AgentConnector {
             id: turnSessionId,
             agentId: this.id,
             workspaceId: this.defaultWorkspaceId!,
-            model: modelName,
+            model: resolvedModel.id,
             startedAt: turn.startedAt,
             endedAt: turn.endedAt,
             durationMs,

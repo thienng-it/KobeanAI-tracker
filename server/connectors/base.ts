@@ -1,5 +1,5 @@
 export interface AgentConfig {
-  authType: 'api_key' | 'local_log';
+  authType?: 'api_key' | 'local_log';
   apiKey?: string;
   logPath?: string;
   model?: string;

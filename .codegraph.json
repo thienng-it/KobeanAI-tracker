@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-15T12:24:50.027Z",
-  "totalFiles": 62,
+  "generatedAt": "2026-08-15T13:09:29.753Z",
+  "totalFiles": 74,
   "nodes": [
     {
       "relativePath": "server/connectors/antigravity.js",
@@ -8,7 +8,8 @@
       "imports": [
         "server/connectors/base.js",
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.ts",
+        "server/services/model-registry.js"
       ],
       "importedBy": [
         "server/services/telemetry-service.js",
@@ -21,7 +22,8 @@
       "imports": [
         "server/connectors/base.js",
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.ts",
+        "server/services/model-registry.js"
       ],
       "importedBy": []
     },
@@ -38,6 +40,12 @@
       "importedBy": [
         "server/connectors/antigravity.js",
         "server/connectors/antigravity.ts",
+        "server/connectors/claude.d.ts",
+        "server/connectors/claude.js",
+        "server/connectors/claude.ts",
+        "server/connectors/cursor.d.ts",
+        "server/connectors/cursor.js",
+        "server/connectors/cursor.ts",
         "server/services/telemetry-service.ts"
       ]
     },
@@ -45,6 +53,72 @@
       "relativePath": "server/connectors/base.ts",
       "category": "Connector Layer",
       "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/connectors/claude.d.ts",
+      "category": "Connector Layer",
+      "imports": [
+        "server/connectors/base.js"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/connectors/claude.js",
+      "category": "Connector Layer",
+      "imports": [
+        "server/connectors/base.js",
+        "server/db/index.ts",
+        "server/db/schema.ts",
+        "server/services/model-registry.js"
+      ],
+      "importedBy": [
+        "server/services/telemetry-service.js",
+        "server/services/telemetry-service.ts"
+      ]
+    },
+    {
+      "relativePath": "server/connectors/claude.ts",
+      "category": "Connector Layer",
+      "imports": [
+        "server/connectors/base.js",
+        "server/db/index.ts",
+        "server/db/schema.ts",
+        "server/services/model-registry.js"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/connectors/cursor.d.ts",
+      "category": "Connector Layer",
+      "imports": [
+        "server/connectors/base.js"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/connectors/cursor.js",
+      "category": "Connector Layer",
+      "imports": [
+        "server/connectors/base.js",
+        "server/db/index.ts",
+        "server/db/schema.ts",
+        "server/services/model-registry.js"
+      ],
+      "importedBy": [
+        "server/services/telemetry-service.js",
+        "server/services/telemetry-service.ts"
+      ]
+    },
+    {
+      "relativePath": "server/connectors/cursor.ts",
+      "category": "Connector Layer",
+      "imports": [
+        "server/connectors/base.js",
+        "server/db/index.ts",
+        "server/db/schema.ts",
+        "server/services/model-registry.js"
+      ],
       "importedBy": []
     },
     {
@@ -56,7 +130,12 @@
       "importedBy": [
         "server/connectors/antigravity.js",
         "server/connectors/antigravity.ts",
+        "server/connectors/claude.js",
+        "server/connectors/claude.ts",
+        "server/connectors/cursor.js",
+        "server/connectors/cursor.ts",
         "server/index.ts",
+        "server/routes/agents.js",
         "server/routes/agents.ts",
         "server/routes/commands.ts",
         "server/routes/dashboard.js",
@@ -81,7 +160,12 @@
       "importedBy": [
         "server/connectors/antigravity.js",
         "server/connectors/antigravity.ts",
+        "server/connectors/claude.js",
+        "server/connectors/claude.ts",
+        "server/connectors/cursor.js",
+        "server/connectors/cursor.ts",
         "server/db/index.ts",
+        "server/routes/agents.js",
         "server/routes/agents.ts",
         "server/routes/commands.ts",
         "server/routes/dashboard.js",
@@ -106,7 +190,7 @@
         "server/routes/dashboard.js",
         "server/routes/sessions.js",
         "server/routes/skills.js",
-        "server/routes/agents.ts",
+        "server/routes/agents.js",
         "server/routes/commands.ts",
         "server/routes/rules.ts"
       ],
@@ -123,7 +207,7 @@
         "server/routes/dashboard.js",
         "server/routes/sessions.js",
         "server/routes/skills.js",
-        "server/routes/agents.ts",
+        "server/routes/agents.js",
         "server/routes/commands.ts",
         "server/routes/rules.ts"
       ],
@@ -139,7 +223,7 @@
       ]
     },
     {
-      "relativePath": "server/routes/agents.ts",
+      "relativePath": "server/routes/agents.js",
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
@@ -149,6 +233,15 @@
         "server/index.js",
         "server/index.ts"
       ]
+    },
+    {
+      "relativePath": "server/routes/agents.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.ts"
+      ],
+      "importedBy": []
     },
     {
       "relativePath": "server/routes/commands.ts",
@@ -167,7 +260,8 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.ts",
+        "server/services/model-registry.js"
       ],
       "importedBy": [
         "server/index.js",
@@ -179,7 +273,8 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.ts",
+        "server/services/model-registry.js"
       ],
       "importedBy": []
     },
@@ -211,7 +306,8 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.ts",
+        "server/services/model-registry.js"
       ],
       "importedBy": [
         "server/index.js",
@@ -223,7 +319,8 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.ts",
+        "server/services/model-registry.js"
       ],
       "importedBy": []
     },
@@ -258,6 +355,35 @@
       "importedBy": []
     },
     {
+      "relativePath": "server/services/model-registry.d.ts",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/model-registry.js",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": [
+        "server/connectors/antigravity.js",
+        "server/connectors/antigravity.ts",
+        "server/connectors/claude.js",
+        "server/connectors/claude.ts",
+        "server/connectors/cursor.js",
+        "server/connectors/cursor.ts",
+        "server/routes/dashboard.js",
+        "server/routes/dashboard.ts",
+        "server/routes/sessions.js",
+        "server/routes/sessions.ts"
+      ]
+    },
+    {
+      "relativePath": "server/services/model-registry.ts",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
       "relativePath": "server/services/skill-scanner.d.ts",
       "category": "Service Layer",
       "imports": [],
@@ -282,11 +408,19 @@
       "importedBy": []
     },
     {
+      "relativePath": "server/services/telemetry-service.d.ts",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
       "relativePath": "server/services/telemetry-service.js",
       "category": "Service Layer",
       "imports": [
         "server/db/index.ts",
-        "server/connectors/antigravity.js"
+        "server/connectors/antigravity.js",
+        "server/connectors/claude.js",
+        "server/connectors/cursor.js"
       ],
       "importedBy": [
         "server/index.js",
@@ -299,7 +433,9 @@
       "imports": [
         "server/db/index.ts",
         "server/connectors/base.js",
-        "server/connectors/antigravity.js"
+        "server/connectors/antigravity.js",
+        "server/connectors/claude.js",
+        "server/connectors/cursor.js"
       ],
       "importedBy": []
     },
@@ -333,11 +469,21 @@
       ]
     },
     {
+      "relativePath": "src/components/common/ModelBadge.tsx",
+      "category": "UI Components",
+      "imports": [],
+      "importedBy": [
+        "src/components/dashboard/ActivityFeed.tsx",
+        "src/components/sessions/SessionsTable.tsx"
+      ]
+    },
+    {
       "relativePath": "src/components/dashboard/ActivityFeed.tsx",
       "category": "UI Components",
       "imports": [
         "src/stores/useDashboardStore.ts",
-        "src/components/tags/TagBadge.tsx"
+        "src/components/tags/TagBadge.tsx",
+        "src/components/common/ModelBadge.tsx"
       ],
       "importedBy": [
         "src/pages/DashboardPage.tsx"
@@ -433,7 +579,8 @@
       "category": "UI Components",
       "imports": [
         "src/stores/useSessionsStore.ts",
-        "src/components/tags/TagBadge.tsx"
+        "src/components/tags/TagBadge.tsx",
+        "src/components/common/ModelBadge.tsx"
       ],
       "importedBy": [
         "src/pages/SessionsPage.tsx"

@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import type { Session } from '../../stores/useDashboardStore';
 import { TagBadge } from '../tags/TagBadge';
+import { ModelBadge } from '../common/ModelBadge';
 import { Clock, MessageSquare, Terminal, ChevronDown, ChevronUp, Zap, Sparkles, Flame, Tag as TagIcon } from 'lucide-react';
 
 interface ActivityFeedProps {
   sessions: Session[];
 }
 
-// Helper to determine AI effort level (High / Medium / Low) from real telemetry
+// Helper to determine AI effort level from real telemetry
 function getEffortLevel(session: Session) {
-  const effort = (session as any).effortLevel || (session as any).metadata?.effortLevel || (session.model?.includes('3.7') ? 'High' : 'Medium');
+  const effort = (session as any).effortLevel || (session as any).metadata?.effortLevel;
+  const model = (session.model || '').toLowerCase();
+  const isThinkingModel = model.includes('3.7') || model.includes('3.1') || model.includes('r1') || model.includes('o1') || model.includes('o3') || model.includes('thinking');
 
-  if (effort === 'High' || session.model?.includes('3.7')) {
+  if (effort === 'High' || (!effort && isThinkingModel)) {
     return {
       level: 'High',
       label: 'High Effort (1.00)',
@@ -32,7 +35,7 @@ function getEffortLevel(session: Session) {
   } else {
     return {
       level: 'Low',
-      label: 'Low Effort',
+      label: 'Low / Fast',
       icon: <Sparkles size={12} />,
       bg: 'rgba(16, 185, 129, 0.12)',
       border: '1px solid rgba(16, 185, 129, 0.3)',
@@ -138,6 +141,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ sessions }) => {
         {displayedSessions.map((session, index) => {
           const effort = getEffortLevel(session);
           const tags = getSessionTags(session);
+          const sessionAny = session as any;
 
           return (
             <div 
@@ -161,7 +165,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ sessions }) => {
                 e.currentTarget.style.transform = 'translateX(0)';
               }}
             >
-              {/* Header: Agent + Model + Effort Badge + Time */}
+              {/* Header: Agent + Model Badge + Effort Badge + Time */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                   <div style={{ 
@@ -173,9 +177,16 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ sessions }) => {
                   }}>
                     <Terminal size={15} color="var(--color-brand-primary)" />
                   </div>
-                  <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-text-primary)' }}>{session.agentName}</div>
-                    <div className="text-xs" style={{ color: 'var(--color-text-tertiary)', fontFamily: 'var(--font-mono)' }}>{session.model}</div>
+                    <ModelBadge 
+                      model={session.model} 
+                      modelName={sessionAny.modelName} 
+                      provider={sessionAny.provider}
+                      modelColor={sessionAny.modelColor}
+                      modelBg={sessionAny.modelBg}
+                      size="sm"
+                    />
                   </div>
                 </div>
 

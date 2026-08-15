@@ -3,6 +3,7 @@ import { db } from '../db/index.js';
 import { sessions } from '../db/schema.js';
 import { desc, and, eq, gte, inArray, like, or } from 'drizzle-orm';
 import { subDays } from 'date-fns';
+import { ModelRegistry } from '../services/model-registry.js';
 
 const router = Router();
 
@@ -83,13 +84,18 @@ router.get('/', async (req, res) => {
     // We also need total count for pagination (omitted for brevity, just returning fake total for now if not calculated)
     const formatted = fetchedSessions.map(session => {
       const meta = typeof session.metadata === 'string' ? JSON.parse(session.metadata || '{}') : (session.metadata || {});
-      const effortLevel = meta.effortLevel || (session.model.includes('3.7') || session.model.includes('flash') ? 'High' : 'Medium');
+      const modelInfo = ModelRegistry.resolve(session.model);
+      const effortLevel = meta.effortLevel || (modelInfo.supportsThinking ? 'High' : 'Medium');
 
       return {
         id: session.id,
         agentName: session.agent?.name || 'Unknown Agent',
         agentId: session.agentId,
         model: session.model,
+        modelName: meta.modelName || modelInfo.name,
+        provider: meta.provider || modelInfo.provider,
+        modelColor: modelInfo.color,
+        modelBg: modelInfo.badgeBg,
         startedAt: session.startedAt,
         durationMs: session.durationMs,
         inputTokens: session.inputTokens,
