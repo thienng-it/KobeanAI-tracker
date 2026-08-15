@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-15T06:39:19.569Z",
+  "generatedAt": "2026-08-15T06:40:55.189Z",
   "totalFiles": 62,
   "nodes": [
     {
@@ -358,8 +358,7 @@
         "src/stores/useDashboardStore.ts"
       ],
       "importedBy": [
-        "src/components/layout/Header.tsx",
-        "src/pages/DashboardPage.tsx"
+        "src/components/layout/Header.tsx"
       ]
     },
     {
@@ -514,8 +513,7 @@
         "src/components/dashboard/QuickActions.tsx",
         "src/components/tags/TagBadge.tsx",
         "src/components/dashboard/TrendsChart.tsx",
-        "src/components/dashboard/AgentDistributionChart.tsx",
-        "src/components/dashboard/DateRangeToolbar.tsx"
+        "src/components/dashboard/AgentDistributionChart.tsx"
       ],
       "importedBy": [
         "src/App.tsx"

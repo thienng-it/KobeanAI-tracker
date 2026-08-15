@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDashboardStore } from '../stores/useDashboardStore';
 import { StatCard } from '../components/dashboard/StatCard';
 import { ActivityFeed } from '../components/dashboard/ActivityFeed';
@@ -6,8 +6,7 @@ import { QuickActions } from '../components/dashboard/QuickActions';
 import { TagBadge } from '../components/tags/TagBadge';
 import { TrendsChart } from '../components/dashboard/TrendsChart';
 import { AgentDistributionChart } from '../components/dashboard/AgentDistributionChart';
-import { DateRangeToolbar } from '../components/dashboard/DateRangeToolbar';
-import { Activity, Coins, Database, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Activity, Coins, Database, RefreshCw } from 'lucide-react';
 
 export default function DashboardPage() {
   const {
@@ -16,29 +15,15 @@ export default function DashboardPage() {
     recentTags,
     trends,
     agentDistribution,
-    dateRange,
     isLoading,
-    isSyncing,
     lastSyncedAt,
     error,
-    fetchDashboardData,
-    setDateRange,
-    syncAllLatest
+    fetchDashboardData
   } = useDashboardStore();
-
-  const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]);
-
-  const handleSync = async () => {
-    const result = await syncAllLatest();
-    if (result.success) {
-      setSyncStatusMsg(result.message);
-      setTimeout(() => setSyncStatusMsg(null), 4000);
-    }
-  };
 
   if (isLoading && !summary) {
     return (
@@ -60,69 +45,13 @@ export default function DashboardPage() {
   return (
     <div style={{ padding: 'var(--space-6)', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
-        <div>
-          <h1 className="text-2xl" style={{ margin: 0, fontWeight: 700 }}>Dashboard</h1>
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)', margin: 'var(--space-1) 0 0 0' }}>
-            Real-time telemetry, session analytics & token expenditure.
-            {lastSyncedAt && <span style={{ color: 'var(--color-text-tertiary)', marginLeft: 'var(--space-2)' }}>(Updated {lastSyncedAt})</span>}
-          </p>
-        </div>
-
-        {/* Toolbar & Sync Button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-          <DateRangeToolbar
-            activeRange={dateRange}
-            onChange={setDateRange}
-            disabled={isLoading || isSyncing}
-          />
-
-          <button 
-            onClick={handleSync}
-            disabled={isSyncing || isLoading}
-            className="btn-secondary"
-            title="Scan local transcript logs and sync latest sessions"
-            style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-              padding: '6px 14px',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '0.8125rem',
-              fontWeight: 500,
-              cursor: (isSyncing || isLoading) ? 'not-allowed' : 'pointer',
-              border: '1px solid var(--color-border-subtle)',
-              background: 'rgba(15, 23, 42, 0.65)',
-              color: 'var(--color-text-primary)'
-            }}
-          >
-            <RefreshCw size={14} className={isSyncing ? 'animate-spin' : ''} />
-            {isSyncing ? 'Syncing...' : 'Sync & Refresh'}
-          </button>
-        </div>
+      <header style={{ marginBottom: 'var(--space-6)' }}>
+        <h1 className="text-2xl" style={{ margin: 0, fontWeight: 700 }}>Dashboard</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', margin: 'var(--space-1) 0 0 0' }}>
+          Real-time telemetry, session analytics & token expenditure.
+          {lastSyncedAt && <span style={{ color: 'var(--color-text-tertiary)', marginLeft: 'var(--space-2)' }}>(Updated {lastSyncedAt})</span>}
+        </p>
       </header>
-
-      {/* Sync Status Banner */}
-      {syncStatusMsg && (
-        <div
-          className="glass-panel animate-slide-up"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            padding: 'var(--space-3) var(--space-4)',
-            borderRadius: 'var(--radius-md)',
-            backgroundColor: 'var(--color-status-success-bg)',
-            color: 'var(--color-status-success-text)',
-            fontSize: '0.8125rem',
-            marginBottom: 'var(--space-6)',
-            border: '1px solid rgba(16, 185, 129, 0.2)'
-          }}
-        >
-          <CheckCircle2 size={16} />
-          <span>{syncStatusMsg}</span>
-        </div>
-      )}
 
       {/* Summary Cards */}
       <div style={{ 
