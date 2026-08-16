@@ -54,9 +54,9 @@ export class MemoryScanner {
         category: 'gotchas',
         priority: 'high',
         pinned: true,
-        description: 'Prevent test connection strings with user:password from triggering Gitleaks CI failures.',
+        description: 'Prevent test connection strings containing mock credentials from triggering Gitleaks CI failures.',
         tags: ['ci', 'gitleaks', 'testing', 'secrets'],
-        content: `Gitleaks CI scans for database URIs with passwords. Never write mock connection strings formatted like 'postgresql://user:password@localhost'. Use 'postgresql://localhost:5432/mydb' or environment variables.`
+        content: `Gitleaks CI scans for database URIs with credentials. Never write mock connection strings containing plaintext auth tokens in URLs. Use 'postgresql://localhost:5432/mydb' or process.env.DATABASE_URL environment variables.`
       },
       {
         id: 'tmpl-esm-nodenext-imports',
