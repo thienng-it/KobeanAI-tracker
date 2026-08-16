@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-08-16T04:47:13.358Z",
-  "totalFiles": 94,
+  "generatedAt": "2026-08-16T12:32:47.847Z",
+  "totalFiles": 118,
   "nodes": [
     {
       "relativePath": "server/connectors/antigravity.js",
       "category": "Connector Layer",
       "imports": [
         "server/connectors/base.js",
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js",
         "server/services/model-registry.js",
         "server/services/tag-service.js",
@@ -23,7 +23,7 @@
       "category": "Connector Layer",
       "imports": [
         "server/connectors/base.js",
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js",
         "server/services/model-registry.js",
         "server/services/tag-service.js",
@@ -72,7 +72,7 @@
       "category": "Connector Layer",
       "imports": [
         "server/connectors/base.js",
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js",
         "server/services/model-registry.js",
         "server/services/tag-service.js",
@@ -88,7 +88,7 @@
       "category": "Connector Layer",
       "imports": [
         "server/connectors/base.js",
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js",
         "server/services/model-registry.js",
         "server/services/tag-service.js",
@@ -109,7 +109,7 @@
       "category": "Connector Layer",
       "imports": [
         "server/connectors/base.js",
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js",
         "server/services/model-registry.js",
         "server/services/workspace-service.js"
@@ -124,7 +124,7 @@
       "category": "Connector Layer",
       "imports": [
         "server/connectors/base.js",
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js",
         "server/services/model-registry.js",
         "server/services/workspace-service.js"
@@ -132,7 +132,7 @@
       "importedBy": []
     },
     {
-      "relativePath": "server/db/index.ts",
+      "relativePath": "server/db/index.js",
       "category": "Database Layer",
       "imports": [
         "server/db/schema.js"
@@ -147,16 +147,23 @@
         "server/index.ts",
         "server/routes/agents.js",
         "server/routes/agents.ts",
+        "server/routes/commands.js",
         "server/routes/commands.ts",
         "server/routes/dashboard.js",
         "server/routes/dashboard.ts",
         "server/routes/health.ts",
+        "server/routes/mcps.js",
+        "server/routes/mcps.ts",
+        "server/routes/rules.js",
         "server/routes/rules.ts",
         "server/routes/sessions.js",
         "server/routes/sessions.ts",
         "server/routes/skills.js",
         "server/routes/skills.ts",
+        "server/scripts/seed.js",
         "server/scripts/seed.ts",
+        "server/services/mcp-scanner.js",
+        "server/services/mcp-scanner.ts",
         "server/services/skill-scanner.js",
         "server/services/skill-scanner.ts",
         "server/services/telemetry-service.js",
@@ -164,6 +171,20 @@
         "server/services/workspace-service.js",
         "server/services/workspace-service.ts"
       ]
+    },
+    {
+      "relativePath": "server/db/index.ts",
+      "category": "Database Layer",
+      "imports": [
+        "server/db/schema.js"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/db/schema.d.ts",
+      "category": "Database Layer",
+      "imports": [],
+      "importedBy": []
     },
     {
       "relativePath": "server/db/schema.js",
@@ -176,18 +197,26 @@
         "server/connectors/claude.ts",
         "server/connectors/cursor.js",
         "server/connectors/cursor.ts",
+        "server/db/index.js",
         "server/db/index.ts",
         "server/routes/agents.js",
         "server/routes/agents.ts",
+        "server/routes/commands.js",
         "server/routes/commands.ts",
         "server/routes/dashboard.js",
         "server/routes/dashboard.ts",
+        "server/routes/mcps.js",
+        "server/routes/mcps.ts",
+        "server/routes/rules.js",
         "server/routes/rules.ts",
         "server/routes/sessions.js",
         "server/routes/sessions.ts",
         "server/routes/skills.js",
         "server/routes/skills.ts",
+        "server/scripts/seed.js",
         "server/scripts/seed.ts",
+        "server/services/mcp-scanner.js",
+        "server/services/mcp-scanner.ts",
         "server/services/skill-scanner.js",
         "server/services/skill-scanner.ts",
         "server/services/workspace-service.js",
@@ -211,8 +240,9 @@
         "server/routes/sessions.js",
         "server/routes/skills.js",
         "server/routes/agents.js",
-        "server/routes/commands.ts",
-        "server/routes/rules.ts"
+        "server/routes/commands.js",
+        "server/routes/rules.js",
+        "server/routes/mcps.js"
       ],
       "importedBy": []
     },
@@ -220,7 +250,7 @@
       "relativePath": "server/index.ts",
       "category": "Backend Core",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/services/telemetry-service.js",
         "server/middleware/error.ts",
         "server/routes/health.ts",
@@ -228,8 +258,9 @@
         "server/routes/sessions.js",
         "server/routes/skills.js",
         "server/routes/agents.js",
-        "server/routes/commands.ts",
-        "server/routes/rules.ts"
+        "server/routes/commands.js",
+        "server/routes/rules.js",
+        "server/routes/mcps.js"
       ],
       "importedBy": []
     },
@@ -246,7 +277,7 @@
       "relativePath": "server/routes/agents.js",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js"
       ],
       "importedBy": [
@@ -258,16 +289,16 @@
       "relativePath": "server/routes/agents.ts",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js"
       ],
       "importedBy": []
     },
     {
-      "relativePath": "server/routes/commands.ts",
+      "relativePath": "server/routes/commands.js",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js"
       ],
       "importedBy": [
@@ -276,10 +307,19 @@
       ]
     },
     {
+      "relativePath": "server/routes/commands.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js"
+      ],
+      "importedBy": []
+    },
+    {
       "relativePath": "server/routes/dashboard.js",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js",
         "server/services/model-registry.js",
         "server/services/date-utils.js",
@@ -294,7 +334,7 @@
       "relativePath": "server/routes/dashboard.ts",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js",
         "server/services/model-registry.js",
         "server/services/date-utils.js",
@@ -306,7 +346,48 @@
       "relativePath": "server/routes/health.ts",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts"
+        "server/db/index.js"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/mcps.d.ts",
+      "category": "API Routes",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/routes/mcps.js",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js",
+        "server/services/mcp-scanner.js"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/mcps.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js",
+        "server/services/mcp-scanner.js"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/routes/rules.js",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js"
       ],
       "importedBy": [
         "server/index.js",
@@ -317,19 +398,16 @@
       "relativePath": "server/routes/rules.ts",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js"
       ],
-      "importedBy": [
-        "server/index.js",
-        "server/index.ts"
-      ]
+      "importedBy": []
     },
     {
       "relativePath": "server/routes/sessions.js",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js",
         "server/services/model-registry.js",
         "server/services/date-utils.js"
@@ -343,7 +421,7 @@
       "relativePath": "server/routes/sessions.ts",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js",
         "server/services/model-registry.js",
         "server/services/date-utils.js"
@@ -354,7 +432,7 @@
       "relativePath": "server/routes/skills.js",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js"
       ],
       "importedBy": [
@@ -366,7 +444,16 @@
       "relativePath": "server/routes/skills.ts",
       "category": "API Routes",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
+        "server/db/schema.js"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/scripts/seed.js",
+      "category": "Backend Core",
+      "imports": [
+        "server/db/index.js",
         "server/db/schema.js"
       ],
       "importedBy": []
@@ -375,7 +462,7 @@
       "relativePath": "server/scripts/seed.ts",
       "category": "Backend Core",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js"
       ],
       "importedBy": []
@@ -401,6 +488,33 @@
       "relativePath": "server/services/date-utils.ts",
       "category": "Service Layer",
       "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/mcp-scanner.d.ts",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/mcp-scanner.js",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js"
+      ],
+      "importedBy": [
+        "server/routes/mcps.js",
+        "server/routes/mcps.ts"
+      ]
+    },
+    {
+      "relativePath": "server/services/mcp-scanner.ts",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js"
+      ],
       "importedBy": []
     },
     {
@@ -442,7 +556,7 @@
       "relativePath": "server/services/skill-scanner.js",
       "category": "Service Layer",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js"
       ],
       "importedBy": []
@@ -451,7 +565,7 @@
       "relativePath": "server/services/skill-scanner.ts",
       "category": "Service Layer",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js"
       ],
       "importedBy": []
@@ -491,7 +605,7 @@
       "relativePath": "server/services/telemetry-service.js",
       "category": "Service Layer",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/connectors/antigravity.js",
         "server/connectors/claude.js",
         "server/connectors/cursor.js"
@@ -505,7 +619,7 @@
       "relativePath": "server/services/telemetry-service.ts",
       "category": "Service Layer",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/connectors/base.js",
         "server/connectors/antigravity.js",
         "server/connectors/claude.js",
@@ -523,7 +637,7 @@
       "relativePath": "server/services/workspace-service.js",
       "category": "Service Layer",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js"
       ],
       "importedBy": [
@@ -539,7 +653,7 @@
       "relativePath": "server/services/workspace-service.ts",
       "category": "Service Layer",
       "imports": [
-        "server/db/index.ts",
+        "server/db/index.js",
         "server/db/schema.js"
       ],
       "importedBy": []
@@ -556,13 +670,37 @@
         "src/pages/AgentsConfigPage.tsx",
         "src/pages/CommandsPage.tsx",
         "src/pages/RulesPage.tsx",
+        "src/pages/McpsPage.tsx",
         "src/pages/DocsPage.tsx",
+        "src/pages/WikiPage.tsx",
         "src/components/layout/AppLayout.tsx",
         "src/components/common/ErrorBoundary.tsx",
         "src/stores/useThemeStore.ts"
       ],
       "importedBy": [
         "src/main.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/commands/CommandDetailModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useCommandsStore.ts",
+        "src/components/common/CommandBadge.tsx"
+      ],
+      "importedBy": [
+        "src/pages/CommandsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/common/CommandBadge.tsx",
+      "category": "UI Components",
+      "imports": [],
+      "importedBy": [
+        "src/components/commands/CommandDetailModal.tsx",
+        "src/components/skills/SkillCard.tsx",
+        "src/components/skills/SkillDetailModal.tsx",
+        "src/pages/CommandsPage.tsx"
       ]
     },
     {
@@ -733,6 +871,77 @@
       ]
     },
     {
+      "relativePath": "src/components/mcps/JsonSchemaViewer.tsx",
+      "category": "UI Components",
+      "imports": [],
+      "importedBy": [
+        "src/components/mcps/McpToolInspectorModal.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/mcps/McpCatalogModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useMcpStore.ts",
+        "src/stores/useAgentsStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/McpsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/mcps/McpEditorModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useMcpStore.ts",
+        "src/stores/useAgentsStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/McpsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/mcps/McpExportConfigModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useMcpStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/McpsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/mcps/McpServerCard.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useMcpStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/McpsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/mcps/McpToolInspectorModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useMcpStore.ts",
+        "src/components/mcps/JsonSchemaViewer.tsx"
+      ],
+      "importedBy": [
+        "src/pages/McpsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/rules/RuleDetailModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useRulesStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/RulesPage.tsx"
+      ]
+    },
+    {
       "relativePath": "src/components/sessions/SessionDetailModal.tsx",
       "category": "UI Components",
       "imports": [
@@ -794,7 +1003,19 @@
       "relativePath": "src/components/skills/SkillCard.tsx",
       "category": "UI Components",
       "imports": [
-        "src/stores/useSkillsStore.ts"
+        "src/stores/useSkillsStore.ts",
+        "src/components/common/CommandBadge.tsx"
+      ],
+      "importedBy": [
+        "src/pages/SkillsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/skills/SkillDetailModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useSkillsStore.ts",
+        "src/components/common/CommandBadge.tsx"
       ],
       "importedBy": [
         "src/pages/SkillsPage.tsx"
@@ -820,6 +1041,7 @@
         "src/stores/useAgentsStore.ts",
         "src/stores/useCommandsStore.ts",
         "src/stores/useDashboardStore.ts",
+        "src/stores/useMcpStore.ts",
         "src/stores/useRulesStore.ts",
         "src/stores/useSessionsStore.ts",
         "src/stores/useSkillsStore.ts"
@@ -849,7 +1071,9 @@
       "category": "Pages",
       "imports": [
         "src/stores/useCommandsStore.ts",
-        "src/stores/useSkillsStore.ts"
+        "src/stores/useSkillsStore.ts",
+        "src/components/commands/CommandDetailModal.tsx",
+        "src/components/common/CommandBadge.tsx"
       ],
       "importedBy": [
         "src/App.tsx"
@@ -880,10 +1104,26 @@
       ]
     },
     {
+      "relativePath": "src/pages/McpsPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/useMcpStore.ts",
+        "src/components/mcps/McpServerCard.tsx",
+        "src/components/mcps/McpToolInspectorModal.tsx",
+        "src/components/mcps/McpEditorModal.tsx",
+        "src/components/mcps/McpCatalogModal.tsx",
+        "src/components/mcps/McpExportConfigModal.tsx"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
       "relativePath": "src/pages/RulesPage.tsx",
       "category": "Pages",
       "imports": [
-        "src/stores/useRulesStore.ts"
+        "src/stores/useRulesStore.ts",
+        "src/components/rules/RuleDetailModal.tsx"
       ],
       "importedBy": [
         "src/App.tsx"
@@ -927,8 +1167,17 @@
       "category": "Pages",
       "imports": [
         "src/stores/useSkillsStore.ts",
-        "src/components/skills/SkillCard.tsx"
+        "src/components/skills/SkillCard.tsx",
+        "src/components/skills/SkillDetailModal.tsx"
       ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/pages/WikiPage.tsx",
+      "category": "Pages",
+      "imports": [],
       "importedBy": [
         "src/App.tsx"
       ]
@@ -941,6 +1190,8 @@
         "src/stores/useSkillsStore.ts"
       ],
       "importedBy": [
+        "src/components/mcps/McpCatalogModal.tsx",
+        "src/components/mcps/McpEditorModal.tsx",
         "src/components/settings/ProviderKeysManager.tsx",
         "src/pages/AgentsConfigPage.tsx"
       ]
@@ -952,6 +1203,7 @@
         "src/lib/api.ts"
       ],
       "importedBy": [
+        "src/components/commands/CommandDetailModal.tsx",
         "src/pages/CommandsPage.tsx"
       ]
     },
@@ -988,12 +1240,28 @@
       ]
     },
     {
+      "relativePath": "src/stores/useMcpStore.ts",
+      "category": "Zustand Stores",
+      "imports": [
+        "src/lib/api.ts"
+      ],
+      "importedBy": [
+        "src/components/mcps/McpCatalogModal.tsx",
+        "src/components/mcps/McpEditorModal.tsx",
+        "src/components/mcps/McpExportConfigModal.tsx",
+        "src/components/mcps/McpServerCard.tsx",
+        "src/components/mcps/McpToolInspectorModal.tsx",
+        "src/pages/McpsPage.tsx"
+      ]
+    },
+    {
       "relativePath": "src/stores/useRulesStore.ts",
       "category": "Zustand Stores",
       "imports": [
         "src/lib/api.ts"
       ],
       "importedBy": [
+        "src/components/rules/RuleDetailModal.tsx",
         "src/pages/RulesPage.tsx"
       ]
     },
@@ -1020,6 +1288,7 @@
       ],
       "importedBy": [
         "src/components/skills/SkillCard.tsx",
+        "src/components/skills/SkillDetailModal.tsx",
         "src/pages/CommandsPage.tsx",
         "src/pages/SkillEditorPage.tsx",
         "src/pages/SkillsPage.tsx",

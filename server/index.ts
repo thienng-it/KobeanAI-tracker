@@ -16,6 +16,7 @@ import skillsRoutes from './routes/skills.js';
 import agentsRoutes from './routes/agents.js';
 import commandsRoutes from './routes/commands.js';
 import rulesRoutes from './routes/rules.js';
+import mcpsRoutes from './routes/mcps.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -60,6 +61,7 @@ app.use('/api/skills', skillsRoutes);
 app.use('/api/agents', agentsRoutes);
 app.use('/api/commands', commandsRoutes);
 app.use('/api/rules', rulesRoutes);
+app.use('/api/mcps', mcpsRoutes);
 
 app.get('/api/setup/check', (req, res) => {
   res.json({
@@ -110,12 +112,19 @@ const server = app.listen(PORT, async () => {
   const telemetryService = TelemetryService.getInstance();
   await telemetryService.start();
 
-  // Auto-discover workspace & global skills, rules, and commands
+  // Auto-discover workspace & global skills, rules, commands, and MCP servers
   try {
     const { SkillScanner } = await import('./services/skill-scanner.js');
     await SkillScanner.syncAll();
   } catch (err) {
     console.error('[Server] Skill discovery error:', err);
+  }
+
+  try {
+    const { McpScanner } = await import('./services/mcp-scanner.js');
+    await McpScanner.syncAll();
+  } catch (err) {
+    console.error('[Server] MCP discovery error:', err);
   }
 
   // Graceful shutdown handler

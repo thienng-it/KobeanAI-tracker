@@ -111,6 +111,51 @@ export const rules = sqliteTable("rules", {
   scopePriorityIdx: index("idx_rule_scope").on(table.scope, table.priority)
 }));
 
+export const mcpServers = sqliteTable("mcp_servers", {
+  id: text("id").primaryKey(),
+  workspaceId: text("workspace_id").notNull().references(() => workspaces.id),
+  name: text("name").notNull(),
+  slug: text("slug"),
+  description: text("description"),
+  transport: text("transport").notNull(), // 'stdio' | 'sse' | 'http' | 'builtin'
+  command: text("command"),
+  args: text("args", { mode: 'json' }), // string[]
+  env: text("env", { mode: 'json' }), // Record<string, string>
+  url: text("url"),
+  headers: text("headers", { mode: 'json' }), // Record<string, string>
+  scope: text("scope").notNull().default('workspace'), // 'workspace' | 'global' | 'builtin'
+  status: text("status").notNull().default('configured'), // 'active' | 'configured' | 'error' | 'disabled'
+  enabled: integer("enabled", { mode: 'boolean' }).notNull().default(true),
+  toolsCount: integer("tools_count").notNull().default(0),
+  metadata: text("metadata", { mode: 'json' }),
+  ...timestamps
+}, (table) => ({
+  nameIdx: index("idx_mcp_server_name").on(table.name),
+  scopeIdx: index("idx_mcp_server_scope").on(table.scope),
+  statusIdx: index("idx_mcp_server_status").on(table.status),
+}));
+
+export const mcpTools = sqliteTable("mcp_tools", {
+  id: text("id").primaryKey(),
+  serverId: text("server_id").notNull().references(() => mcpServers.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  parameters: text("parameters", { mode: 'json' }),
+  isLazy: integer("is_lazy", { mode: 'boolean' }).notNull().default(false),
+  usageCount: integer("usage_count").notNull().default(0),
+  ...timestamps
+}, (table) => ({
+  serverIdx: index("idx_mcp_tool_server").on(table.serverId),
+  nameIdx: index("idx_mcp_tool_name").on(table.name),
+}));
+
+export const mcpServerAgents = sqliteTable("mcp_server_agents", {
+  serverId: text("server_id").notNull().references(() => mcpServers.id),
+  agentId: text("agent_id").notNull().references(() => agents.id),
+}, (table) => ({
+  pk: uniqueIndex("idx_mcp_server_agent").on(table.serverId, table.agentId)
+}));
+
 // Junction Tables
 
 export const sessionTags = sqliteTable("session_tags", {
@@ -144,6 +189,7 @@ export const workspacesRelations = relations(workspaces, ({ many }) => ({
   sessions: many(sessions),
   skills: many(skills),
   rules: many(rules),
+  mcpServers: many(mcpServers),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one, many }) => ({
@@ -192,11 +238,27 @@ export const ruleTagsRelations = relations(ruleTags, ({ one }) => ({
 export const agentsRelations = relations(agents, ({ many }) => ({
   sessions: many(sessions),
   agentSkills: many(agentSkills),
+  mcpServerAgents: many(mcpServerAgents),
 }));
 
 export const agentSkillsRelations = relations(agentSkills, ({ one }) => ({
   agent: one(agents, { fields: [agentSkills.agentId], references: [agents.id] }),
   skill: one(skills, { fields: [agentSkills.skillId], references: [skills.id] }),
+}));
+
+export const mcpServersRelations = relations(mcpServers, ({ one, many }) => ({
+  workspace: one(workspaces, { fields: [mcpServers.workspaceId], references: [workspaces.id] }),
+  tools: many(mcpTools),
+  serverAgents: many(mcpServerAgents),
+}));
+
+export const mcpToolsRelations = relations(mcpTools, ({ one }) => ({
+  server: one(mcpServers, { fields: [mcpTools.serverId], references: [mcpServers.id] }),
+}));
+
+export const mcpServerAgentsRelations = relations(mcpServerAgents, ({ one }) => ({
+  server: one(mcpServers, { fields: [mcpServerAgents.serverId], references: [mcpServers.id] }),
+  agent: one(agents, { fields: [mcpServerAgents.agentId], references: [agents.id] }),
 }));
 
 // Export Types
@@ -214,3 +276,8 @@ export type Command = typeof commands.$inferSelect;
 export type InsertCommand = typeof commands.$inferInsert;
 export type Rule = typeof rules.$inferSelect;
 export type InsertRule = typeof rules.$inferInsert;
+export type McpServer = typeof mcpServers.$inferSelect;
+export type InsertMcpServer = typeof mcpServers.$inferInsert;
+export type McpTool = typeof mcpTools.$inferSelect;
+export type InsertMcpTool = typeof mcpTools.$inferInsert;
+

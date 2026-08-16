@@ -8,6 +8,7 @@ import SkillEditorPage from './pages/SkillEditorPage.tsx';
 import AgentsConfigPage from './pages/AgentsConfigPage.tsx';
 import CommandsPage from './pages/CommandsPage.tsx';
 import RulesPage from './pages/RulesPage.tsx';
+import McpsPage from './pages/McpsPage.tsx';
 import DocsPage from './pages/DocsPage.tsx';
 import WikiPage from './pages/WikiPage.tsx';
 import { AppLayout } from './components/layout/AppLayout.tsx';
@@ -38,6 +39,7 @@ function App() {
           <Route path="/skills" element={<SkillsPage />} />
           <Route path="/skills/new" element={<SkillEditorPage />} />
           <Route path="/skills/:id/edit" element={<SkillEditorPage />} />
+          <Route path="/mcps" element={<McpsPage />} />
           <Route path="/commands" element={<CommandsPage />} />
           <Route path="/rules" element={<RulesPage />} />
           <Route path="/settings/agents" element={<AgentsConfigPage />} />

@@ -28,6 +28,7 @@ export const Header: React.FC = () => {
     if (path === '/' || path.startsWith('/dashboard')) return 'Dashboard';
     if (path.startsWith('/sessions')) return 'Sessions';
     if (path.startsWith('/skills')) return 'Skills Registry';
+    if (path.startsWith('/mcps')) return 'MCP Servers & Tools';
     if (path.startsWith('/commands')) return 'Commands';
     if (path.startsWith('/rules')) return 'Rules Engine';
     if (path.startsWith('/settings/agents')) return 'Agents Configuration';

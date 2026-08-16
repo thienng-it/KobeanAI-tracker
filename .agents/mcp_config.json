@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "sqlite-database-explorer": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sqlite",
+        "--db-path",
+        "/Users/josephnguyen/Desktop/KobeanAI-tracker/sqlite.db"
+      ]
+    }
+  }
+}

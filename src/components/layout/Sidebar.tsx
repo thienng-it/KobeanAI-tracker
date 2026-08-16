@@ -12,7 +12,8 @@ import {
   BookOpen, 
   PanelLeftClose, 
   PanelLeftOpen,
-  Library
+  Library,
+  Boxes
 } from 'lucide-react';
 import './Sidebar.css';
 import { useThemeStore } from '../../stores/useThemeStore';
@@ -57,6 +58,7 @@ export const Sidebar: React.FC = () => {
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Sessions', path: '/sessions', icon: <List size={20} /> },
     { name: 'Skills', path: '/skills', icon: <BrainCircuit size={20} /> },
+    { name: 'MCPs', path: '/mcps', icon: <Boxes size={20} /> },
     { name: 'Commands', path: '/commands', icon: <Terminal size={20} /> },
     { name: 'Rules', path: '/rules', icon: <ShieldAlert size={20} /> },
     { name: 'Agents', path: '/settings/agents', icon: <Cpu size={20} /> },
