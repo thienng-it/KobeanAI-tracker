@@ -75,7 +75,10 @@ graph TD
 - 🔒 **100% Local-First & Zero Cloud Lock-In**: All transcripts, session histories, tokens, and rules stay strictly on your workstation in SQLite. Zero telemetry exfiltration.
 - 🤖 **Universal Cross-Agent Compatibility**: Native connectors and parsers for **Google Antigravity**, **Claude Code (Anthropic)**, **Cursor IDE**, and **GitHub Copilot**.
 - 📊 **Granular Model Observability & Telemetry**: Per-model statistics isolation, token breakdowns (input, output, cache read/write, thinking loops), latency tracking, and exact cost computation.
-- 🏷️ **Canonical Intent Taxonomy & Noise Filtering**: Automatic categorization into `[Implement]`, `[Fix]`, `[Refactor]`, `[UI/UX]`, `[Docs]`, `[Validate]`, and `[Config]` while filtering transient noise.
+- 🏷️ **Canonical Intent Taxonomy & Noise Filtering**: Automatic categorization into `[Implement]`, `[Fix]`, `[Refactor]`, `[UI/UX]`, `[Docs]`, `[Validate]`, and `[Config]` with real-time workload distribution charts.
+- 🔌 **MCP Servers & Tools Management Hub**: Inspect, configure, health-test, and 1-click install Model Context Protocol (MCP) servers (Postgres, GitHub, Puppeteer, Filesystem, Memory, Fetch) across workspace and global scopes.
+- 🧩 **Plugins & Modular Extensions**: Manage multi-agent capability bundles (`.agents/plugins/*/` & `~/.gemini/config/plugins/*/`), preview bundled skills instructions, inspect manifests, and scaffold custom workspace plugins.
+- ⚡ **Lifecycle Hooks & Safety Guards**: Configure event-driven lifecycle intercepts (`PreToolUse`, `PostToolUse`, `SessionStart`, `PreCommit`), test dangerous commands in a sandbox simulator, and 1-click toggle Git pre-commit secret leak scanners.
 - 🧠 **Universal Prompt Skill & Rule Management**: Manage and create prompt skills, behavioral guardrails, and slash commands with automatic two-way disk synchronization into `.agents/skills/<name>/SKILL.md`.
 - ⌘ **Slash Command Registry**: Map shortcut commands (`/goal`, `/schedule`, `/grill-me`, `/learn`) with one-click invocation copy and linked skill execution.
 - 🌊 **Fluid Taste-Skill UI**: Sleek dark/light themes, spring physics curves (`cubic-bezier(0.16, 1, 0.3, 1)`), live telemetry pulsing indicators, and glassmorphic detail inspection modals.
@@ -88,9 +91,9 @@ graph TD
 
 KobeanAI Tracker unifies configuration across all major AI agent architectures:
 
-| AI IDE / Assistant | Configuration Format | Progressive Skills | Tool / MCP Config |
+| AI IDE / Assistant | Configuration Format | Progressive Skills | Tool / MCP / Hooks Config |
 | :--- | :--- | :--- | :--- |
-| **Google Antigravity** | `.agents/`, `GEMINI.md`, `AGENTS.md` | `.agents/skills/<name>/SKILL.md` | `.agents/mcp_config.json`, `hooks.json` |
+| **Google Antigravity** | `.agents/`, `GEMINI.md`, `AGENTS.md` | `.agents/skills/<name>/SKILL.md` | `.agents/mcp_config.json`, `hooks.json`, `.agents/plugins/` |
 | **Claude Code (Anthropic)** | `.claude/`, `CLAUDE.md` | `.claude/skills/`, `.claude/commands/` | `.claude/settings.json`, `config.json` |
 | **Cursor IDE** | `.cursor/`, `.cursorrules` | `.cursor/rules/*.mdc` | `.cursor/mcp.json` |
 | **GitHub Copilot** | `.github/` | `.github/copilot-instructions.md` | VS Code settings |
@@ -196,19 +199,22 @@ chmod +x .git/hooks/pre-commit
 
 ```text
 KobeanAI-tracker/
-├── .agents/                    # Progressive disclosure skills, rules & plugins
+├── .agents/                    # Progressive disclosure skills, rules, plugins & hooks
+│   ├── plugins/                # Modular workspace plugins (codegraph, ponytail, taste-skill)
 │   ├── rules/                  # Behavioral guardrails (model-observability, session-tags)
-│   └── skills/                 # Ponytail, codegraph, taste-skill SKILL.md files
+│   ├── skills/                 # Workspace skills with YAML frontmatter
+│   ├── hooks.json              # Workspace lifecycle intercepts (safety-gate, auto-linter)
+│   └── mcp_config.json         # Workspace MCP servers configuration
 ├── .betterleak                 # Secret scanning detection regex patterns
 ├── server/                     # Backend Express server & SQLite database
 │   ├── connectors/             # Antigravity, Claude, Cursor transcript watchers
 │   ├── db/                     # Drizzle schema, migrations & SQLite DB
-│   ├── routes/                 # REST API endpoints (sessions, skills, rules, commands)
-│   └── services/               # ModelRegistry, TagService, WorkspaceService, DateUtils
+│   ├── routes/                 # REST API endpoints (sessions, skills, mcps, plugins, hooks)
+│   └── services/               # ModelRegistry, TagService, PluginScanner, HookScanner, McpScanner
 ├── src/                        # Frontend React application
-│   ├── components/             # Reusable UI, charts, modals, toolbars
-│   ├── pages/                  # Dashboard, Sessions, Skills, Rules, Commands, Docs, Wiki
-│   ├── stores/                 # Zustand state stores (persisted telemetry)
+│   ├── components/             # Reusable UI, charts, modals, toolbars, plugins, hooks
+│   ├── pages/                  # Dashboard, Sessions, Skills, MCPs, Plugins, Hooks, Rules, Commands, Docs, Wiki
+│   ├── stores/                 # Zustand state stores (persisted telemetry & configurations)
 │   └── index.css               # Global spring tokens & glassmorphic design system
 ├── Dockerfile                  # Multi-stage production container
 └── docker-compose.yml          # Containerized deployment manifest

@@ -87,6 +87,8 @@
       <div class="tabs-nav">
         <button class="tab-btn active" data-tab="tab-quickstart">🚀 Quickstart & Setup</button>
         <button class="tab-btn" data-tab="tab-tokens">🔑 API Tokens & Connectors</button>
+        <button class="tab-btn" data-tab="tab-mcps">🔌 MCP Servers & Tools</button>
+        <button class="tab-btn" data-tab="tab-plugins">🧩 Plugins & Lifecycle Hooks</button>
         <button class="tab-btn" data-tab="tab-multirepo">🐙 Multi-Repo Contributor Guide</button>
         <button class="tab-btn" data-tab="tab-desktop">🖥️ Local Web & Desktop App</button>
         <button class="tab-btn" data-tab="tab-security">🛡️ Secret Leaks (.betterleak)</button>
@@ -214,6 +216,63 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 # OpenAI API Key
 export OPENAI_API_KEY="sk-proj-..."</code></pre>
             <button class="copy-btn" data-target="code-custom-paths">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== Tab: MCP Servers & Tools ==================== -->
+      <div id="tab-mcps" class="tab-content">
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🔌 Model Context Protocol (MCP) Management</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
+          Connect AI agents to databases, browser automation tools, filesystem resources, and external APIs using the standard Model Context Protocol.
+        </p>
+
+        <div class="grid-3" style="margin-bottom: 1.5rem;">
+          <div class="card">
+            <h4>Workspace Config</h4>
+            <p>Configured in <code>.agents/mcp_config.json</code> and shared with your project team.</p>
+          </div>
+          <div class="card">
+            <h4>Global Workstation</h4>
+            <p>Discovered from <code>~/.gemini/antigravity-ide/mcp/</code> across all local repositories.</p>
+          </div>
+          <div class="card">
+            <h4>1-Click Catalog</h4>
+            <p>Install PostgreSQL, GitHub, Puppeteer, Filesystem, Memory, and Fetch with 1 click.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Example MCP Configuration (.agents/mcp_config.json)</h3>
+          <div class="code-container">
+            <pre><code id="code-mcp-config">{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"]
+    }
+  }
+}</code></pre>
+            <button class="copy-btn" data-target="code-mcp-config">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== Tab: Plugins & Lifecycle Hooks ==================== -->
+      <div id="tab-plugins" class="tab-content">
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🧩 Plugins & Lifecycle Safety Guards</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
+          Bundle progressive disclosure skills into reusable plugins and enforce event-driven guardrails across agent runs.
+        </p>
+
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="card">
+            <h4>1. Modular Plugins (.agents/plugins/*/)</h4>
+            <p>Encapsulate skills, subagents, and configurations with a declarative <code>plugin.json</code> manifest and automatic disk discovery.</p>
+          </div>
+          <div class="card">
+            <h4>2. Lifecycle Hooks (.agents/hooks.json)</h4>
+            <p>Intercept agent actions on <code>PreToolUse</code>, <code>PostToolUse</code>, <code>SessionStart</code>, or Git commit with real-time sandbox simulation testing.</p>
           </div>
         </div>
       </div>

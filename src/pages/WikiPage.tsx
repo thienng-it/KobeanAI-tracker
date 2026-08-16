@@ -239,6 +239,83 @@ chmod +x .git/hooks/pre-commit
     `
   },
   {
+    id: 'mcp-servers-tools',
+    title: 'Model Context Protocol (MCP) Server & Tool Architecture',
+    category: 'architecture',
+    summary: 'Connecting AI assistants to external databases, web tools, cloud services, and custom subprocess CLI tools.',
+    icon: <Cpu size={18} color="#3b82f6" />,
+    tags: ['MCP', 'Tools', 'JSON-RPC', 'Postgres', 'GitHub'],
+    readTime: '4 min read',
+    content: `
+# Model Context Protocol (MCP) Hub
+
+The **Model Context Protocol (MCP)** is the open standard that connects LLMs to real-time tools, internal APIs, and local development environments.
+
+## Architecture & Configuration
+KobeanAI Tracker manages MCP configurations across two complementary scopes:
+1. **Workspace Scope (\`.agents/mcp_config.json\`)**: Project-level servers shared across team members.
+2. **Global Scope (\`~/.gemini/antigravity-ide/mcp/\`)**: Workstation-wide tools, lazily-loaded tool schemas, and environment credentials.
+
+## Supported MCP Tool Transports
+- **STDIO Process Transport**: Runs local commands via \`npx\` or binary execution with JSON-RPC over stdin/stdout.
+- **SSE (Server-Sent Events)**: Real-time event streaming for cloud-hosted MCP endpoints.
+
+## 1-Click Installation Catalog
+KobeanAI Tracker includes verified templates for PostgreSQL, GitHub, Puppeteer browser automation, Local Filesystem, Sequential Thinking / Memory, and Fetch.
+    `
+  },
+  {
+    id: 'plugins-extensions',
+    title: 'Plugins & Modular Extension Bundles',
+    category: 'agent-protocols',
+    summary: 'Encapsulating progressive disclosure skills, subagent configurations, and MCP servers into reusable plugin bundles.',
+    icon: <Sparkles size={18} color="#ec4899" />,
+    tags: ['Plugins', 'Extensions', 'Modular', 'Bundles', 'Manifest'],
+    readTime: '3 min read',
+    content: `
+# Modular Plugins & Capability Bundles
+
+Plugins provide a declarative way to package skills, subagents, and MCP servers into portable modules.
+
+## Plugin Directory Structure
+\`\`\`text
+.agents/plugins/<plugin_name>/
+├── plugin.json       # Declarative manifest (name, version, author, description)
+├── skills/           # Skill folders containing SKILL.md instructions
+├── agents/           # Specialized subagent definitions
+└── mcp_config.json   # Optional MCP tool server bindings
+\`\`\`
+
+## Plugin Discovery Lifecycle
+1. **On Boot**: \`PluginScanner.syncAll()\` reads both workspace (\`.agents/plugins/\`) and global plugin directories.
+2. **Dynamic Ingestion**: KobeanAI Tracker extracts bundled skills, tool schemas, and capabilities into SQLite.
+3. **Workspace Scaffolding**: Create custom plugins directly from the UI with automatic disk synchronization.
+    `
+  },
+  {
+    id: 'lifecycle-hooks-guards',
+    title: 'Lifecycle Hooks & Safety Guardrails',
+    category: 'security',
+    summary: 'Intercepting agent actions at PreToolUse, PostToolUse, and SessionStart with subprocess testing and pre-commit secret scanners.',
+    icon: <ShieldCheck size={18} color="#f59e0b" />,
+    tags: ['Hooks', 'Safety', 'PreToolUse', 'Guards', 'Simulation'],
+    readTime: '4 min read',
+    content: `
+# Lifecycle Hooks & Safety Guardrails
+
+Autonomous coding agents can execute shell commands, edit files, and make web requests. **Lifecycle Hooks** allow developers to enforce safety constraints, auto-format code, and inject workspace context.
+
+## Supported Lifecycle Event Triggers
+- **\`PreToolUse\`**: Intercepts tool calls before execution. Hook scripts can return \`{"decision": "allow"}\`, \`{"decision": "deny", "reason": "..."}\`, or \`{"decision": "modify"}\`.
+- **\`PostToolUse\`**: Executes immediately after a tool finishes (e.g., auto-formatting code with ESLint after \`write_to_file\`).
+- **\`SessionStart\`**: Injects repository context, git branch status, and active issues at the beginning of a turn.
+- **\`PreCommit\`**: Validates secrets and code health before commits.
+
+## Testing in the Interactive Simulator
+KobeanAI Tracker features a real-time **Hook Simulator Sandbox** where you can test destructive command filters, fork-bomb blocks, and file guards with mock payloads before enabling them live in production.
+    `
+  },
+  {
     id: 'troubleshooting-faq',
     title: 'Troubleshooting & Frequently Asked Questions',
     category: 'troubleshooting',

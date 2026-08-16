@@ -14,7 +14,7 @@ export const IntentDistributionChart: React.FC<IntentDistributionChartProps> = (
         style={{ 
           height: '370px', 
           display: 'flex', 
-          flexDirection: 'column',
+          flexDirection: 'column', 
           alignItems: 'center', 
           justifyContent: 'center', 
           borderRadius: 'var(--radius-xl)',
@@ -47,14 +47,15 @@ export const IntentDistributionChart: React.FC<IntentDistributionChartProps> = (
         padding: 'var(--space-6)', 
         borderRadius: 'var(--radius-xl)',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        boxSizing: 'border-box'
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
         <div>
           <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Sparkles size={18} color="var(--color-brand-primary)" />
-            Task Intent & Workload
+            <span>Task Intent & Workload</span>
           </h3>
           <p style={{ margin: '2px 0 0 0', fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
             Engineering effort by canonical activity ({totalTurns} total classified turns)
@@ -68,13 +69,15 @@ export const IntentDistributionChart: React.FC<IntentDistributionChartProps> = (
           overflowY: 'auto', 
           display: 'flex', 
           flexDirection: 'column', 
-          gap: '12px',
-          paddingRight: '4px'
+          gap: '10px',
+          padding: '4px 6px 4px 0',
+          boxSizing: 'border-box'
         }}
       >
-        {data.slice(0, 7).map((item, index) => {
-          const barWidth = Math.max(item.percentage, 4);
+        {data.map((item, index) => {
+          const barWidth = Math.max(item.percentage, 3);
           const tagColor = item.color || '#3b82f6';
+          const label = item.tag || (item.name === 'Unknown' ? '[Unknown]' : `[${item.name}]`);
 
           return (
             <div 
@@ -82,12 +85,13 @@ export const IntentDistributionChart: React.FC<IntentDistributionChartProps> = (
               style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '4px'
+                gap: '4px',
+                padding: '2px 0'
               }}
             >
               {/* Intent Label Row */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8125rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'nowrap' }}>
                   <span
                     style={{
                       display: 'inline-flex',
@@ -99,17 +103,18 @@ export const IntentDistributionChart: React.FC<IntentDistributionChartProps> = (
                       backgroundColor: `${tagColor}18`,
                       border: `1px solid ${tagColor}40`,
                       padding: '1px 8px',
-                      borderRadius: 'var(--radius-full)'
+                      borderRadius: 'var(--radius-full)',
+                      whiteSpace: 'nowrap'
                     }}
                   >
-                    {item.tag || `[${item.name}]`}
+                    {label}
                   </span>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-tertiary)', fontFamily: 'var(--font-mono)' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-tertiary)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                     {formatTokens(item.totalTokens)} tok • ${item.totalCost.toFixed(3)}
                   </span>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                   <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
                     {item.count} {item.count === 1 ? 'turn' : 'turns'}
                   </span>
@@ -122,7 +127,7 @@ export const IntentDistributionChart: React.FC<IntentDistributionChartProps> = (
               {/* Progress Bar */}
               <div 
                 style={{ 
-                  height: '8px', 
+                  height: '7px', 
                   width: '100%', 
                   backgroundColor: 'rgba(255, 255, 255, 0.06)', 
                   borderRadius: 'var(--radius-full)',

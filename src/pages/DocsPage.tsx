@@ -13,12 +13,14 @@ import {
   ArrowRight, 
   Tag, 
   FolderGit2,
-  ExternalLink
+  ExternalLink,
+  Boxes,
+  Puzzle
 } from 'lucide-react';
 
 export default function DocsPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'tokens' | 'agents' | 'taxonomy' | 'telemetry' | 'security' | 'frameworks'>('tokens');
+  const [activeTab, setActiveTab] = useState<'tokens' | 'agents' | 'mcps' | 'extensions' | 'taxonomy' | 'telemetry' | 'security' | 'frameworks'>('tokens');
 
   return (
     <div style={{ padding: 'var(--space-6)', maxWidth: '1280px', margin: '0 auto' }}>
@@ -69,6 +71,8 @@ export default function DocsPage() {
         {[
           { id: 'tokens', label: 'API Tokens & Connection', icon: <Key size={16} /> },
           { id: 'agents', label: 'Multi-Agent Folder Architectures', icon: <FolderGit2 size={16} /> },
+          { id: 'mcps', label: 'MCP Servers & Tools', icon: <Boxes size={16} /> },
+          { id: 'extensions', label: 'Plugins & Lifecycle Hooks', icon: <Puzzle size={16} /> },
           { id: 'taxonomy', label: 'Intent Taxonomy & Tagging', icon: <Tag size={16} /> },
           { id: 'telemetry', label: 'Model Observability & Costs', icon: <Zap size={16} /> },
           { id: 'security', label: 'Secret Leaks (.betterleak)', icon: <ShieldCheck size={16} /> },
@@ -285,6 +289,110 @@ export default function DocsPage() {
                 <span style={{ color: '#ff7b72' }}>---</span><br /><br />
                 <span style={{ color: '#8b949e' }}># Ponytail Engineering Standards</span><br />
                 <span style={{ color: '#8b949e' }}>Always apply the 6-step Decision Ladder before installing third-party npm packages...</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: MCP Servers & Tools */}
+        {activeTab === 'mcps' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+            <div className="glass-panel" style={{ padding: 'var(--space-6)', borderRadius: 'var(--radius-xl)' }}>
+              <h2 className="text-xl" style={{ margin: '0 0 var(--space-3)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Boxes size={20} color="var(--color-brand-primary)" />
+                Model Context Protocol (MCP) Management Hub
+              </h2>
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: 'var(--space-5)' }}>
+                The Model Context Protocol (MCP) standardizes how AI coding assistants connect to external tools, databases, web browsers, and cloud resources. KobeanAI Tracker provides an integrated server manager, tool schema inspector, live subprocess health tester, and 1-click catalog.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+                <div className="glass-panel" style={{ padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)' }}>
+                  <h3 style={{ margin: '0 0 var(--space-2)', fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-brand-primary)' }}>
+                    Workspace Scope (.agents/mcp_config.json)
+                  </h3>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                    Configures project-specific tool servers committed alongside the codebase for all team members.
+                  </p>
+                </div>
+                <div className="glass-panel" style={{ padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)' }}>
+                  <h3 style={{ margin: '0 0 var(--space-2)', fontSize: '0.9375rem', fontWeight: 600, color: '#8b5cf6' }}>
+                    Global Scope (~/.gemini/antigravity-ide/mcp/)
+                  </h3>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                    Manages developer workstation MCP servers and lazily-loaded tool schemas available across all workspaces.
+                  </p>
+                </div>
+                <div className="glass-panel" style={{ padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)' }}>
+                  <h3 style={{ margin: '0 0 var(--space-2)', fontSize: '0.9375rem', fontWeight: 600, color: '#10b981' }}>
+                    1-Click Verified Catalog
+                  </h3>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                    Install standard MCP servers (Postgres, GitHub, Puppeteer, Filesystem, Memory, Fetch) with zero manual JSON formatting.
+                  </p>
+                </div>
+              </div>
+
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: '0 0 var(--space-3)' }}>Example MCP Configuration (.agents/mcp_config.json)</h3>
+              <div style={{ backgroundColor: '#0d1117', padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border-subtle)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#e6edf3', lineHeight: 1.5 }}>
+                <span style={{ color: '#ff7b72' }}>&#123;</span><br />
+                &nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"mcpServers"</span>: <span style={{ color: '#ff7b72' }}>&#123;</span><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"postgres"</span>: <span style={{ color: '#ff7b72' }}>&#123;</span><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"command"</span>: <span style={{ color: '#a5d6ff' }}>"npx"</span>,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"args"</span>: [<span style={{ color: '#a5d6ff' }}>"-y"</span>, <span style={{ color: '#a5d6ff' }}>"@modelcontextprotocol/server-postgres"</span>, <span style={{ color: '#a5d6ff' }}>"postgresql://localhost/mydb"</span>]<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>&#125;</span><br />
+                &nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>&#125;</span><br />
+                <span style={{ color: '#ff7b72' }}>&#125;</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Plugins & Lifecycle Hooks */}
+        {activeTab === 'extensions' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+            <div className="glass-panel" style={{ padding: 'var(--space-6)', borderRadius: 'var(--radius-xl)' }}>
+              <h2 className="text-xl" style={{ margin: '0 0 var(--space-3)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Puzzle size={20} color="#ec4899" />
+                Modular Plugins & Lifecycle Safety Guards
+              </h2>
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: 'var(--space-5)' }}>
+                KobeanAI Tracker provides full support for modular plugin packages and event-driven lifecycle intercepts to guard agent execution safely.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+                <div className="glass-panel" style={{ padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)' }}>
+                  <h3 style={{ margin: '0 0 var(--space-2)', fontSize: '0.9375rem', fontWeight: 600, color: '#ec4899' }}>
+                    1. Plugin Bundles (.agents/plugins/*/)
+                  </h3>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: '0 0 var(--space-2)' }}>
+                    Encapsulate skills, subagents, and custom configurations inside namespaced directories with a declarative <code style={{ fontFamily: 'var(--font-mono)' }}>plugin.json</code> manifest.
+                  </p>
+                </div>
+                <div className="glass-panel" style={{ padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)' }}>
+                  <h3 style={{ margin: '0 0 var(--space-2)', fontSize: '0.9375rem', fontWeight: 600, color: '#f59e0b' }}>
+                    2. Lifecycle Hooks (.agents/hooks.json)
+                  </h3>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: '0 0 var(--space-2)' }}>
+                    Intercept agent actions before tool execution (<code style={{ fontFamily: 'var(--font-mono)' }}>PreToolUse</code>), after execution (<code style={{ fontFamily: 'var(--font-mono)' }}>PostToolUse</code>), on session boot (<code style={{ fontFamily: 'var(--font-mono)' }}>SessionStart</code>), or on Git commit.
+                  </p>
+                </div>
+              </div>
+
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: '0 0 var(--space-3)' }}>Safety Gate Hook Architecture (.agents/hooks.json)</h3>
+              <div style={{ backgroundColor: '#0d1117', padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border-subtle)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#e6edf3', lineHeight: 1.5 }}>
+                <span style={{ color: '#8b949e' }}>// Intercepts destructive terminal commands and denies execution automatically</span><br />
+                <span style={{ color: '#ff7b72' }}>&#123;</span><br />
+                &nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"safety-gate"</span>: <span style={{ color: '#ff7b72' }}>&#123;</span><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"enabled"</span>: <span style={{ color: '#ff7b72' }}>true</span>,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"PreToolUse"</span>: [<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>&#123;</span><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"matcher"</span>: <span style={{ color: '#a5d6ff' }}>"run_command"</span>,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"hooks"</span>: [<span style={{ color: '#ff7b72' }}>&#123;</span> <span style={{ color: '#79c0ff' }}>"type"</span>: <span style={{ color: '#a5d6ff' }}>"command"</span>, <span style={{ color: '#79c0ff' }}>"command"</span>: <span style={{ color: '#a5d6ff' }}>"node scripts/safety-gate.js"</span> <span style={{ color: '#ff7b72' }}>&#123;</span>]<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>&#125;</span><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;]<br />
+                &nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>&#125;</span><br />
+                <span style={{ color: '#ff7b72' }}>&#125;</span>
               </div>
             </div>
           </div>

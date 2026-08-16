@@ -196,9 +196,34 @@ export class AntigravityConnector extends AgentConnector {
           if (step.type === 'USER_INPUT') {
             if (currentTurn) turns.push(currentTurn);
 
-            let rawPrompt = fullContent.replace(/<USER_REQUEST>|<\/USER_REQUEST>/g, '').trim();
-            if (rawPrompt.includes('<ADDITIONAL_METADATA>')) rawPrompt = rawPrompt.split('<ADDITIONAL_METADATA>')[0].trim();
-            if (rawPrompt.includes('{{ CHECKPOINT')) rawPrompt = rawPrompt.split('{{ CHECKPOINT')[0].trim();
+            let rawPrompt = '';
+
+            // 1. Check for <USER_REQUEST> tags
+            const userReqMatch = fullContent.match(/<USER_REQUEST>([\s\S]*?)<\/USER_REQUEST>/i);
+            if (userReqMatch) {
+              rawPrompt = userReqMatch[1].trim();
+            } else if (fullContent.includes('{{ CHECKPOINT')) {
+              // Extract requests from checkpoint summary
+              const checkpointReqMatch = fullContent.match(/# User Requests[\s\S]*?(?:The following were user requests[^\n]*\n)?([\s\S]*?)(?:#|$)/i);
+              if (checkpointReqMatch) {
+                const requestsBlock = checkpointReqMatch[1].trim();
+                const items = requestsBlock.split(/\n\d+\.\s+/).map(s => s.replace(/^\d+\.\s+/, '').trim()).filter(Boolean);
+                rawPrompt = items.length > 0 ? items[items.length - 1] : requestsBlock;
+              } else {
+                rawPrompt = fullContent.replace(/\{\{[\s\S]*?\}\}/g, '').trim();
+              }
+            } else {
+              rawPrompt = fullContent;
+            }
+
+            // Clean metadata & system wrappers
+            rawPrompt = rawPrompt
+              .replace(/<ADDITIONAL_METADATA>[\s\S]*?<\/ADDITIONAL_METADATA>/gi, '')
+              .replace(/<USER_SETTINGS_CHANGE>[\s\S]*?<\/USER_SETTINGS_CHANGE>/gi, '')
+              .replace(/<SYSTEM_MESSAGE>[\s\S]*?<\/SYSTEM_MESSAGE>/gi, '')
+              .replace(/<USER_REQUEST>|<\/USER_REQUEST>/gi, '')
+              .trim();
+
             if (!rawPrompt) rawPrompt = 'User request';
 
             // Detect active model from IDE settings change injections

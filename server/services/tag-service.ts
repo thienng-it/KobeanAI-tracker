@@ -12,37 +12,37 @@ export const CANONICAL_TAGS: Record<string, TagDefinition> = {
   Fix: {
     name: 'Fix',
     color: '#ef4444',
-    keywords: ['fix', 'bug', 'issue', 'error', 'fail', 'broken', 'crash', 'wrong', 'duplicate', 'duplicated', 'inverted', 'overflow', 'truncat', 'missing', 'regression']
+    keywords: ['fix', 'bug', 'issue', 'error', 'fail', 'broken', 'crash', 'wrong', 'duplicate', 'duplicated', 'inverted', 'overflow', 'truncat', 'missing', 'regression', 'solve', 'debug', 'investigate and fix', 'repair', 'correct']
   },
   Implement: {
     name: 'Implement',
     color: '#10b981',
-    keywords: ['implement', 'feature', 'feat', 'add', 'create', 'build', 'support', 'new', 'develop', 'integrate']
+    keywords: ['implement', 'feature', 'feat', 'add', 'create', 'build', 'support', 'new', 'develop', 'integrate', 'scaffold', 'generate', 'wire']
   },
   'UI/UX': {
     name: 'UI/UX',
     color: '#3b82f6',
-    keywords: ['ui', 'ux', 'theme', 'dark', 'light', 'style', 'color', 'css', 'layout', 'motion', 'button', 'contrast', 'sidebar', 'panel', 'modal', 'drawer', 'icon', 'rail', 'toolbar', 'picker', 'dropdown', 'animation']
+    keywords: ['ui', 'ux', 'theme', 'dark', 'light', 'style', 'color', 'css', 'layout', 'motion', 'button', 'contrast', 'sidebar', 'panel', 'modal', 'drawer', 'icon', 'rail', 'toolbar', 'picker', 'dropdown', 'animation', 'aesthetic', 'chart', 'dashboard', 'visual', 'screen', 'view', 'grid']
   },
   Refactor: {
     name: 'Refactor',
     color: '#8b5cf6',
-    keywords: ['refactor', 'clean', 'cleanup', 'dedup', 'reorganize', 'structure', 'modularize', 'optimize', 'simplify']
+    keywords: ['refactor', 'clean', 'cleanup', 'dedup', 'reorganize', 'structure', 'modularize', 'optimize', 'simplify', 'extract']
   },
   Docs: {
     name: 'Docs',
     color: '#06b6d4',
-    keywords: ['doc', 'docs', 'documentation', 'guide', 'readme', 'help', 'explain', 'how to', 'manual', 'walkthrough']
+    keywords: ['doc', 'docs', 'documentation', 'guide', 'readme', 'help', 'explain', 'how to', 'manual', 'walkthrough', 'wiki', 'document', 'spec']
   },
   Validate: {
     name: 'Validate',
     color: '#f59e0b',
-    keywords: ['test', 'tests', 'validate', 'verify', 'check', 'audit', 'benchmark', 'correct', 'static', 'build', 'typecheck', 'tsc']
+    keywords: ['test', 'tests', 'validate', 'verify', 'check', 'audit', 'benchmark', 'static', 'build', 'typecheck', 'tsc', 'ci', 'action', 'actions', 'push', 'run', 'investigate']
   },
   Config: {
     name: 'Config',
     color: '#ec4899',
-    keywords: ['config', 'rule', 'rules', 'skill', 'skills', 'agent', 'model', 'token', 'price', 'env', 'key', 'codegraph', 'schema', 'sqlite']
+    keywords: ['config', 'rule', 'rules', 'skill', 'skills', 'agent', 'model', 'token', 'price', 'env', 'key', 'codegraph', 'schema', 'sqlite', 'mcp', 'mcps', 'plugin', 'plugins', 'hook', 'hooks', 'lifecycle', 'settings']
   },
   Unknown: {
     name: 'Unknown',

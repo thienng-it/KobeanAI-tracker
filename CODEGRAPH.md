@@ -2,7 +2,7 @@
 
 > **Auto-Generated Codegraph**: This document provides an architectural map of all module connections, data flows, and dependencies across the desktop, server, database, and client layers.
 
-*Last Generated: 2026-08-16T12:59:33.445Z*
+*Last Generated: 2026-08-16T13:10:20.255Z*
 
 ## 1. High-Level Architectural Flow
 
