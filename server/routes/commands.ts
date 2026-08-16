@@ -15,10 +15,31 @@ router.get('/', async (req, res) => {
         skill: true
       }
     });
-    res.json(allCommands);
+
+    // Deduplicate in response by name
+    const seen = new Set<string>();
+    const uniqueCommands = allCommands.filter(c => {
+      if (seen.has(c.name)) return false;
+      seen.add(c.name);
+      return true;
+    });
+
+    res.json(uniqueCommands);
   } catch (error) {
     console.error('Error fetching commands:', error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// POST /api/commands/sync
+router.post('/sync', async (req, res) => {
+  try {
+    const { SkillScanner } = await import('../services/skill-scanner.js');
+    const result = await SkillScanner.syncAll();
+    res.json({ success: true, count: result.commandsCount, ...result });
+  } catch (error) {
+    console.error('Failed to sync commands:', error);
+    res.status(500).json({ error: 'Failed to sync commands' });
   }
 });
 

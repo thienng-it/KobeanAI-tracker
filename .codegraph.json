@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-15T13:18:27.520Z",
-  "totalFiles": 74,
+  "generatedAt": "2026-08-16T04:47:13.358Z",
+  "totalFiles": 94,
   "nodes": [
     {
       "relativePath": "server/connectors/antigravity.js",
@@ -8,8 +8,10 @@
       "imports": [
         "server/connectors/base.js",
         "server/db/index.ts",
-        "server/db/schema.ts",
-        "server/services/model-registry.js"
+        "server/db/schema.js",
+        "server/services/model-registry.js",
+        "server/services/tag-service.js",
+        "server/services/workspace-service.js"
       ],
       "importedBy": [
         "server/services/telemetry-service.js",
@@ -22,8 +24,10 @@
       "imports": [
         "server/connectors/base.js",
         "server/db/index.ts",
-        "server/db/schema.ts",
-        "server/services/model-registry.js"
+        "server/db/schema.js",
+        "server/services/model-registry.js",
+        "server/services/tag-service.js",
+        "server/services/workspace-service.js"
       ],
       "importedBy": []
     },
@@ -69,8 +73,10 @@
       "imports": [
         "server/connectors/base.js",
         "server/db/index.ts",
-        "server/db/schema.ts",
-        "server/services/model-registry.js"
+        "server/db/schema.js",
+        "server/services/model-registry.js",
+        "server/services/tag-service.js",
+        "server/services/workspace-service.js"
       ],
       "importedBy": [
         "server/services/telemetry-service.js",
@@ -83,8 +89,10 @@
       "imports": [
         "server/connectors/base.js",
         "server/db/index.ts",
-        "server/db/schema.ts",
-        "server/services/model-registry.js"
+        "server/db/schema.js",
+        "server/services/model-registry.js",
+        "server/services/tag-service.js",
+        "server/services/workspace-service.js"
       ],
       "importedBy": []
     },
@@ -102,8 +110,9 @@
       "imports": [
         "server/connectors/base.js",
         "server/db/index.ts",
-        "server/db/schema.ts",
-        "server/services/model-registry.js"
+        "server/db/schema.js",
+        "server/services/model-registry.js",
+        "server/services/workspace-service.js"
       ],
       "importedBy": [
         "server/services/telemetry-service.js",
@@ -116,8 +125,9 @@
       "imports": [
         "server/connectors/base.js",
         "server/db/index.ts",
-        "server/db/schema.ts",
-        "server/services/model-registry.js"
+        "server/db/schema.js",
+        "server/services/model-registry.js",
+        "server/services/workspace-service.js"
       ],
       "importedBy": []
     },
@@ -125,7 +135,7 @@
       "relativePath": "server/db/index.ts",
       "category": "Database Layer",
       "imports": [
-        "server/db/schema.ts"
+        "server/db/schema.js"
       ],
       "importedBy": [
         "server/connectors/antigravity.js",
@@ -150,11 +160,13 @@
         "server/services/skill-scanner.js",
         "server/services/skill-scanner.ts",
         "server/services/telemetry-service.js",
-        "server/services/telemetry-service.ts"
+        "server/services/telemetry-service.ts",
+        "server/services/workspace-service.js",
+        "server/services/workspace-service.ts"
       ]
     },
     {
-      "relativePath": "server/db/schema.ts",
+      "relativePath": "server/db/schema.js",
       "category": "Database Layer",
       "imports": [],
       "importedBy": [
@@ -177,8 +189,16 @@
         "server/routes/skills.ts",
         "server/scripts/seed.ts",
         "server/services/skill-scanner.js",
-        "server/services/skill-scanner.ts"
+        "server/services/skill-scanner.ts",
+        "server/services/workspace-service.js",
+        "server/services/workspace-service.ts"
       ]
+    },
+    {
+      "relativePath": "server/db/schema.ts",
+      "category": "Database Layer",
+      "imports": [],
+      "importedBy": []
     },
     {
       "relativePath": "server/index.js",
@@ -227,7 +247,7 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.js"
       ],
       "importedBy": [
         "server/index.js",
@@ -239,7 +259,7 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.js"
       ],
       "importedBy": []
     },
@@ -248,7 +268,7 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.js"
       ],
       "importedBy": [
         "server/index.js",
@@ -260,8 +280,10 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts",
-        "server/services/model-registry.js"
+        "server/db/schema.js",
+        "server/services/model-registry.js",
+        "server/services/date-utils.js",
+        "server/services/tag-service.js"
       ],
       "importedBy": [
         "server/index.js",
@@ -273,8 +295,10 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts",
-        "server/services/model-registry.js"
+        "server/db/schema.js",
+        "server/services/model-registry.js",
+        "server/services/date-utils.js",
+        "server/services/tag-service.js"
       ],
       "importedBy": []
     },
@@ -294,7 +318,7 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.js"
       ],
       "importedBy": [
         "server/index.js",
@@ -306,8 +330,9 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts",
-        "server/services/model-registry.js"
+        "server/db/schema.js",
+        "server/services/model-registry.js",
+        "server/services/date-utils.js"
       ],
       "importedBy": [
         "server/index.js",
@@ -319,8 +344,9 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts",
-        "server/services/model-registry.js"
+        "server/db/schema.js",
+        "server/services/model-registry.js",
+        "server/services/date-utils.js"
       ],
       "importedBy": []
     },
@@ -329,7 +355,7 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.js"
       ],
       "importedBy": [
         "server/index.js",
@@ -341,7 +367,7 @@
       "category": "API Routes",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.js"
       ],
       "importedBy": []
     },
@@ -350,8 +376,31 @@
       "category": "Backend Core",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.js"
       ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/date-utils.d.ts",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/date-utils.js",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": [
+        "server/routes/dashboard.js",
+        "server/routes/dashboard.ts",
+        "server/routes/sessions.js",
+        "server/routes/sessions.ts"
+      ]
+    },
+    {
+      "relativePath": "server/services/date-utils.ts",
+      "category": "Service Layer",
+      "imports": [],
       "importedBy": []
     },
     {
@@ -394,7 +443,7 @@
       "category": "Service Layer",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.js"
       ],
       "importedBy": []
     },
@@ -403,8 +452,33 @@
       "category": "Service Layer",
       "imports": [
         "server/db/index.ts",
-        "server/db/schema.ts"
+        "server/db/schema.js"
       ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/tag-service.d.ts",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/tag-service.js",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": [
+        "server/connectors/antigravity.js",
+        "server/connectors/antigravity.ts",
+        "server/connectors/claude.js",
+        "server/connectors/claude.ts",
+        "server/routes/dashboard.js",
+        "server/routes/dashboard.ts"
+      ]
+    },
+    {
+      "relativePath": "server/services/tag-service.ts",
+      "category": "Service Layer",
+      "imports": [],
       "importedBy": []
     },
     {
@@ -440,6 +514,37 @@
       "importedBy": []
     },
     {
+      "relativePath": "server/services/workspace-service.d.ts",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/workspace-service.js",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.js"
+      ],
+      "importedBy": [
+        "server/connectors/antigravity.js",
+        "server/connectors/antigravity.ts",
+        "server/connectors/claude.js",
+        "server/connectors/claude.ts",
+        "server/connectors/cursor.js",
+        "server/connectors/cursor.ts"
+      ]
+    },
+    {
+      "relativePath": "server/services/workspace-service.ts",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.ts",
+        "server/db/schema.js"
+      ],
+      "importedBy": []
+    },
+    {
       "relativePath": "src/App.tsx",
       "category": "Frontend Core",
       "imports": [
@@ -461,6 +566,14 @@
       ]
     },
     {
+      "relativePath": "src/components/common/CustomSelect.tsx",
+      "category": "UI Components",
+      "imports": [],
+      "importedBy": [
+        "src/components/sessions/SessionsFilterBar.tsx"
+      ]
+    },
+    {
       "relativePath": "src/components/common/ErrorBoundary.tsx",
       "category": "UI Components",
       "imports": [],
@@ -474,6 +587,7 @@
       "imports": [],
       "importedBy": [
         "src/components/dashboard/ActivityFeed.tsx",
+        "src/components/sessions/SessionDetailModal.tsx",
         "src/components/sessions/SessionsTable.tsx"
       ]
     },
@@ -483,7 +597,8 @@
       "imports": [
         "src/stores/useDashboardStore.ts",
         "src/components/tags/TagBadge.tsx",
-        "src/components/common/ModelBadge.tsx"
+        "src/components/common/ModelBadge.tsx",
+        "src/components/sessions/SessionDetailModal.tsx"
       ],
       "importedBy": [
         "src/pages/DashboardPage.tsx"
@@ -493,8 +608,16 @@
       "relativePath": "src/components/dashboard/AgentDistributionChart.tsx",
       "category": "UI Components",
       "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "src/components/dashboard/AutoSyncPicker.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useDashboardStore.ts"
+      ],
       "importedBy": [
-        "src/pages/DashboardPage.tsx"
+        "src/components/layout/Header.tsx"
       ]
     },
     {
@@ -505,6 +628,36 @@
       ],
       "importedBy": [
         "src/components/layout/Header.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/dashboard/IntentDistributionChart.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useDashboardStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/DashboardPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/dashboard/ModelFilterToolbar.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useDashboardStore.ts"
+      ],
+      "importedBy": [
+        "src/components/layout/Header.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/dashboard/ModelSpecsCard.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useDashboardStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/DashboardPage.tsx"
       ]
     },
     {
@@ -526,9 +679,21 @@
     {
       "relativePath": "src/components/dashboard/TrendsChart.tsx",
       "category": "UI Components",
-      "imports": [],
+      "imports": [
+        "src/stores/useDashboardStore.ts"
+      ],
       "importedBy": [
         "src/pages/DashboardPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/dashboard/WorkspaceSelector.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useDashboardStore.ts"
+      ],
+      "importedBy": [
+        "src/components/layout/Header.tsx"
       ]
     },
     {
@@ -547,7 +712,10 @@
       "category": "UI Components",
       "imports": [
         "src/stores/useDashboardStore.ts",
-        "src/components/dashboard/DateRangeToolbar.tsx"
+        "src/components/dashboard/DateRangeToolbar.tsx",
+        "src/components/dashboard/ModelFilterToolbar.tsx",
+        "src/components/dashboard/WorkspaceSelector.tsx",
+        "src/components/dashboard/AutoSyncPicker.tsx"
       ],
       "importedBy": [
         "src/components/layout/AppLayout.tsx"
@@ -557,10 +725,34 @@
       "relativePath": "src/components/layout/Sidebar.tsx",
       "category": "UI Components",
       "imports": [
-        "src/stores/useThemeStore.ts"
+        "src/stores/useThemeStore.ts",
+        "src/stores/useLayoutStore.ts"
       ],
       "importedBy": [
         "src/components/layout/AppLayout.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/sessions/SessionDetailModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useDashboardStore.ts",
+        "src/components/common/ModelBadge.tsx",
+        "src/components/tags/TagBadge.tsx"
+      ],
+      "importedBy": [
+        "src/components/dashboard/ActivityFeed.tsx",
+        "src/components/sessions/SessionsTable.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/sessions/SessionStatsStrip.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useSessionsStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/SessionsPage.tsx"
       ]
     },
     {
@@ -568,7 +760,8 @@
       "category": "UI Components",
       "imports": [
         "src/stores/useSessionsStore.ts",
-        "src/stores/useDashboardStore.ts"
+        "src/stores/useDashboardStore.ts",
+        "src/components/common/CustomSelect.tsx"
       ],
       "importedBy": [
         "src/pages/SessionsPage.tsx"
@@ -580,10 +773,21 @@
       "imports": [
         "src/stores/useSessionsStore.ts",
         "src/components/tags/TagBadge.tsx",
-        "src/components/common/ModelBadge.tsx"
+        "src/components/common/ModelBadge.tsx",
+        "src/components/sessions/SessionDetailModal.tsx"
       ],
       "importedBy": [
         "src/pages/SessionsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/settings/ProviderKeysManager.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useAgentsStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/AgentsConfigPage.tsx"
       ]
     },
     {
@@ -604,8 +808,8 @@
       ],
       "importedBy": [
         "src/components/dashboard/ActivityFeed.tsx",
-        "src/components/sessions/SessionsTable.tsx",
-        "src/pages/DashboardPage.tsx"
+        "src/components/sessions/SessionDetailModal.tsx",
+        "src/components/sessions/SessionsTable.tsx"
       ]
     },
     {
@@ -633,7 +837,8 @@
       "relativePath": "src/pages/AgentsConfigPage.tsx",
       "category": "Pages",
       "imports": [
-        "src/stores/useAgentsStore.ts"
+        "src/stores/useAgentsStore.ts",
+        "src/components/settings/ProviderKeysManager.tsx"
       ],
       "importedBy": [
         "src/App.tsx"
@@ -656,11 +861,11 @@
       "imports": [
         "src/stores/useDashboardStore.ts",
         "src/components/dashboard/StatCard.tsx",
+        "src/components/dashboard/ModelSpecsCard.tsx",
         "src/components/dashboard/ActivityFeed.tsx",
         "src/components/dashboard/QuickActions.tsx",
-        "src/components/tags/TagBadge.tsx",
         "src/components/dashboard/TrendsChart.tsx",
-        "src/components/dashboard/AgentDistributionChart.tsx"
+        "src/components/dashboard/IntentDistributionChart.tsx"
       ],
       "importedBy": [
         "src/App.tsx"
@@ -689,6 +894,7 @@
       "category": "Pages",
       "imports": [
         "src/stores/useSessionsStore.ts",
+        "src/components/sessions/SessionStatsStrip.tsx",
         "src/components/sessions/SessionsFilterBar.tsx",
         "src/components/sessions/SessionsTable.tsx"
       ],
@@ -735,6 +941,7 @@
         "src/stores/useSkillsStore.ts"
       ],
       "importedBy": [
+        "src/components/settings/ProviderKeysManager.tsx",
         "src/pages/AgentsConfigPage.tsx"
       ]
     },
@@ -756,13 +963,28 @@
       ],
       "importedBy": [
         "src/components/dashboard/ActivityFeed.tsx",
+        "src/components/dashboard/AutoSyncPicker.tsx",
         "src/components/dashboard/DateRangeToolbar.tsx",
+        "src/components/dashboard/IntentDistributionChart.tsx",
+        "src/components/dashboard/ModelFilterToolbar.tsx",
+        "src/components/dashboard/ModelSpecsCard.tsx",
+        "src/components/dashboard/TrendsChart.tsx",
+        "src/components/dashboard/WorkspaceSelector.tsx",
         "src/components/layout/Header.tsx",
+        "src/components/sessions/SessionDetailModal.tsx",
         "src/components/sessions/SessionsFilterBar.tsx",
         "src/components/tags/TagBadge.tsx",
         "src/pages/DashboardPage.tsx",
         "src/stores/useSessionsStore.ts",
         "src/stores/useSkillsStore.ts"
+      ]
+    },
+    {
+      "relativePath": "src/stores/useLayoutStore.ts",
+      "category": "Zustand Stores",
+      "imports": [],
+      "importedBy": [
+        "src/components/layout/Sidebar.tsx"
       ]
     },
     {
@@ -783,6 +1005,7 @@
         "src/stores/useDashboardStore.ts"
       ],
       "importedBy": [
+        "src/components/sessions/SessionStatsStrip.tsx",
         "src/components/sessions/SessionsFilterBar.tsx",
         "src/components/sessions/SessionsTable.tsx",
         "src/pages/SessionsPage.tsx"

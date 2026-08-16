@@ -1,107 +1,330 @@
 import { Router } from 'express';
 import { db } from '../db/index.js';
-import { sessions, tags, sessionTags, agents } from '../db/schema.js';
-import { desc, eq, sql, gte, lt, and } from 'drizzle-orm';
-import { subDays, subHours } from 'date-fns';
-import { ModelRegistry } from '../services/model-registry.js';
+import { sessions, tags, sessionTags, agents, workspaces } from '../db/schema.js';
+import { desc, eq, sql, gte, lt, and, or, like } from 'drizzle-orm';
+import { ModelRegistry, ModelInfo } from '../services/model-registry.js';
+import { getDateThresholds } from '../services/date-utils.js';
+import { TagService } from '../services/tag-service.js';
 
 const router = Router();
 
-function getDateThresholds(dateRange: string) {
-  const now = new Date();
-  let currentThreshold: Date | null = null;
-  let endThreshold: Date | null = null;
-  let previousThreshold: Date | null = null;
-  let previousEndThreshold: Date | null = null;
-  let label = 'vs previous period';
-  let isSingleDay = false;
-
-  // Check if dateRange is a specific date: YYYY-MM-DD or date:YYYY-MM-DD
-  const dateMatch = dateRange.match(/(?:date:)?(\d{4}-\d{2}-\d{2})/);
-  if (dateMatch) {
-    const dateStr = dateMatch[1];
-    currentThreshold = new Date(`${dateStr}T00:00:00.000Z`);
-    endThreshold = new Date(`${dateStr}T23:59:59.999Z`);
-    previousThreshold = subDays(currentThreshold, 1);
-    previousEndThreshold = new Date(`${subDays(currentThreshold, 1).toISOString().slice(0, 10)}T23:59:59.999Z`);
-    label = `vs prior day (${subDays(currentThreshold, 1).toISOString().slice(5, 10)})`;
-    isSingleDay = true;
-    return { currentThreshold, endThreshold, previousThreshold, previousEndThreshold, label, isSingleDay, dateStr };
-  }
-
-  switch (dateRange) {
-    case '1d':
-      currentThreshold = subHours(now, 24);
-      previousThreshold = subHours(now, 48);
-      label = 'vs yesterday';
-      isSingleDay = true;
-      break;
-    case '7d':
-      currentThreshold = subDays(now, 7);
-      previousThreshold = subDays(now, 14);
-      label = 'vs last week';
-      break;
-    case '30d':
-      currentThreshold = subDays(now, 30);
-      previousThreshold = subDays(now, 60);
-      label = 'vs last month';
-      break;
-    case '90d':
-      currentThreshold = subDays(now, 90);
-      previousThreshold = subDays(now, 180);
-      label = 'vs last quarter';
-      break;
-    case '180d':
-      currentThreshold = subDays(now, 180);
-      previousThreshold = subDays(now, 360);
-      label = 'vs last 6 months';
-      break;
-    case '365d':
-      currentThreshold = subDays(now, 365);
-      previousThreshold = subDays(now, 730);
-      label = 'vs last year';
-      break;
-    case 'all':
-    default:
-      currentThreshold = null;
-      previousThreshold = null;
-      label = 'overall';
-      break;
-  }
-
-  return { currentThreshold, endThreshold, previousThreshold, previousEndThreshold, label, isSingleDay };
+function getModelCondition(model?: string) {
+  if (!model || model === 'all') return undefined;
+  const clean = model.toLowerCase().trim();
+  // Strip trailing effort identifiers for matching
+  const baseModel = clean.replace(/--high-?|--medium-?|--low-?|--thinking-?|-thinking/g, '');
+  return or(
+    eq(sessions.model, clean),
+    eq(sessions.model, baseModel),
+    like(sessions.model, `${baseModel}%`),
+    like(sessions.model, `%${baseModel}%`)
+  );
 }
 
-// GET /api/dashboard/summary?dateRange=...
-router.get('/summary', async (req, res) => {
-  try {
-    const dateRange = (req.query.dateRange as string) || '7d';
-    const { currentThreshold, endThreshold, previousThreshold, label } = getDateThresholds(dateRange);
+function getWorkspaceCondition(workspaceId?: string) {
+  if (!workspaceId || workspaceId === 'all') return undefined;
+  return eq(sessions.workspaceId, workspaceId);
+}
 
-    // Current period stats
-    let currentQuery = db.select({
-      totalSessions: sql<number>`count(*)`,
-      totalTokens: sql<number>`sum(${sessions.totalTokens})`,
-      totalCost: sql<number>`sum(${sessions.estimatedCost})`
-    }).from(sessions);
+function getClientTzOffset(req: any): string | undefined {
+  return (req.query.tzOffset as string) || (req.headers['x-timezone-offset'] as string) || undefined;
+}
+
+// GET /api/dashboard/workspaces - Returns all workspaces with aggregate AI metrics
+router.get('/workspaces', async (_req, res) => {
+  try {
+    const allWorkspaces = await db.query.workspaces.findMany({
+      orderBy: [desc(workspaces.updatedAt)]
+    });
+
+    const workspaceMetrics = await db.select({
+      workspaceId: sessions.workspaceId,
+      sessionCount: sql<number>`count(*)`,
+      totalTokens: sql<number>`coalesce(sum(${sessions.totalTokens}), 0)`,
+      inputTokens: sql<number>`coalesce(sum(${sessions.inputTokens}), 0)`,
+      outputTokens: sql<number>`coalesce(sum(${sessions.outputTokens}), 0)`,
+      totalCost: sql<number>`coalesce(sum(${sessions.estimatedCost}), 0)`,
+      lastActive: sql<string>`max(${sessions.startedAt})`
+    })
+    .from(sessions)
+    .groupBy(sessions.workspaceId);
+
+    const metricsMap = new Map(workspaceMetrics.map(m => [m.workspaceId, m]));
+
+    const result = allWorkspaces.map(ws => {
+      const m = metricsMap.get(ws.id);
+      return {
+        id: ws.id,
+        name: ws.name,
+        path: ws.path,
+        description: ws.description,
+        sessionCount: m?.sessionCount || 0,
+        totalTokens: m?.totalTokens || 0,
+        inputTokens: m?.inputTokens || 0,
+        outputTokens: m?.outputTokens || 0,
+        totalCost: Number((m?.totalCost || 0).toFixed(4)),
+        lastActive: m?.lastActive || ws.createdAt
+      };
+    });
+
+    // Sort by session count descending, then name ascending
+    result.sort((a, b) => {
+      if (b.sessionCount !== a.sessionCount) {
+        return b.sessionCount - a.sessionCount;
+      }
+      return a.name.localeCompare(b.name);
+    });
+
+    res.json({ data: result });
+  } catch (error) {
+    console.error('[dashboard/workspaces] Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// GET /api/dashboard/models - Returns distinct models used in DB + known models catalogue with aggregated metrics
+router.get('/models', async (req, res) => {
+  try {
+    const workspaceId = req.query.workspaceId as string;
+    const wsCond = getWorkspaceCondition(workspaceId);
+
+    let query = db.select({
+      model: sessions.model,
+      count: sql<number>`count(*)`,
+      totalTokens: sql<number>`coalesce(sum(${sessions.totalTokens}), 0)`,
+      totalCost: sql<number>`coalesce(sum(${sessions.estimatedCost}), 0)`,
+    })
+    .from(sessions);
+
+    if (wsCond) {
+      query = query.where(wsCond) as any;
+    }
+
+    const dbModels = await query.groupBy(sessions.model);
+
+    // Group database models by resolved canonical model ID
+    const aggregatedMap = new Map<string, {
+      id: string;
+      name: string;
+      provider: string;
+      rawModels: string[];
+      sessionCount: number;
+      totalTokens: number;
+      totalCost: number;
+      specs: ModelInfo;
+    }>();
+
+    for (const row of dbModels) {
+      const resolved = ModelRegistry.resolve(row.model);
+      const existing = aggregatedMap.get(resolved.id);
+      if (existing) {
+        existing.rawModels.push(row.model);
+        existing.sessionCount += row.count;
+        existing.totalTokens += row.totalTokens;
+        existing.totalCost += Number(row.totalCost);
+      } else {
+        aggregatedMap.set(resolved.id, {
+          id: resolved.id,
+          name: resolved.name,
+          provider: resolved.provider,
+          rawModels: [row.model],
+          sessionCount: row.count,
+          totalTokens: row.totalTokens,
+          totalCost: Number(row.totalCost),
+          specs: resolved
+        });
+      }
+    }
+
+    // Include registered default models that might not have sessions yet
+    for (const known of ModelRegistry.getAll()) {
+      if (!aggregatedMap.has(known.id)) {
+        aggregatedMap.set(known.id, {
+          id: known.id,
+          name: known.name,
+          provider: known.provider,
+          rawModels: [],
+          sessionCount: 0,
+          totalTokens: 0,
+          totalCost: 0,
+          specs: known
+        });
+      }
+    }
+
+    // Sort by session count descending, then name ascending
+    const result = Array.from(aggregatedMap.values()).sort((a, b) => {
+      if (b.sessionCount !== a.sessionCount) {
+        return b.sessionCount - a.sessionCount;
+      }
+      return a.name.localeCompare(b.name);
+    });
+
+    res.json({ data: result });
+  } catch (error) {
+    console.error('[dashboard/models] Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// GET /api/dashboard/model-specs?model=...&workspaceId=... - Detailed specs and telemetry analytics for a single model
+router.get('/model-specs', async (req, res) => {
+  try {
+    const modelParam = (req.query.model as string) || 'gemini-3.7-flash';
+    const workspaceId = req.query.workspaceId as string;
+    const dateRange = (req.query.dateRange as string) || 'all';
+    const tzOffset = getClientTzOffset(req);
+    const resolved = ModelRegistry.resolve(modelParam);
+    const { currentThreshold, endThreshold } = getDateThresholds(dateRange, tzOffset);
+
+    const conditions = [];
+    const modelCond = getModelCondition(modelParam);
+    const wsCond = getWorkspaceCondition(workspaceId);
+
+    if (modelCond) conditions.push(modelCond);
+    if (wsCond) conditions.push(wsCond);
 
     if (currentThreshold && endThreshold) {
-      currentQuery = currentQuery.where(
+      conditions.push(
         and(
           gte(sessions.startedAt, currentThreshold.toISOString()),
           lt(sessions.startedAt, endThreshold.toISOString())
         )
-      ) as any;
+      );
     } else if (currentThreshold) {
-      currentQuery = currentQuery.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
+      conditions.push(gte(sessions.startedAt, currentThreshold.toISOString()));
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    // Fetch aggregate statistics for this model
+    const statsResult = await db.select({
+      totalSessions: sql<number>`count(*)`,
+      totalTokens: sql<number>`coalesce(sum(${sessions.totalTokens}), 0)`,
+      inputTokens: sql<number>`coalesce(sum(${sessions.inputTokens}), 0)`,
+      outputTokens: sql<number>`coalesce(sum(${sessions.outputTokens}), 0)`,
+      totalCost: sql<number>`coalesce(sum(${sessions.estimatedCost}), 0)`,
+      avgDurationMs: sql<number>`coalesce(avg(${sessions.durationMs}), 0)`,
+      maxTokens: sql<number>`coalesce(max(${sessions.totalTokens}), 0)`
+    })
+    .from(sessions)
+    .where(whereClause);
+
+    // Total sessions in DB (for workload share calculation)
+    let allSessionsQuery = db.select({ count: sql<number>`count(*)` }).from(sessions);
+    if (wsCond) {
+      allSessionsQuery = allSessionsQuery.where(wsCond) as any;
+    }
+    const allSessionsResult = await allSessionsQuery;
+    const totalWorkspaceSessions = allSessionsResult[0]?.count || 1;
+
+    const stats = statsResult[0] || {
+      totalSessions: 0,
+      totalTokens: 0,
+      inputTokens: 0,
+      outputTokens: 0,
+      totalCost: 0,
+      avgDurationMs: 0,
+      maxTokens: 0
+    };
+
+    const sessionCount = stats.totalSessions || 0;
+    const avgTokensPerSession = sessionCount > 0 ? Math.round(stats.totalTokens / sessionCount) : 0;
+    const avgCostPerSession = sessionCount > 0 ? Number((stats.totalCost / sessionCount).toFixed(5)) : 0;
+    const workloadSharePercentage = totalWorkspaceSessions > 0 
+      ? Number(((sessionCount / totalWorkspaceSessions) * 100).toFixed(1))
+      : 0;
+
+    res.json({
+      specs: resolved,
+      statistics: {
+        totalSessions: sessionCount,
+        totalTokens: stats.totalTokens || 0,
+        inputTokens: stats.inputTokens || 0,
+        outputTokens: stats.outputTokens || 0,
+        totalCost: Number((stats.totalCost || 0).toFixed(5)),
+        avgTokensPerSession,
+        avgCostPerSession,
+        avgDurationMs: Math.round(stats.avgDurationMs || 0),
+        maxTokensSingleSession: stats.maxTokens || 0,
+        workloadSharePercentage,
+        dateRange
+      }
+    });
+  } catch (error) {
+    console.error('[dashboard/model-specs] Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// GET /api/dashboard/summary?dateRange=...&model=...&workspaceId=...
+router.get('/summary', async (req, res) => {
+  try {
+    const dateRange = (req.query.dateRange as string) || (req.query.range as string) || '1d';
+    const model = req.query.model as string;
+    const workspaceId = req.query.workspaceId as string;
+    const tzOffset = getClientTzOffset(req);
+    const { currentThreshold, endThreshold, previousThreshold, previousEndThreshold, label } = getDateThresholds(dateRange, tzOffset);
+    const modelCond = getModelCondition(model);
+    const wsCond = getWorkspaceCondition(workspaceId);
+
+    // Current period stats
+    let currentConditions = [];
+    if (modelCond) currentConditions.push(modelCond);
+    if (wsCond) currentConditions.push(wsCond);
+
+    if (currentThreshold && endThreshold) {
+      currentConditions.push(
+        and(
+          gte(sessions.startedAt, currentThreshold.toISOString()),
+          lt(sessions.startedAt, endThreshold.toISOString())
+        )
+      );
+    } else if (currentThreshold) {
+      currentConditions.push(gte(sessions.startedAt, currentThreshold.toISOString()));
+    }
+
+    let currentQuery = db.select({
+      totalSessions: sql<number>`count(*)`,
+      totalTokens: sql<number>`coalesce(sum(${sessions.totalTokens}), 0)`,
+      inputTokens: sql<number>`coalesce(sum(${sessions.inputTokens}), 0)`,
+      outputTokens: sql<number>`coalesce(sum(${sessions.outputTokens}), 0)`,
+      totalCost: sql<number>`coalesce(sum(${sessions.estimatedCost}), 0)`,
+      avgDurationMs: sql<number>`coalesce(avg(${sessions.durationMs}), 0)`,
+      totalToolCalls: sql<number>`coalesce(sum(${sessions.toolCalls}), 0)`,
+      completedSessions: sql<number>`coalesce(sum(case when ${sessions.status} = 'completed' or ${sessions.status} = 'success' then 1 else 0 end), 0)`
+    }).from(sessions);
+
+    if (currentConditions.length > 0) {
+      currentQuery = currentQuery.where(and(...currentConditions)) as any;
     }
 
     const currentStatsResult = await currentQuery;
-    const current = currentStatsResult[0] || { totalSessions: 0, totalTokens: 0, totalCost: 0 };
+    const current = currentStatsResult[0] || { 
+      totalSessions: 0, 
+      totalTokens: 0, 
+      inputTokens: 0, 
+      outputTokens: 0, 
+      totalCost: 0, 
+      avgDurationMs: 0, 
+      totalToolCalls: 0, 
+      completedSessions: 0 
+    };
 
     const totalSessions = current.totalSessions || 0;
     const totalTokens = current.totalTokens || 0;
-    const totalCost = current.totalCost || 0;
+    const inputTokens = current.inputTokens || 0;
+    const outputTokens = current.outputTokens || 0;
+    const totalCost = Number((current.totalCost || 0).toFixed(4));
+    
+    const inputRatio = totalTokens > 0 ? Number(((inputTokens / totalTokens) * 100).toFixed(1)) : 0;
+    const outputRatio = totalTokens > 0 ? Number(((outputTokens / totalTokens) * 100).toFixed(1)) : 0;
+    const avgCostPerSession = totalSessions > 0 ? Number((totalCost / totalSessions).toFixed(4)) : 0;
+    const avgTokensPerSession = totalSessions > 0 ? Math.round(totalTokens / totalSessions) : 0;
+    const avgDurationMs = Math.round(current.avgDurationMs || 0);
+    const avgDurationSec = Number(((current.avgDurationMs || 0) / 1000).toFixed(1));
+    const avgToolCalls = totalSessions > 0 ? Number(((current.totalToolCalls || 0) / totalSessions).toFixed(1)) : 0;
+    const successRate = totalSessions > 0 ? Number(((current.completedSessions / totalSessions) * 100).toFixed(1)) : 100;
 
     // Previous period stats for trend comparison
     let sessionTrend = { value: 0, isPositive: true, label };
@@ -109,18 +332,33 @@ router.get('/summary', async (req, res) => {
     let costTrend = { value: 0, isPositive: true, label };
 
     if (currentThreshold && previousThreshold) {
+      const prevConditions = [];
+      if (modelCond) prevConditions.push(modelCond);
+      if (wsCond) prevConditions.push(wsCond);
+
+      if (previousEndThreshold) {
+        prevConditions.push(
+          and(
+            gte(sessions.startedAt, previousThreshold.toISOString()),
+            lt(sessions.startedAt, previousEndThreshold.toISOString())
+          )
+        );
+      } else {
+        prevConditions.push(
+          and(
+            gte(sessions.startedAt, previousThreshold.toISOString()),
+            lt(sessions.startedAt, currentThreshold.toISOString())
+          )
+        );
+      }
+
       const prevStatsResult = await db.select({
         totalSessions: sql<number>`count(*)`,
-        totalTokens: sql<number>`sum(${sessions.totalTokens})`,
-        totalCost: sql<number>`sum(${sessions.estimatedCost})`
+        totalTokens: sql<number>`coalesce(sum(${sessions.totalTokens}), 0)`,
+        totalCost: sql<number>`coalesce(sum(${sessions.estimatedCost}), 0)`
       })
       .from(sessions)
-      .where(
-        and(
-          gte(sessions.startedAt, previousThreshold.toISOString()),
-          lt(sessions.startedAt, currentThreshold.toISOString())
-        )
-      );
+      .where(and(...prevConditions));
 
       const prev = prevStatsResult[0] || { totalSessions: 0, totalTokens: 0, totalCost: 0 };
       const prevSessions = prev.totalSessions || 0;
@@ -145,11 +383,23 @@ router.get('/summary', async (req, res) => {
     res.json({
       totalSessions,
       totalTokens,
+      inputTokens,
+      outputTokens,
+      inputRatio,
+      outputRatio,
       totalCost,
+      avgCostPerSession,
+      avgTokensPerSession,
+      avgDurationMs,
+      avgDurationSec,
+      avgToolCalls,
+      successRate,
       sessionTrend,
       tokenTrend,
       costTrend,
-      dateRange
+      dateRange,
+      model: model || 'all',
+      workspaceId: workspaceId || 'all'
     });
   } catch (error) {
     console.error('[dashboard/summary] Error:', error);
@@ -157,28 +407,43 @@ router.get('/summary', async (req, res) => {
   }
 });
 
-// GET /api/dashboard/recent-sessions?dateRange=...
+// GET /api/dashboard/recent-sessions?dateRange=...&model=...&workspaceId=...
 router.get('/recent-sessions', async (req, res) => {
   try {
-    const dateRange = (req.query.dateRange as string) || '7d';
-    const { currentThreshold, endThreshold } = getDateThresholds(dateRange);
+    const dateRange = (req.query.dateRange as string) || (req.query.range as string) || '1d';
+    const model = req.query.model as string;
+    const workspaceId = req.query.workspaceId as string;
+    const tzOffset = getClientTzOffset(req);
+    const { currentThreshold, endThreshold } = getDateThresholds(dateRange, tzOffset);
+    const modelCond = getModelCondition(model);
+    const wsCond = getWorkspaceCondition(workspaceId);
 
-    let whereClause = undefined;
+    const conditions = [];
+    if (modelCond) conditions.push(modelCond);
+    if (wsCond) conditions.push(wsCond);
+
     if (currentThreshold && endThreshold) {
-      whereClause = and(
-        gte(sessions.startedAt, currentThreshold.toISOString()),
-        lt(sessions.startedAt, endThreshold.toISOString())
+      conditions.push(
+        and(
+          gte(sessions.startedAt, currentThreshold.toISOString()),
+          lt(sessions.startedAt, endThreshold.toISOString())
+        )
       );
     } else if (currentThreshold) {
-      whereClause = gte(sessions.startedAt, currentThreshold.toISOString());
+      conditions.push(gte(sessions.startedAt, currentThreshold.toISOString()));
     }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+    const limitParam = req.query.limit ? parseInt(req.query.limit as string, 10) : 100;
+    const limit = Math.min(Math.max(limitParam, 1), 200);
 
     const recentSessions = await db.query.sessions.findMany({
       where: whereClause,
-      limit: 15,
+      limit,
       orderBy: [desc(sessions.startedAt)],
       with: {
         agent: true,
+        workspace: true,
         sessionTags: {
           with: {
             tag: true
@@ -195,6 +460,9 @@ router.get('/recent-sessions', async (req, res) => {
       return {
         id: session.id,
         agentName: session.agent?.name || 'Unknown Agent',
+        workspaceId: session.workspaceId,
+        workspaceName: session.workspace?.name || 'Default Workspace',
+        workspacePath: session.workspace?.path || '',
         model: session.model,
         modelName: meta.modelName || modelInfo.name,
         provider: meta.provider || modelInfo.provider,
@@ -221,10 +489,13 @@ router.get('/recent-sessions', async (req, res) => {
   }
 });
 
-// GET /api/dashboard/recent-tags
+// GET /api/dashboard/recent-tags?workspaceId=...
 router.get('/recent-tags', async (req, res) => {
   try {
-    const popularTags = await db.select({
+    const workspaceId = req.query.workspaceId as string;
+    const wsCond = getWorkspaceCondition(workspaceId);
+
+    let query = db.select({
       id: tags.id,
       prefix: tags.prefix,
       identifier: tags.identifier,
@@ -235,9 +506,16 @@ router.get('/recent-tags', async (req, res) => {
     })
     .from(tags)
     .leftJoin(sessionTags, eq(tags.id, sessionTags.tagId))
-    .groupBy(tags.id)
-    .orderBy(desc(sql`count(${sessionTags.sessionId})`))
-    .limit(10);
+    .leftJoin(sessions, eq(sessionTags.sessionId, sessions.id));
+
+    if (wsCond) {
+      query = query.where(wsCond) as any;
+    }
+
+    const popularTags = await query
+      .groupBy(tags.id)
+      .orderBy(desc(sql`count(${sessionTags.sessionId})`))
+      .limit(10);
 
     res.json({ data: popularTags });
   } catch (error) {
@@ -246,54 +524,108 @@ router.get('/recent-tags', async (req, res) => {
   }
 });
 
-// GET /api/dashboard/trends?dateRange=...
+// GET /api/dashboard/trends?dateRange=...&model=...&workspaceId=...
 router.get('/trends', async (req, res) => {
   try {
-    const dateRange = (req.query.dateRange as string) || '7d';
-    const { currentThreshold, endThreshold, isSingleDay } = getDateThresholds(dateRange);
+    const dateRange = (req.query.dateRange as string) || (req.query.range as string) || '1d';
+    const model = req.query.model as string;
+    const workspaceId = req.query.workspaceId as string;
+    const tzOffset = getClientTzOffset(req);
+    const { currentThreshold, endThreshold, isSingleDay, sqliteTzModifier } = getDateThresholds(dateRange, tzOffset);
+    const modelCond = getModelCondition(model);
+    const wsCond = getWorkspaceCondition(workspaceId);
 
     if (isSingleDay) {
-      // Group by hour for single day view (e.g. 13:00)
-      let query = db.select({
-        date: sql<string>`substr(${sessions.startedAt}, 12, 2) || ':00'`,
-        tokens: sql<number>`sum(${sessions.totalTokens})`,
-        cost: sql<number>`sum(${sessions.estimatedCost})`
-      })
-      .from(sessions);
+      // Group by local hour for single day view (e.g. 10:00)
+      const conditions = [];
+      if (modelCond) conditions.push(modelCond);
+      if (wsCond) conditions.push(wsCond);
 
       if (currentThreshold && endThreshold) {
-        query = query.where(
+        conditions.push(
           and(
             gte(sessions.startedAt, currentThreshold.toISOString()),
             lt(sessions.startedAt, endThreshold.toISOString())
           )
-        ) as any;
+        );
       } else if (currentThreshold) {
-        query = query.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
+        conditions.push(gte(sessions.startedAt, currentThreshold.toISOString()));
       }
 
-      const trendData = await query
-        .groupBy(sql`substr(${sessions.startedAt}, 12, 2)`)
-        .orderBy(sql`substr(${sessions.startedAt}, 12, 2) ASC`);
+      let query = db.select({
+        date: sql<string>`strftime('%H:00', datetime(${sessions.startedAt}, ${sqliteTzModifier}))`,
+        inputTokens: sql<number>`coalesce(sum(${sessions.inputTokens}), 0)`,
+        outputTokens: sql<number>`coalesce(sum(${sessions.outputTokens}), 0)`,
+        tokens: sql<number>`coalesce(sum(${sessions.totalTokens}), 0)`,
+        cost: sql<number>`coalesce(sum(${sessions.estimatedCost}), 0)`,
+        avgDurationMs: sql<number>`coalesce(avg(${sessions.durationMs}), 0)`,
+        toolCalls: sql<number>`coalesce(sum(${sessions.toolCalls}), 0)`,
+        sessionCount: sql<number>`count(*)`
+      })
+      .from(sessions);
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions)) as any;
+      }
+
+      const rawTrendData = await query
+        .groupBy(sql`strftime('%H:00', datetime(${sessions.startedAt}, ${sqliteTzModifier}))`)
+        .orderBy(sql`strftime('%H:00', datetime(${sessions.startedAt}, ${sqliteTzModifier})) ASC`);
+
+      const trendData = rawTrendData.map(d => ({
+        date: d.date,
+        inputTokens: d.inputTokens || 0,
+        outputTokens: d.outputTokens || 0,
+        tokens: d.tokens || 0,
+        cost: Number(Number(d.cost || 0).toFixed(4)),
+        avgDurationMs: Math.round(d.avgDurationMs || 0),
+        avgDurationSec: Number(((d.avgDurationMs || 0) / 1000).toFixed(1)),
+        toolCalls: d.toolCalls || 0,
+        sessionCount: d.sessionCount || 0
+      }));
 
       return res.json({ data: trendData });
     }
 
-    // Group by date (YYYY-MM-DD) for 7d, 30d, 90d, 180d, 365d, all
+    // Group by local date (YYYY-MM-DD) for 7d, 30d, 90d, 180d, 365d, all
+    const conditions = [];
+    if (modelCond) conditions.push(modelCond);
+    if (wsCond) conditions.push(wsCond);
+    if (currentThreshold) {
+      conditions.push(gte(sessions.startedAt, currentThreshold.toISOString()));
+    }
+
     let query = db.select({
-      date: sql<string>`substr(${sessions.startedAt}, 1, 10)`,
-      tokens: sql<number>`sum(${sessions.totalTokens})`,
-      cost: sql<number>`sum(${sessions.estimatedCost})`
+      date: sql<string>`strftime('%Y-%m-%d', datetime(${sessions.startedAt}, ${sqliteTzModifier}))`,
+      inputTokens: sql<number>`coalesce(sum(${sessions.inputTokens}), 0)`,
+      outputTokens: sql<number>`coalesce(sum(${sessions.outputTokens}), 0)`,
+      tokens: sql<number>`coalesce(sum(${sessions.totalTokens}), 0)`,
+      cost: sql<number>`coalesce(sum(${sessions.estimatedCost}), 0)`,
+      avgDurationMs: sql<number>`coalesce(avg(${sessions.durationMs}), 0)`,
+      toolCalls: sql<number>`coalesce(sum(${sessions.toolCalls}), 0)`,
+      sessionCount: sql<number>`count(*)`
     })
     .from(sessions);
 
-    if (currentThreshold) {
-      query = query.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions)) as any;
     }
 
-    const trendData = await query
-      .groupBy(sql`substr(${sessions.startedAt}, 1, 10)`)
-      .orderBy(sql`substr(${sessions.startedAt}, 1, 10) ASC`);
+    const rawTrendData = await query
+      .groupBy(sql`strftime('%Y-%m-%d', datetime(${sessions.startedAt}, ${sqliteTzModifier}))`)
+      .orderBy(sql`strftime('%Y-%m-%d', datetime(${sessions.startedAt}, ${sqliteTzModifier})) ASC`);
+
+    const trendData = rawTrendData.map(d => ({
+      date: d.date,
+      inputTokens: d.inputTokens || 0,
+      outputTokens: d.outputTokens || 0,
+      tokens: d.tokens || 0,
+      cost: Number(Number(d.cost || 0).toFixed(4)),
+      avgDurationMs: Math.round(d.avgDurationMs || 0),
+      avgDurationSec: Number(((d.avgDurationMs || 0) / 1000).toFixed(1)),
+      toolCalls: d.toolCalls || 0,
+      sessionCount: d.sessionCount || 0
+    }));
 
     res.json({ data: trendData });
   } catch (error) {
@@ -302,11 +634,101 @@ router.get('/trends', async (req, res) => {
   }
 });
 
-// GET /api/dashboard/agent-distribution?dateRange=...
+// GET /api/dashboard/intent-distribution?dateRange=...&model=...&workspaceId=...
+router.get('/intent-distribution', async (req, res) => {
+  try {
+    const dateRange = (req.query.dateRange as string) || (req.query.range as string) || '1d';
+    const model = req.query.model as string;
+    const workspaceId = req.query.workspaceId as string;
+    const tzOffset = getClientTzOffset(req);
+    const { currentThreshold, endThreshold } = getDateThresholds(dateRange, tzOffset);
+    const modelCond = getModelCondition(model);
+    const wsCond = getWorkspaceCondition(workspaceId);
+
+    const conditions = [];
+    if (modelCond) conditions.push(modelCond);
+    if (wsCond) conditions.push(wsCond);
+
+    if (currentThreshold && endThreshold) {
+      conditions.push(
+        and(
+          gte(sessions.startedAt, currentThreshold.toISOString()),
+          lt(sessions.startedAt, endThreshold.toISOString())
+        )
+      );
+    } else if (currentThreshold) {
+      conditions.push(gte(sessions.startedAt, currentThreshold.toISOString()));
+    }
+
+    let query = db.select({
+      tagId: tags.id,
+      tagName: tags.action,
+      tagRaw: tags.raw,
+      tagColor: tags.color,
+      count: sql<number>`count(${sessions.id})`,
+      totalTokens: sql<number>`coalesce(sum(${sessions.totalTokens}), 0)`,
+      totalCost: sql<number>`coalesce(sum(${sessions.estimatedCost}), 0)`,
+      avgDurationMs: sql<number>`coalesce(avg(${sessions.durationMs}), 0)`
+    })
+    .from(sessions)
+    .innerJoin(sessionTags, eq(sessions.id, sessionTags.sessionId))
+    .innerJoin(tags, eq(sessionTags.tagId, tags.id));
+
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions)) as any;
+    }
+
+    const results = await query
+      .groupBy(tags.id)
+      .orderBy(desc(sql`count(${sessions.id})`));
+
+    const totalTurns = results.reduce((acc, r) => acc + (r.count || 0), 0);
+
+    const formatted = results.map(r => ({
+      id: r.tagId,
+      tag: r.tagRaw || `[${r.tagName}]`,
+      name: r.tagName || r.tagRaw?.replace(/[\[\]]/g, '') || 'Task',
+      color: r.tagColor || TagService.getTagColor(r.tagName || 'Unknown'),
+      count: r.count,
+      percentage: totalTurns > 0 ? Number(((r.count / totalTurns) * 100).toFixed(1)) : 0,
+      totalTokens: r.totalTokens || 0,
+      totalCost: Number((r.totalCost || 0).toFixed(4)),
+      avgDurationMs: Math.round(r.avgDurationMs || 0),
+      avgDurationSec: Number(((r.avgDurationMs || 0) / 1000).toFixed(1))
+    }));
+
+    res.json({ data: formatted });
+  } catch (error) {
+    console.error('[dashboard/intent-distribution] Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// GET /api/dashboard/agent-distribution?dateRange=...&model=...&workspaceId=...
 router.get('/agent-distribution', async (req, res) => {
   try {
-    const dateRange = (req.query.dateRange as string) || '7d';
-    const { currentThreshold, endThreshold } = getDateThresholds(dateRange);
+    const dateRange = (req.query.dateRange as string) || (req.query.range as string) || '1d';
+    const model = req.query.model as string;
+    const workspaceId = req.query.workspaceId as string;
+    const tzOffset = getClientTzOffset(req);
+    const { currentThreshold, endThreshold } = getDateThresholds(dateRange, tzOffset);
+    const modelCond = getModelCondition(model);
+    const wsCond = getWorkspaceCondition(workspaceId);
+
+    const conditions = [];
+    if (modelCond) conditions.push(modelCond);
+    if (wsCond) conditions.push(wsCond);
+
+    if (currentThreshold && endThreshold) {
+      conditions.push(
+        and(
+          gte(sessions.startedAt, currentThreshold.toISOString()),
+          lt(sessions.startedAt, endThreshold.toISOString())
+        )
+      );
+    } else if (currentThreshold) {
+      conditions.push(gte(sessions.startedAt, currentThreshold.toISOString()));
+    }
 
     let query = db.select({
       agentName: agents.name,
@@ -315,15 +737,8 @@ router.get('/agent-distribution', async (req, res) => {
     .from(sessions)
     .leftJoin(agents, eq(sessions.agentId, agents.id));
 
-    if (currentThreshold && endThreshold) {
-      query = query.where(
-        and(
-          gte(sessions.startedAt, currentThreshold.toISOString()),
-          lt(sessions.startedAt, endThreshold.toISOString())
-        )
-      ) as any;
-    } else if (currentThreshold) {
-      query = query.where(gte(sessions.startedAt, currentThreshold.toISOString())) as any;
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions)) as any;
     }
 
     const distribution = await query
@@ -343,7 +758,7 @@ router.get('/agent-distribution', async (req, res) => {
 });
 
 // GET /api/dashboard/agents
-router.get('/agents', async (req, res) => {
+router.get('/agents', async (_req, res) => {
   try {
     const allAgents = await db.select().from(agents);
     res.json({ data: allAgents });

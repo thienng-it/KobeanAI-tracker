@@ -1,6 +1,18 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { NavLink } from 'react-router';
-import { LayoutDashboard, List, BrainCircuit, Terminal, ShieldAlert, Cpu, Sun, Moon, BookOpen, PanelLeftClose } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  List, 
+  BrainCircuit, 
+  Terminal, 
+  ShieldAlert, 
+  Cpu, 
+  Sun, 
+  Moon, 
+  BookOpen, 
+  PanelLeftClose, 
+  PanelLeftOpen 
+} from 'lucide-react';
 import './Sidebar.css';
 import { useThemeStore } from '../../stores/useThemeStore';
 import { useLayoutStore } from '../../stores/useLayoutStore';
@@ -14,8 +26,7 @@ export const Sidebar: React.FC = () => {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-      // Prevent text selection while resizing
+      if (!isResizing || !isSidebarOpen) return;
       e.preventDefault();
       setSidebarWidth(e.clientX);
     };
@@ -39,7 +50,7 @@ export const Sidebar: React.FC = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizing, setSidebarWidth]);
+  }, [isResizing, isSidebarOpen, setSidebarWidth]);
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
@@ -51,84 +62,130 @@ export const Sidebar: React.FC = () => {
     { name: 'Docs & Guide', path: '/docs', icon: <BookOpen size={20} /> },
   ];
 
+  const currentWidth = isSidebarOpen ? `${sidebarWidth}px` : '68px';
+
   return (
     <aside 
       ref={sidebarRef}
       className={`sidebar ${!isSidebarOpen ? 'collapsed' : ''} ${isResizing ? 'resizing' : ''}`} 
       style={{ 
-        width: isSidebarOpen ? `${sidebarWidth}px` : '0px',
-        minWidth: isSidebarOpen ? `${sidebarWidth}px` : '0px',
+        width: currentWidth,
+        minWidth: currentWidth,
+        maxWidth: isSidebarOpen ? '480px' : '68px',
         transition: isResizing ? 'none' : 'width var(--duration-normal) var(--ease-spring-smooth), min-width var(--duration-normal) var(--ease-spring-smooth)',
       }}
     >
       <div className="sidebar-inner" style={{ 
-        width: `${sidebarWidth}px`, 
+        width: '100%', 
         display: 'flex', 
         flexDirection: 'column', 
         height: '100%',
-        opacity: isSidebarOpen ? 1 : 0,
-        transition: isResizing ? 'none' : 'opacity var(--duration-fast) ease',
       }}>
-        <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <span style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
-              KobeanAI <span style={{ color: 'var(--color-primary)' }}>Tracker</span>
-            </span>
-          </div>
-          <button 
-            onClick={toggleSidebar}
-            className="sidebar-toggle-btn"
-            title="Collapse Sidebar"
-          >
-            <PanelLeftClose size={18} />
-          </button>
+        {/* Header with logo & collapse/expand toggle */}
+        <div className="sidebar-header" style={{
+          padding: isSidebarOpen ? '36px var(--space-4) var(--space-3)' : '36px 0 var(--space-3)',
+          justifyContent: isSidebarOpen ? 'space-between' : 'center',
+          gap: '8px'
+        }}>
+          {isSidebarOpen ? (
+            <>
+              <div className="sidebar-logo" style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                <span style={{ fontSize: '1.0625rem', fontWeight: 700, letterSpacing: '-0.3px', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', display: 'block' }}>
+                  KobeanAI <span style={{ color: 'var(--color-primary)' }}>Tracker</span>
+                </span>
+              </div>
+              <button 
+                onClick={toggleSidebar}
+                className="sidebar-toggle-btn"
+                title="Collapse to icons only"
+                style={{ flexShrink: 0, padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <PanelLeftClose size={16} />
+              </button>
+            </>
+          ) : (
+            <button 
+              onClick={toggleSidebar}
+              className="sidebar-toggle-btn collapsed-toggle"
+              title="Expand Sidebar"
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: 'var(--radius-md)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--color-brand-primary)',
+                backgroundColor: 'var(--color-bg-surface-hover)',
+                border: '1px solid var(--color-border-subtle)',
+                cursor: 'pointer'
+              }}
+            >
+              <PanelLeftOpen size={18} />
+            </button>
+          )}
         </div>
-        <nav className="sidebar-nav">
+
+        {/* Navigation Items */}
+        <nav className="sidebar-nav" style={{
+          padding: isSidebarOpen ? 'var(--space-4) var(--space-3)' : 'var(--space-4) var(--space-2)',
+          alignItems: isSidebarOpen ? 'stretch' : 'center'
+        }}>
           {navItems.map(item => (
             <NavLink 
               key={item.path}
               to={item.path} 
-              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''} ${!isSidebarOpen ? 'icon-only' : ''}`}
+              title={!isSidebarOpen ? item.name : undefined}
             >
-              {item.icon}
-              <span style={{ whiteSpace: 'nowrap' }}>{item.name}</span>
+              <span className="sidebar-link-icon">{item.icon}</span>
+              {isSidebarOpen && <span className="sidebar-link-text">{item.name}</span>}
             </NavLink>
           ))}
         </nav>
-        <div style={{ padding: 'var(--space-4)', borderTop: '1px solid var(--color-border-subtle)' }}>
+
+        {/* Footer with Theme Toggle */}
+        <div style={{ 
+          padding: isSidebarOpen ? 'var(--space-4)' : 'var(--space-4) var(--space-2)', 
+          borderTop: '1px solid var(--color-border-subtle)',
+          display: 'flex',
+          justifyContent: 'center'
+        }}>
           <button 
             onClick={toggleTheme}
+            title={!isSidebarOpen ? (theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode') : undefined}
             style={{
               display: 'flex',
               alignItems: 'center',
+              justifyContent: isSidebarOpen ? 'flex-start' : 'center',
               gap: 'var(--space-2)',
-              width: '100%',
-              padding: 'var(--space-2)',
+              width: isSidebarOpen ? '100%' : '42px',
+              height: isSidebarOpen ? 'auto' : '42px',
+              padding: isSidebarOpen ? 'var(--space-2)' : '0',
               background: 'transparent',
               border: 'none',
               color: 'var(--color-text-secondary)',
               cursor: 'pointer',
               borderRadius: 'var(--radius-md)',
-              transition: 'background 0.2s',
+              transition: 'all 0.2s',
               whiteSpace: 'nowrap'
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-bg-surface-hover)')}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            {isSidebarOpen && <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
           </button>
         </div>
       </div>
       
-      {/* Drag handle for resizing */}
-      <div 
-        className="sidebar-drag-handle"
-        onMouseDown={() => setIsResizing(true)}
-        style={{
-          display: isSidebarOpen ? 'block' : 'none',
-        }}
-      />
+      {/* Drag handle for resizing (only active when expanded) */}
+      {isSidebarOpen && (
+        <div 
+          className="sidebar-drag-handle"
+          onMouseDown={() => setIsResizing(true)}
+        />
+      )}
     </aside>
   );
 };

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAgentsStore, type DetailedAgent, type AgentConfig } from '../stores/useAgentsStore';
-import { Terminal, Save, CheckCircle, AlertCircle, RefreshCw, Trash2, Edit2, X } from 'lucide-react';
+import { Terminal, Save, CheckCircle, AlertCircle, RefreshCw, Trash2, Edit2, X, Plus } from 'lucide-react';
+import { ProviderKeysManager } from '../components/settings/ProviderKeysManager';
 
 const AgentConfigCard = ({ agent }: { agent: DetailedAgent }) => {
   const { updateAgent, deleteAgent, testConnection } = useAgentsStore();
@@ -231,12 +232,16 @@ export default function AgentsConfigPage() {
   };
 
   return (
-    <div style={{ padding: 'var(--space-6)', maxWidth: '1000px', margin: '0 auto' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-8)' }}>
+    <div style={{ padding: 'var(--space-6)', maxWidth: '1100px', margin: '0 auto' }}>
+      {/* 1. API Provider Keys UI Input & Management */}
+      <ProviderKeysManager />
+
+      {/* 2. Agent Log Watchers & Integrations */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-6)' }}>
         <div>
-          <h1 className="text-2xl" style={{ margin: 0 }}>Agent Integration Hub</h1>
+          <h2 className="text-xl" style={{ margin: 0, fontWeight: 700 }}>Agent Log Watchers & Tailing</h2>
           <p className="text-sm" style={{ color: 'var(--color-text-secondary)', margin: 'var(--space-2) 0 0 0' }}>
-            Configure connections to your AI agents to enable log tailing and session tracking.
+            Configure local log directory watchers and background daemons for automatic transcript tailing.
           </p>
         </div>
         <button 
@@ -248,10 +253,13 @@ export default function AgentsConfigPage() {
             borderRadius: 'var(--radius-md)',
             color: '#fff',
             cursor: 'pointer',
-            fontWeight: 500
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
           }}
         >
-          + Add Agent
+          <Plus size={16} /> Add Custom Watcher
         </button>
       </header>
 

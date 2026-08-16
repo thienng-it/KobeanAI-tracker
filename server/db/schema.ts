@@ -12,7 +12,10 @@ export const workspaces = sqliteTable("workspaces", {
   path: text("path").notNull(),
   description: text("description"),
   ...timestamps
-});
+}, (table) => ({
+  pathIdx: index("idx_workspace_path").on(table.path),
+  nameIdx: index("idx_workspace_name").on(table.name),
+}));
 
 export const agents = sqliteTable("agents", {
   id: text("id").primaryKey(),

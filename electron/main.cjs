@@ -69,6 +69,7 @@ function createWindow() {
     title: 'KobeanAI Tracker',
     backgroundColor: '#090d16',
     titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 16, y: 16 },
     show: false, // Don't show until content is ready
     webPreferences: {
       nodeIntegration: false,

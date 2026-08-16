@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { db } from '../db/index.js';
-import { skills, agentSkills, skillTags } from '../db/schema.js';
+import { skills, agentSkills, skillTags, workspaces } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const router = Router();
 
@@ -80,13 +82,60 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+async function persistSkillToFile(targetWorkspaceId: string, skillName: string, description: string, instructions: string) {
+  try {
+    const ws = await db.query.workspaces.findFirst({
+      where: eq(workspaces.id, targetWorkspaceId)
+    });
+    const wsPath = ws?.path || process.cwd();
+    if (!fs.existsSync(wsPath)) return;
+
+    const slug = skillName.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+    const skillDir = path.join(wsPath, '.agents', 'skills', slug);
+    fs.mkdirSync(skillDir, { recursive: true });
+
+    let fileContent = '';
+    if (!instructions.startsWith('---')) {
+      fileContent = `---\nname: ${skillName}\ndescription: >-\n  ${(description || 'Custom AI assistant skill').replace(/\n/g, ' ')}\n---\n\n${instructions}\n`;
+    } else {
+      fileContent = instructions;
+    }
+
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), fileContent, 'utf8');
+    console.log(`[SkillPersistence] Synced skill to file: ${path.join(skillDir, 'SKILL.md')}`);
+  } catch (err) {
+    console.error('[SkillPersistence] Failed to persist skill to filesystem:', err);
+  }
+}
+
+async function removeSkillFromFile(skillId: string) {
+  try {
+    const skill = await db.query.skills.findFirst({
+      where: eq(skills.id, skillId)
+    });
+    if (!skill) return;
+
+    const ws = await db.query.workspaces.findFirst({
+      where: eq(workspaces.id, skill.workspaceId)
+    });
+    const wsPath = ws?.path || process.cwd();
+    const slug = skill.name.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+    const skillDir = path.join(wsPath, '.agents', 'skills', slug);
+
+    if (fs.existsSync(skillDir)) {
+      fs.rmSync(skillDir, { recursive: true, force: true });
+      console.log(`[SkillPersistence] Removed skill directory from filesystem: ${skillDir}`);
+    }
+  } catch (err) {
+    console.error('[SkillPersistence] Failed to remove skill directory:', err);
+  }
+}
+
 // POST /api/skills
 router.post('/', async (req, res) => {
   try {
-    // Basic body validation omitted for brevity
     const { name, version = '1.0', description, author, triggerCommand, instructions, workspaceId, agentIds = [] } = req.body;
     
-    // Default workspaceId for phase 1 since we only have one workspace
     const targetWorkspaceId = workspaceId || (await db.query.workspaces.findFirst())?.id;
     if (!targetWorkspaceId) return res.status(400).json({ error: 'No workspace exists' });
 
@@ -111,6 +160,9 @@ router.post('/', async (req, res) => {
       await db.insert(agentSkills).values(agentLinks);
     }
 
+    // Persist SKILL.md to .agents/skills/ in the target repo
+    await persistSkillToFile(targetWorkspaceId, name, description || '', instructions || '');
+
     res.json({ success: true, id: newSkillId });
   } catch (error) {
     console.error(error);
@@ -123,6 +175,10 @@ router.put('/:id', async (req, res) => {
   try {
     const { name, version, description, author, triggerCommand, instructions, agentIds } = req.body;
     
+    const existingSkill = await db.query.skills.findFirst({
+      where: eq(skills.id, req.params.id)
+    });
+
     await db.update(skills).set({
       name,
       version,
@@ -134,7 +190,6 @@ router.put('/:id', async (req, res) => {
     }).where(eq(skills.id, req.params.id));
 
     if (agentIds !== undefined) {
-      // Simplest approach: delete existing links, insert new ones
       await db.delete(agentSkills).where(eq(agentSkills.skillId, req.params.id));
       if (agentIds.length > 0) {
         const agentLinks = agentIds.map((agentId: string) => ({
@@ -143,6 +198,11 @@ router.put('/:id', async (req, res) => {
         }));
         await db.insert(agentSkills).values(agentLinks);
       }
+    }
+
+    // Persist updated SKILL.md to the repo's filesystem
+    if (existingSkill) {
+      await persistSkillToFile(existingSkill.workspaceId, name || existingSkill.name, description || '', instructions || '');
     }
 
     res.json({ success: true });
@@ -155,11 +215,12 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/skills/:id
 router.delete('/:id', async (req, res) => {
   try {
-    // Must delete relation links first
+    // Remove directory from target repo filesystem first
+    await removeSkillFromFile(req.params.id);
+
+    // Delete relation links and skill from SQLite
     await db.delete(agentSkills).where(eq(agentSkills.skillId, req.params.id));
     await db.delete(skillTags).where(eq(skillTags.skillId, req.params.id));
-    
-    // Then delete the skill
     await db.delete(skills).where(eq(skills.id, req.params.id));
     
     res.json({ success: true });

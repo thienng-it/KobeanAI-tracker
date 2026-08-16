@@ -19,6 +19,7 @@ interface RulesState {
   isLoading: boolean;
   error: string | null;
   fetchRules: () => Promise<void>;
+  syncRules: () => Promise<{ success: boolean; count?: number; error?: string }>;
   createRule: (data: Partial<Rule>) => Promise<void>;
   updateRule: (id: string, data: Partial<Rule>) => Promise<void>;
   deleteRule: (id: string) => Promise<void>;
@@ -36,6 +37,19 @@ export const useRulesStore = create<RulesState>((set, get) => ({
       set({ rules: data, isLoading: false });
     } catch (err: any) {
       set({ error: err.message, isLoading: false });
+    }
+  },
+
+  syncRules: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await api.post<{ success: boolean; count?: number }>('/rules/sync', {});
+      const data = await api.get<Rule[]>('/rules');
+      set({ rules: data, isLoading: false });
+      return { success: true, count: res.count ?? data.length };
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+      return { success: false, error: err.message };
     }
   },
 

@@ -12,11 +12,18 @@
 }
 
 .sidebar-header {
-  padding: var(--space-6);
+  padding: 44px var(--space-4) var(--space-3);
   border-bottom: 1px solid var(--color-border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  -webkit-app-region: drag;
+  min-height: 82px;
+}
+
+.sidebar.collapsed .sidebar-header {
+  padding: 44px 0 var(--space-3);
+  justify-content: center;
 }
 
 .sidebar-logo {
@@ -24,6 +31,7 @@
   align-items: center;
   gap: var(--space-2);
   transition: transform var(--duration-fast) var(--ease-spring-snappy);
+  -webkit-app-region: no-drag;
 }
 
 .sidebar-logo:hover {
@@ -37,6 +45,7 @@
   gap: var(--space-1);
   flex: 1;
   overflow-y: auto;
+  -webkit-app-region: no-drag;
 }
 
 .sidebar-link {
@@ -102,11 +111,42 @@
 }
 
 .sidebar.collapsed {
-  border-right-color: transparent;
+  border-right: 1px solid var(--color-border-subtle);
 }
 
 .sidebar-inner {
   overflow: hidden;
+}
+
+.sidebar-link.icon-only {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-lg);
+  margin: 0 auto;
+}
+
+.sidebar-link.icon-only:hover {
+  transform: scale(1.06);
+}
+
+.sidebar-link.icon-only.active::before {
+  left: -4px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+}
+
+.sidebar-link-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-link-text {
+  white-space: nowrap;
 }
 
 .sidebar-drag-handle {
@@ -137,9 +177,16 @@
   padding: 4px;
   border-radius: var(--radius-sm);
   transition: all 0.2s;
+  -webkit-app-region: no-drag;
 }
 
 .sidebar-toggle-btn:hover {
   background: var(--color-bg-surface-hover);
   color: var(--color-text-primary);
 }
+
+.sidebar-toggle-btn.collapsed-toggle:hover {
+  transform: scale(1.05);
+  color: var(--color-brand-primary);
+}
+

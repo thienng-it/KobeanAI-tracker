@@ -20,6 +20,7 @@
   --color-bg-surface: var(--gray-900);
   --color-bg-surface-hover: var(--gray-800);
   --color-bg-surface-active: var(--gray-700);
+  --color-bg-secondary: var(--gray-900);
 
   /* Text */
   --color-text-primary: var(--gray-50);
@@ -129,6 +130,7 @@
   --color-bg-surface: #ffffff;
   --color-bg-surface-hover: #f1f5f9;
   --color-bg-surface-active: #e2e8f0;
+  --color-bg-secondary: #f1f5f9;
 
   --color-text-primary: var(--gray-900);
   --color-text-secondary: var(--gray-600);
@@ -201,6 +203,79 @@ button {
 
 button:active {
   transform: scale(0.97);
+}
+
+/* Button Utilities */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-brand-primary);
+  border: 1px solid var(--color-brand-primary);
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-fast) var(--ease-spring-smooth);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-brand-hover);
+  border-color: var(--color-brand-hover);
+  box-shadow: var(--shadow-md), 0 0 12px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-spring-smooth);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-bg-surface-hover);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Glassmorphic Panel Utility */
@@ -299,6 +374,17 @@ button:active {
   100% { background-position: 200% 0; }
 }
 
+@keyframes dropdownReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* Page Mount Entrance Animations */
 .animate-fade-in {
   animation: fadeIn var(--duration-normal) var(--ease-spring-smooth) forwards;
@@ -312,6 +398,12 @@ button:active {
   animation: scaleIn var(--duration-fast) var(--ease-spring-snappy) forwards;
 }
 
+.animate-dropdown {
+  animation: dropdownReveal 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top left;
+  will-change: transform, opacity;
+}
+
 /* Accessibility: Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -321,4 +413,18 @@ button:active {
     scroll-behavior: auto !important;
   }
 }
+
+/* Desktop Window Drag & No-Drag Regions */
+.app-header {
+  -webkit-app-region: drag;
+}
+
+.app-no-drag,
+.app-header button,
+.app-header input,
+.app-header select,
+.app-header a {
+  -webkit-app-region: no-drag;
+}
+
 

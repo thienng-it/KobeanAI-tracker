@@ -142,7 +142,19 @@ export class SkillScanner {
       path.resolve(process.env.HOME || '', '.gemini/config/rules')
     ];
 
+    // Deduplicate existing rules in DB
+    const existingDbRules = await db.query.rules.findMany();
+    const seenRuleNamesInDb = new Set<string>();
+    for (const r of existingDbRules) {
+      if (seenRuleNamesInDb.has(r.name)) {
+        await db.delete(rules).where(eq(rules.id, r.id)).catch(() => {});
+      } else {
+        seenRuleNamesInDb.add(r.name);
+      }
+    }
+
     let rulesCount = 0;
+    const scannedRuleNames = new Set<string>();
     for (const rDir of candidateRuleDirs) {
       if (fs.existsSync(rDir)) {
         const files = fs.readdirSync(rDir).filter(f => f.endsWith('.md'));
@@ -150,6 +162,9 @@ export class SkillScanner {
           const rulePath = path.join(rDir, file);
           const content = fs.readFileSync(rulePath, 'utf8');
           const ruleName = file.replace(/\.md$/, '');
+
+          if (scannedRuleNames.has(ruleName)) continue;
+          scannedRuleNames.add(ruleName);
 
           const existing = await db.query.rules.findFirst({
             where: eq(rules.name, ruleName)
@@ -166,13 +181,18 @@ export class SkillScanner {
               enabled: true,
               instruction: content
             }).onConflictDoNothing();
+          } else {
+            await db.update(rules).set({
+              instruction: content,
+              updatedAt: new Date().toISOString()
+            }).where(eq(rules.id, existing.id));
           }
           rulesCount++;
         }
       }
     }
 
-    // 3. Populate Standard Slash Commands
+    // 3. Populate Standard Slash Commands with Deduplication
     const standardCommands = [
       { name: '/goal', description: 'Run a thorough, multi-step goal autonomously until completed', skillName: 'ponytail' },
       { name: '/schedule', description: 'Schedule recurring background checks or one-shot timers', skillName: 'antigravity-guide' },
@@ -180,17 +200,29 @@ export class SkillScanner {
       { name: '/learn', description: 'Persist corrected behavior and codebase best practices into memory', skillName: 'taste-skill' },
     ];
 
+    // Deduplicate existing commands in DB
+    const existingDbCmds = await db.query.commands.findMany();
+    const seenCmdNamesInDb = new Set<string>();
+    for (const c of existingDbCmds) {
+      if (seenCmdNamesInDb.has(c.name)) {
+        await db.delete(commands).where(eq(commands.id, c.id)).catch(() => {});
+      } else {
+        seenCmdNamesInDb.add(c.name);
+      }
+    }
+
     let commandsCount = 0;
     for (const cmd of standardCommands) {
       const existingCmd = await db.query.commands.findFirst({
         where: eq(commands.name, cmd.name)
       });
 
+      const matchedSkill = await db.query.skills.findFirst({
+        where: eq(skills.name, cmd.skillName)
+      });
+      const targetSkillId = matchedSkill ? matchedSkill.id : (await db.query.skills.findFirst())?.id;
+
       if (!existingCmd) {
-        const matchedSkill = await db.query.skills.findFirst({
-          where: eq(skills.name, cmd.skillName)
-        });
-        const targetSkillId = matchedSkill ? matchedSkill.id : (await db.query.skills.findFirst())?.id;
         if (targetSkillId) {
           await db.insert(commands).values({
             id: uuidv4(),
@@ -205,6 +237,12 @@ export class SkillScanner {
           commandsCount++;
         }
       } else {
+        if (targetSkillId && existingCmd.skillId !== targetSkillId) {
+          await db.update(commands).set({
+            skillId: targetSkillId,
+            description: cmd.description
+          }).where(eq(commands.id, existingCmd.id));
+        }
         commandsCount++;
       }
     }

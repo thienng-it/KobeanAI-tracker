@@ -23,6 +23,7 @@ interface CommandsState {
   isLoading: boolean;
   error: string | null;
   fetchCommands: () => Promise<void>;
+  syncCommands: () => Promise<{ success: boolean; count?: number; error?: string }>;
   createCommand: (data: Partial<Command>) => Promise<void>;
   updateCommand: (id: string, data: Partial<Command>) => Promise<void>;
   deleteCommand: (id: string) => Promise<void>;
@@ -40,6 +41,19 @@ export const useCommandsStore = create<CommandsState>((set, get) => ({
       set({ commands: data, isLoading: false });
     } catch (err: any) {
       set({ error: err.message, isLoading: false });
+    }
+  },
+
+  syncCommands: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await api.post<{ success: boolean; count?: number }>('/commands/sync', {});
+      const data = await api.get<Command[]>('/commands');
+      set({ commands: data, isLoading: false });
+      return { success: true, count: res.count ?? data.length };
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+      return { success: false, error: err.message };
     }
   },
 

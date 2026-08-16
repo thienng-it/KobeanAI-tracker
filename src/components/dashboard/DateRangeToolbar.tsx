@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { DateRange } from '../../stores/useDashboardStore';
-import { Calendar, Clock, ChevronDown, Check, X } from 'lucide-react';
+import { Calendar, ChevronDown, Check, X } from 'lucide-react';
 
 interface DateRangeToolbarProps {
   activeRange: DateRange;
@@ -8,273 +8,289 @@ interface DateRangeToolbarProps {
   disabled?: boolean;
 }
 
-const PRESET_RANGES: Array<{ id: string; label: string; fullLabel: string }> = [
-  { id: '1d', label: '1D', fullLabel: 'Past 24 Hours' },
-  { id: '7d', label: '7D', fullLabel: 'Past 7 Days (1 Week)' },
-  { id: '30d', label: '1M', fullLabel: 'Past 30 Days (1 Month)' },
-  { id: '90d', label: '1Q', fullLabel: 'Past 90 Days (1 Quarter)' },
-  { id: '180d', label: '6M', fullLabel: 'Past 180 Days (Half Year)' },
-  { id: '365d', label: '1Y', fullLabel: 'Past 365 Days (1 Year)' },
-  { id: 'all', label: 'ALL', fullLabel: 'All Historical Sessions' },
-];
-
 export const DateRangeToolbar: React.FC<DateRangeToolbarProps> = ({
   activeRange,
   onChange,
   disabled = false
 }) => {
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const [selectedCustomDate, setSelectedCustomDate] = useState(() => {
-    if (activeRange.includes('-') && activeRange.length >= 10) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Compute dynamic system dates based on current machine local clock
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  
+  const todayFormatted = now.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+  const PRESET_RANGES = useMemo(() => [
+    { id: '1d', label: '1D', title: `Today (${todayFormatted})`, desc: 'Today only' },
+    { id: '7d', label: '7D', title: 'Past 7 Days', desc: 'Last 1 week' },
+    { id: '30d', label: '1M', title: 'Past 30 Days', desc: 'Last 1 month' },
+    { id: '90d', label: '1Q', title: 'Past 90 Days', desc: 'Last 1 quarter' },
+    { id: '180d', label: '6M', title: 'Past 180 Days', desc: 'Last 6 months' },
+    { id: '365d', label: '1Y', title: 'Past 1 Year', desc: 'Last 12 months' },
+    { id: 'all', label: 'ALL', title: 'All Time', desc: 'Full history' },
+  ], [todayFormatted]);
+
+  const [customDateInput, setCustomDateInput] = useState(() => {
+    if (activeRange.startsWith('date:')) {
       return activeRange.replace('date:', '');
     }
-    return new Date().toISOString().slice(0, 10);
+    return todayStr;
   });
 
-  const pickerRef = useRef<HTMLDivElement>(null);
-
-  // Close popover when clicking outside
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
-        setIsPickerOpen(false);
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
       }
     };
-    if (isPickerOpen) {
+    if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isPickerOpen]);
+  }, [isOpen]);
 
-  const isCustomDateActive = activeRange.includes('-') || (!PRESET_RANGES.some(r => r.id === activeRange));
-
-  const formatCustomLabel = (dateStr: string) => {
-    try {
-      const clean = dateStr.replace('date:', '');
-      const parts = clean.split('-');
-      if (parts.length === 3) {
-        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-        return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const currentActiveLabel = useMemo(() => {
+    if (activeRange.startsWith('date:')) {
+      const datePart = activeRange.replace('date:', '');
+      try {
+        const [y, m, d] = datePart.split('-').map(Number);
+        const parsed = new Date(y, m - 1, d);
+        return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      } catch {
+        return datePart;
       }
-      return clean;
-    } catch {
-      return 'Date';
+    }
+    const found = PRESET_RANGES.find(r => r.id === activeRange);
+    return found ? found.title : activeRange;
+  }, [activeRange, PRESET_RANGES]);
+
+  const handleApplyCustom = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (customDateInput) {
+      onChange(`date:${customDateInput}`);
+      setIsOpen(false);
     }
   };
 
-  const handleApplyCustomDate = (dateVal: string) => {
-    if (dateVal) {
-      onChange(`date:${dateVal}`);
-      setIsPickerOpen(false);
-    }
-  };
+  const isCustomActive = activeRange.startsWith('date:');
 
   return (
-    <div
-      ref={pickerRef}
-      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
-    >
-      <div
+    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+      <button
+        type="button"
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
         className="glass-panel"
+        title="Filter dashboard by time range or specific date"
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          padding: '3px',
-          borderRadius: 'var(--radius-lg)',
-          gap: '2px',
-          backgroundColor: 'var(--color-bg-surface)',
-          border: '1px solid var(--color-border-subtle)',
-          boxShadow: 'var(--shadow-sm)',
+          gap: '6px',
+          height: '32px',
+          padding: '0 12px',
+          borderRadius: 'var(--radius-md)',
+          backgroundColor: activeRange !== 'all' ? 'var(--color-bg-surface-active)' : 'var(--color-bg-surface)',
+          border: activeRange !== 'all'
+            ? '1px solid rgba(59, 130, 246, 0.4)'
+            : '1px solid var(--color-border-subtle)',
+          color: activeRange !== 'all' ? 'var(--color-brand-primary)' : 'var(--color-text-primary)',
+          fontSize: '0.8125rem',
+          fontWeight: 600,
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          transition: 'all var(--duration-fast) var(--ease-spring-smooth)',
+          boxShadow: activeRange !== 'all' ? '0 1px 4px rgba(59, 130, 246, 0.15)' : 'none',
           userSelect: 'none'
         }}
+        onMouseEnter={(e) => {
+          if (!disabled) {
+            e.currentTarget.style.backgroundColor = 'var(--color-bg-surface-hover)';
+            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!disabled) {
+            e.currentTarget.style.backgroundColor = activeRange !== 'all' ? 'var(--color-bg-surface-active)' : 'var(--color-bg-surface)';
+            e.currentTarget.style.borderColor = activeRange !== 'all' ? 'rgba(59, 130, 246, 0.4)' : 'var(--color-border-subtle)';
+          }
+        }}
       >
-        {/* Specific Date Picker Trigger Button */}
+        <Calendar size={13} color="var(--color-brand-primary)" />
+        
+        <span style={{ maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {currentActiveLabel}
+        </span>
+
+        <ChevronDown 
+          size={12} 
+          style={{ 
+            opacity: 0.7, 
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform var(--duration-fast) ease'
+          }} 
+        />
+      </button>
+
+      {/* Clear/Reset button when not All */}
+      {activeRange !== 'all' && (
         <button
-          onClick={() => setIsPickerOpen(!isPickerOpen)}
-          disabled={disabled}
-          title="Pick any specific date from calendar"
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onChange('all');
+          }}
+          title="Reset to all historical sessions"
           style={{
-            background: isCustomDateActive ? 'var(--color-brand-primary)' : 'var(--color-bg-surface-hover)',
-            color: isCustomDateActive ? '#ffffff' : 'var(--color-text-primary)',
-            border: isCustomDateActive ? '1px solid transparent' : '1px solid var(--color-border-default)',
-            padding: '5px 10px',
-            borderRadius: 'var(--radius-md)',
-            fontSize: '0.75rem',
-            fontWeight: isCustomDateActive ? 600 : 500,
-            cursor: disabled ? 'not-allowed' : 'pointer',
-            transition: 'all var(--duration-fast) var(--ease-spring-smooth)',
+            marginLeft: '4px',
+            background: 'none',
+            border: 'none',
+            color: 'var(--color-text-tertiary)',
+            cursor: 'pointer',
+            padding: '4px',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px',
-            marginRight: '2px',
-            boxShadow: isCustomDateActive ? '0 1px 3px rgba(0, 0, 0, 0.25)' : 'none'
+            borderRadius: 'var(--radius-full)'
           }}
         >
-          <Calendar size={13} style={{ color: isCustomDateActive ? '#ffffff' : 'var(--color-brand-primary)' }} />
-          <span>{isCustomDateActive ? formatCustomLabel(activeRange) : 'Pick Date'}</span>
-          <ChevronDown size={11} style={{ opacity: isCustomDateActive ? 0.9 : 0.6 }} />
+          <X size={12} />
         </button>
+      )}
 
-        <div style={{ width: '1px', height: '18px', backgroundColor: 'var(--color-border-subtle)', margin: '0 2px' }} />
-
-        {/* Preset Range Pills */}
-        {PRESET_RANGES.map((r) => {
-          const isActive = activeRange === r.id;
-          return (
-            <button
-              key={r.id}
-              onClick={() => {
-                setIsPickerOpen(false);
-                onChange(r.id);
-              }}
-              disabled={disabled}
-              title={r.fullLabel}
-              style={{
-                background: isActive ? 'var(--color-brand-primary)' : 'transparent',
-                color: isActive ? '#ffffff' : 'var(--color-text-secondary)',
-                border: 'none',
-                padding: '5px 11px',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.75rem',
-                fontWeight: isActive ? 600 : 500,
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                transition: 'all var(--duration-fast) var(--ease-spring-smooth)',
-                boxShadow: isActive ? '0 1px 3px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)' : 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'var(--color-bg-surface-hover)';
-                  e.currentTarget.style.color = 'var(--color-text-primary)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = 'var(--color-text-secondary)';
-                }
-              }}
-            >
-              {r.id === '1d' && <Clock size={11} style={{ opacity: isActive ? 1 : 0.7 }} />}
-              {r.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Interactive Date Picker Popover */}
-      {isPickerOpen && (
+      {/* Popover Dropdown */}
+      {isOpen && (
         <div
-          className="glass-panel animate-slide-up"
+          className="glass-panel animate-dropdown"
           style={{
             position: 'absolute',
-            top: 'calc(100% + 8px)',
-            left: 0,
+            top: 'calc(100% + 6px)',
+            right: 0,
             zIndex: 100,
-            width: '260px',
-            padding: 'var(--space-4)',
-            borderRadius: 'var(--radius-lg)',
-            boxShadow: 'var(--shadow-lg)',
+            width: '280px',
+            borderRadius: 'var(--radius-xl)',
+            boxShadow: 'var(--shadow-xl)',
             border: '1px solid var(--color-border-default)',
-            backgroundColor: 'var(--color-bg-surface)'
+            backgroundColor: 'var(--color-bg-surface)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            padding: '8px'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
-            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Calendar size={14} color="var(--color-brand-primary)" />
-              Select Specific Date
+          {/* Popover Header */}
+          <div style={{ padding: '6px 8px 10px', borderBottom: '1px solid var(--color-border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-tertiary)' }}>
+              Select Time Range
             </span>
-            <button
-              onClick={() => setIsPickerOpen(false)}
-              style={{ background: 'none', border: 'none', color: 'var(--color-text-tertiary)', cursor: 'pointer', padding: 2 }}
-            >
-              <X size={14} />
-            </button>
+            <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-tertiary)', fontFamily: 'var(--font-mono)' }}>
+              Presets & Custom
+            </span>
           </div>
 
-          <div style={{ marginBottom: 'var(--space-3)' }}>
-            <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '4px', fontWeight: 500 }}>
-              Choose Date:
-            </label>
-            <input
-              type="date"
-              value={selectedCustomDate}
-              onChange={(e) => setSelectedCustomDate(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '6px 8px',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: 'var(--color-bg-surface-hover)',
-                border: '1px solid var(--color-border-default)',
-                color: 'var(--color-text-primary)',
-                fontSize: '0.8125rem',
-                outline: 'none',
-                colorScheme: 'auto'
-              }}
-            />
-          </div>
-
-          {/* Quick Date Chips */}
-          <div style={{ marginBottom: 'var(--space-3)' }}>
-            <span style={{ display: 'block', fontSize: '0.6875rem', color: 'var(--color-text-tertiary)', marginBottom: '4px', textTransform: 'uppercase', fontWeight: 600 }}>
-              Quick Presets:
-            </span>
-            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-              {[
-                { label: 'Today (Aug 15)', value: '2026-08-15' },
-                { label: 'Aug 14', value: '2026-08-14' },
-                { label: 'Aug 13', value: '2026-08-13' }
-              ].map((chip) => (
+          {/* Presets List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '6px 0' }}>
+            {PRESET_RANGES.map((preset) => {
+              const isSelected = activeRange === preset.id;
+              return (
                 <button
-                  key={chip.value}
+                  key={preset.id}
                   type="button"
                   onClick={() => {
-                    setSelectedCustomDate(chip.value);
-                    handleApplyCustomDate(chip.value);
+                    onChange(preset.id);
+                    setIsOpen(false);
                   }}
                   style={{
-                    background: selectedCustomDate === chip.value ? 'var(--color-status-info-bg)' : 'var(--color-bg-surface-hover)',
-                    border: '1px solid ' + (selectedCustomDate === chip.value ? 'var(--color-brand-primary)' : 'var(--color-border-subtle)'),
-                    color: selectedCustomDate === chip.value ? 'var(--color-brand-primary)' : 'var(--color-text-secondary)',
-                    padding: '3px 7px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.6875rem',
-                    fontWeight: selectedCustomDate === chip.value ? 600 : 500,
-                    cursor: 'pointer'
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '7px 10px',
+                    borderRadius: 'var(--radius-md)',
+                    backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.12)' : 'transparent',
+                    border: isSelected ? '1px solid rgba(59, 130, 246, 0.25)' : '1px solid transparent',
+                    color: isSelected ? 'var(--color-brand-primary)' : 'var(--color-text-primary)',
+                    fontSize: '0.75rem',
+                    fontWeight: isSelected ? 600 : 500,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background-color var(--duration-fast) ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = 'var(--color-bg-surface-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
-                  {chip.label}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span 
+                      style={{ 
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        fontFamily: 'var(--font-mono)',
+                        padding: '1px 5px',
+                        borderRadius: 'var(--radius-sm)',
+                        backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'var(--color-bg-surface-hover)',
+                        color: isSelected ? 'var(--color-brand-primary)' : 'var(--color-text-secondary)',
+                        minWidth: '28px',
+                        textAlign: 'center'
+                      }}
+                    >
+                      {preset.label}
+                    </span>
+                    <span>{preset.title}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-tertiary)' }}>
+                      {preset.desc}
+                    </span>
+                    {isSelected && <Check size={13} color="var(--color-brand-primary)" />}
+                  </div>
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
 
-          <button
-            type="button"
-            onClick={() => handleApplyCustomDate(selectedCustomDate)}
-            className="btn-primary"
-            style={{
-              width: '100%',
-              padding: '7px 0',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              borderRadius: 'var(--radius-md)',
-              background: 'var(--color-brand-primary)',
-              color: '#ffffff',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            <Check size={13} /> Apply Selected Date
-          </button>
+          {/* Custom Date Section */}
+          <div style={{ marginTop: '4px', paddingTop: '8px', borderTop: '1px solid var(--color-border-subtle)', padding: '8px' }}>
+            <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+              Specific Single Day
+            </span>
+            <form onSubmit={handleApplyCustom} style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <input
+                type="date"
+                value={customDateInput}
+                onChange={(e) => setCustomDateInput(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '5px 8px',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: 'var(--color-bg-surface-hover)',
+                  border: isCustomActive ? '1px solid var(--color-brand-primary)' : '1px solid var(--color-border-subtle)',
+                  color: 'var(--color-text-primary)',
+                  fontSize: '0.75rem',
+                  outline: 'none'
+                }}
+              />
+              <button
+                type="submit"
+                className="btn-primary"
+                style={{
+                  padding: '5px 10px',
+                  fontSize: '0.75rem',
+                  borderRadius: 'var(--radius-md)',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Apply
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </div>

@@ -147,41 +147,72 @@ npm run dev</code></pre>
 
       <!-- ==================== Tab 2: API Tokens & Connectors ==================== -->
       <div id="tab-tokens" class="tab-content">
-        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🔑 API Tokens & Live Transcript Connectors</h2>
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">🔑 Direct UI API Keys & Live Transcript Connectors</h2>
         <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
-          KobeanAI Tracker uses a <strong>Zero-Cloud Privacy Model</strong>. It does not transmit private source code over the wire. Instead, it observes local agent transcript files:
+          KobeanAI Tracker supports both <strong>Direct UI Key Management</strong> and <strong>Zero-Cloud Local Transcript Tailing</strong>. You never need to touch terminal environment variables unless you prefer to.
         </p>
 
+        <!-- Direct UI API Key Input Card -->
+        <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.35); background: rgba(59, 130, 246, 0.04); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.25rem;">✨</span>
+              <h3 style="margin-bottom: 0; color: var(--color-primary);">In-App UI API Key Input & 1-Click Test</h3>
+            </div>
+            <span class="badge-tag green">Recommended</span>
+          </div>
+          <p style="margin-bottom: 0.75rem; color: var(--text-primary); font-size: 0.9rem;">
+            Configure your provider API tokens directly in the UI under <strong>Workspace Settings (&rarr; Agents)</strong>:
+          </p>
+          <ul style="margin: 0 0 1rem 1.25rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7;">
+            <li><strong>Google Gemini / Antigravity:</strong> Paste your <code>AIzaSy...</code> key for Gemini 3.7 Flash & 3.1 Pro inference.</li>
+            <li><strong>Anthropic Claude:</strong> Enter your <code>sk-ant-api03-...</code> key for Claude 3.7 Sonnet & 3.5 Haiku tracking.</li>
+            <li><strong>OpenAI / Codex:</strong> Input your <code>sk-proj-...</code> key for GPT-4o & reasoning model telemetry.</li>
+            <li><strong>OpenRouter / Custom LLMs:</strong> Add your <code>sk-or-...</code> gateway key for DeepSeek-R1 & open-weights.</li>
+          </ul>
+          <div class="callout callout-tip" style="margin-top: 0.5rem;">
+            <div class="callout-icon">🔒</div>
+            <div>
+              <strong>Local-First & Encrypted:</strong> All API keys entered in the UI are stored strictly inside your local SQLite database (WAL mode) and are never exfiltrated to external cloud servers.
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1.15rem; margin: 1.5rem 0 0.75rem 0;">Local Transcript Log Connectors</h3>
         <div class="grid-2">
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
               <h3 style="color: #4285f4; margin-bottom: 0;">Google Antigravity</h3>
-              <span class="badge-tag blue">Connected</span>
+              <span class="badge-tag blue">Auto-Detected</span>
             </div>
             <p style="margin-bottom: 0.5rem;">Monitors agent execution logs in:</p>
             <pre style="font-size: 0.78rem;">~/.gemini/antigravity-ide/brain/**/transcript.jsonl</pre>
-            <p style="font-size: 0.82rem; color: var(--text-tertiary); margin-top: 0.5rem;">Tracks prompts, subagent tool calls, and Gemini 1.5 Pro pricing.</p>
+            <p style="font-size: 0.82rem; color: var(--text-tertiary); margin-top: 0.5rem;">Tracks prompts, subagent tool calls, and Gemini 3.7 Flash / Pro pricing.</p>
           </div>
 
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
               <h3 style="color: #d97757; margin-bottom: 0;">Claude Code / Desktop</h3>
-              <span class="badge-tag green">Connected</span>
+              <span class="badge-tag green">Auto-Detected</span>
             </div>
             <p style="margin-bottom: 0.5rem;">Monitors Claude transcript sessions in:</p>
             <pre style="font-size: 0.78rem;">~/.claude/transcripts/*.jsonl</pre>
-            <p style="font-size: 0.82rem; color: var(--text-tertiary); margin-top: 0.5rem;">Calculates input/output tokens and Claude 3.5 Sonnet pricing.</p>
+            <p style="font-size: 0.82rem; color: var(--text-tertiary); margin-top: 0.5rem;">Calculates input/output tokens and Claude 3.7 Sonnet / Haiku pricing.</p>
           </div>
         </div>
 
         <div class="card" style="margin-top: 1rem;">
-          <h3>Customizing Connector Paths</h3>
-          <p style="margin-bottom: 0.75rem;">If your agent logs are stored in a custom folder, navigate to <strong>Agents Config</strong> in the app or update your <code>.env</code> file:</p>
+          <h3>Shell Environment & .env File Fallback</h3>
+          <p style="margin-bottom: 0.75rem;">If you prefer command-line exports for background daemons or CI runners, provide them in your project root <code>.env</code> file:</p>
           <div class="code-container">
-            <pre><code id="code-custom-paths"># .env (Optional custom log paths)
-ANTIGRAVITY_LOG_PATH="~/.gemini/antigravity-ide/brain/**"
-CLAUDE_LOG_PATH="~/.claude/transcripts/*.jsonl"
-CURSOR_LOG_PATH="~/Library/Application Support/Cursor/User/workspaceStorage/**"</code></pre>
+            <pre><code id="code-custom-paths"># Google Gemini / Antigravity API Key
+export GEMINI_API_KEY="AIzaSy..."
+
+# Anthropic Claude API Key
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# OpenAI API Key
+export OPENAI_API_KEY="sk-proj-..."</code></pre>
             <button class="copy-btn" data-target="code-custom-paths">Copy</button>
           </div>
         </div>

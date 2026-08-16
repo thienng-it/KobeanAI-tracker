@@ -71,6 +71,16 @@ Every feature, refactor, or bug fix must strictly follow the **6-Step Ponytail L
 - **Zero API Key Leakage**: Never commit or log raw API tokens (Gemini `AIzaSy...`, OpenAI `sk-...`, Anthropic `sk-ant-...`, GitHub PATs `ghp_...`).
 - Pre-commit hooks and CI workflows enforce secret auditing on all staged diffs.
 
+### Rule 4: Model Observability & Telemetry Standard (`.agents/rules/model-observability.md`)
+- **Canonical Model Resolution**: Always route model recognition through `ModelRegistry.resolve(raw)`.
+- **Complete Specifications**: Provide context windows, input/output/thinking pricing rates, max output tokens, and modalities.
+- **Dynamic Filter Reactivity**: REST routes and client stores must support granular model isolation across summary statistics, trends, and recent session feeds.
+
+### Rule 5: Session Intent & Tagging Taxonomy Standard (`.agents/rules/session-tags.md`)
+- **Canonical Intents**: All chat turns and prompt requests are classified into canonical categories: `[Implement]`, `[Fix]`, `[Refactor]`, `[UI/UX]`, `[Docs]`, `[Validate]`, `[Config]`, or `[Unknown]`.
+- **Noise Filtering**: Telemetry watchers strictly filter compiler errors (`[DEP...]`, `[E0...]`), lint tags, or random bracketed tokens before database insertion.
+- **Color Consistency**: Each tag renders with standardized, vibrant color tokens across the dashboard and session badges.
+
 ---
 
 ## 3. Directory Layout & Module Registry

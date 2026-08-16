@@ -7,6 +7,8 @@ import { sessions, workspaces, tags, sessionTags } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import * as crypto from 'crypto';
 import { ModelRegistry } from '../services/model-registry.js';
+import { TagService } from '../services/tag-service.js';
+import { WorkspaceService } from '../services/workspace-service.js';
 
 export class ClaudeConnector extends AgentConnector {
   private watcher: chokidar.FSWatcher | null = null;
@@ -29,18 +31,17 @@ export class ClaudeConnector extends AgentConnector {
       await fs.mkdir(resolvedPath, { recursive: true });
     } catch (e) {}
 
-    console.log(`[ClaudeConnector] Started watching: ${resolvedPath}`);
     this.watcher = chokidar.watch(resolvedPath, {
+      ignored: /(^|[\/\\])\../,
       persistent: true,
       ignoreInitial: false,
       depth: 3
     });
 
-    this.watcher.on('add', (filepath: string) => this.handleFileChange(filepath));
-    this.watcher.on('change', (filepath: string) => this.handleFileChange(filepath));
-    this.watcher.on('error', (err: unknown) => console.error('[ClaudeConnector] Watcher error:', err));
-
+    this.watcher.on('add', (filepath) => this.processLogFile(filepath));
+    this.watcher.on('change', (filepath) => this.processLogFile(filepath));
     this.isWatching = true;
+    console.log(`[ClaudeConnector] Watching for Claude logs in ${resolvedPath}`);
   }
 
   public async stopWatching(): Promise<void> {
@@ -49,49 +50,54 @@ export class ClaudeConnector extends AgentConnector {
       this.watcher = null;
     }
     this.isWatching = false;
-    console.log('[ClaudeConnector] Stopped watching');
   }
 
-  private async ensureDefaultWorkspace() {
-    const existing = await db.query.workspaces.findFirst();
-    if (existing) {
-      this.defaultWorkspaceId = existing.id;
-    } else {
-      const id = crypto.randomUUID();
-      await db.insert(workspaces).values({
-        id,
-        name: 'Default Workspace',
-        path: process.cwd()
-      });
-      this.defaultWorkspaceId = id;
+  public async syncLatest(): Promise<number> {
+    await this.ensureDefaultWorkspace();
+    const logPath = this.config.logPath || '~/.claude';
+    const resolvedPath = logPath.startsWith('~') 
+      ? logPath.replace('~', process.env.HOME || '') 
+      : logPath;
+
+    try {
+      const entries = await fs.readdir(resolvedPath, { withFileTypes: true });
+      let syncedCount = 0;
+      for (const entry of entries) {
+        if (entry.isFile() && (entry.name.endsWith('.json') || entry.name.endsWith('.jsonl'))) {
+          await this.processLogFile(path.join(resolvedPath, entry.name));
+          syncedCount++;
+        }
+      }
+      return syncedCount;
+    } catch (err) {
+      return 0;
     }
   }
 
-  public async scanHistory(): Promise<number> {
-    let scanned = 0;
-    const historyFile = path.join(process.env.HOME || '', '.claude', 'history.jsonl');
-    try {
-      await fs.access(historyFile);
-      await this.handleFileChange(historyFile);
-      scanned++;
-    } catch (e) {}
-    return scanned;
+  private async ensureDefaultWorkspace(): Promise<void> {
+    const ws = await db.query.workspaces.findFirst();
+    if (ws) {
+      this.defaultWorkspaceId = ws.id;
+    } else {
+      const defaultId = 'default-workspace';
+      await db.insert(workspaces).values({
+        id: defaultId,
+        name: 'Default Workspace',
+        path: process.cwd(),
+        description: 'Auto-created workspace'
+      }).onConflictDoNothing();
+      this.defaultWorkspaceId = defaultId;
+    }
   }
 
-  public async handleFileChange(filepath: string) {
-    // Only parse explicit history.jsonl or transcript files
-    if (!filepath.endsWith('history.jsonl') && !filepath.endsWith('transcript.jsonl')) return;
-    if (!this.defaultWorkspaceId) await this.ensureDefaultWorkspace();
-
+  private async processLogFile(filepath: string): Promise<void> {
     try {
-      const content = await fs.readFile(filepath, 'utf8');
-      const lines = content.split('\n').filter(Boolean);
-      
+      const content = await fs.readFile(filepath, 'utf-8');
+      const lines = content.split('\n').filter(l => l.trim().length > 0);
+
       for (let i = 0; i < lines.length; i++) {
         try {
           const item = JSON.parse(lines[i]);
-          
-          // Strict validation: Require actual prompt text
           const rawPrompt = item.display || item.prompt || item.content;
           if (!rawPrompt || typeof rawPrompt !== 'string' || rawPrompt.trim().length === 0) {
             continue; // Skip non-prompt entries
@@ -99,6 +105,12 @@ export class ClaudeConnector extends AgentConnector {
 
           const sessionId = item.sessionId ? `claude-${item.sessionId}-${i}` : `claude-${path.basename(filepath, '.jsonl')}-${i}`;
           const promptText = rawPrompt.trim();
+
+          const rawCwd = item.cwd || item.working_dir || item.workspace || item.projectPath;
+          const sessionWorkspaceId = await WorkspaceService.resolveOrCreateWorkspace({
+            dirPath: rawCwd,
+            workspaceName: rawCwd ? path.basename(rawCwd) : undefined
+          });
           
           // Detect model from prompt or item
           let rawModel = item.model || item.model_name || this.config.model || 'claude-3-7-sonnet';
@@ -128,7 +140,7 @@ export class ClaudeConnector extends AgentConnector {
           await db.insert(sessions).values({
             id: sessionId,
             agentId: this.id,
-            workspaceId: this.defaultWorkspaceId!,
+            workspaceId: sessionWorkspaceId,
             model: resolvedModel.id,
             startedAt,
             endedAt: startedAt,
@@ -138,15 +150,42 @@ export class ClaudeConnector extends AgentConnector {
             totalTokens: inputTokens + outputTokens,
             estimatedCost,
             status: 'completed',
-            summary: promptText.length > 95 ? promptText.substring(0, 92) + '...' : promptText,
+            summary: promptText,
             toolCalls: 0,
             metadata: {
               modelName: resolvedModel.name,
               provider: resolvedModel.provider,
               effortLevel,
-              thinkingTokens
+              thinkingTokens,
+              fullPrompt: promptText
             }
           }).onConflictDoNothing();
+
+          // Extract and link canonical tags
+          const tagsList = TagService.extractCanonicalTags(promptText);
+          for (const tagName of tagsList) {
+            const tagRaw = `[${tagName}]`;
+            let tagRecord = await db.query.tags.findFirst({ where: eq(tags.raw, tagRaw) });
+            if (!tagRecord) {
+              const newTagId = `tag-${tagName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+              const color = TagService.getTagColor(tagName);
+              await db.insert(tags).values({
+                id: newTagId,
+                raw: tagRaw,
+                prefix: 'intent',
+                identifier: tagName.toLowerCase(),
+                action: tagName,
+                color
+              }).onConflictDoNothing();
+              tagRecord = await db.query.tags.findFirst({ where: eq(tags.raw, tagRaw) });
+            }
+            if (tagRecord) {
+              await db.insert(sessionTags).values({
+                sessionId,
+                tagId: tagRecord.id
+              }).onConflictDoNothing();
+            }
+          }
         } catch (e) {}
       }
     } catch (err) {

@@ -18,10 +18,31 @@ router.get('/', async (req, res) => {
     const allRules = await db.query.rules.findMany({
       orderBy: [desc(rules.createdAt)]
     });
-    res.json(allRules);
+
+    // Deduplicate in response by name just in case
+    const seen = new Set<string>();
+    const uniqueRules = allRules.filter(r => {
+      if (seen.has(r.name)) return false;
+      seen.add(r.name);
+      return true;
+    });
+
+    res.json(uniqueRules);
   } catch (error) {
     console.error('Error fetching rules:', error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// POST /api/rules/sync
+router.post('/sync', async (req, res) => {
+  try {
+    const { SkillScanner } = await import('../services/skill-scanner.js');
+    const result = await SkillScanner.syncAll();
+    res.json({ success: true, count: result.rulesCount, ...result });
+  } catch (error) {
+    console.error('Failed to sync rules:', error);
+    res.status(500).json({ error: 'Failed to sync rules' });
   }
 });
 

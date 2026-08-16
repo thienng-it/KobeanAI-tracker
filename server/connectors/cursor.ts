@@ -6,6 +6,7 @@ import { db } from '../db/index.js';
 import { sessions, workspaces } from '../db/schema.js';
 import * as crypto from 'crypto';
 import { ModelRegistry } from '../services/model-registry.js';
+import { WorkspaceService } from '../services/workspace-service.js';
 
 export class CursorConnector extends AgentConnector {
   private watcher: chokidar.FSWatcher | null = null;
@@ -98,6 +99,12 @@ export class CursorConnector extends AgentConnector {
           const item = JSON.parse(lines[i]);
           const sessionId = item.id || `cursor-${path.basename(filepath, path.extname(filepath))}-${i}`;
           
+          const rawCwd = item.workspace || item.workspaceUri || item.rootPath || item.folder || item.cwd;
+          const sessionWorkspaceId = await WorkspaceService.resolveOrCreateWorkspace({
+            dirPath: rawCwd,
+            workspaceName: rawCwd ? path.basename(rawCwd) : undefined
+          });
+
           const rawModel = item.model || item.model_name || this.config.model || 'claude-3-5-sonnet';
           const resolvedModel = ModelRegistry.resolve(rawModel);
           
@@ -121,7 +128,7 @@ export class CursorConnector extends AgentConnector {
           await db.insert(sessions).values({
             id: sessionId,
             agentId: this.id,
-            workspaceId: this.defaultWorkspaceId!,
+            workspaceId: sessionWorkspaceId,
             model: resolvedModel.id,
             startedAt,
             endedAt: startedAt,

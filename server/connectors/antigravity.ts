@@ -7,6 +7,8 @@ import { sessions, workspaces, tags, sessionTags } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import * as crypto from 'crypto';
 import { ModelRegistry } from '../services/model-registry.js';
+import { TagService } from '../services/tag-service.js';
+import { WorkspaceService } from '../services/workspace-service.js';
 
 export class AntigravityConnector extends AgentConnector {
   private watcher: chokidar.FSWatcher | null = null;
@@ -136,6 +138,9 @@ export class AntigravityConnector extends AgentConnector {
       let currentTurn: TurnData | null = null;
       let activeSessionModel = this.config.model || 'gemini-3.7-flash';
 
+      let detectedWorkspacePath: string | null = null;
+      let detectedCorpusName: string | null = null;
+
       for (let i = 0; i < lines.length; i++) {
         try {
           const step = JSON.parse(lines[i]);
@@ -146,10 +151,51 @@ export class AntigravityConnector extends AgentConnector {
             activeSessionModel = step.model || step.model_name;
           }
 
+          const fullContent = String(step.content || '');
+
+          // Heuristic 1: Extract workspace URI -> CorpusName mapping from system context
+          const userInfMatch = fullContent.match(/format \[URI\] -> \[CorpusName\]:\s*([^\r\n]+)\s*->\s*([^\r\n]+)/i);
+          if (userInfMatch) {
+            const resolved = WorkspaceService.findRepoRoot(userInfMatch[1]);
+            if (resolved) {
+              detectedWorkspacePath = resolved.rootPath;
+              detectedCorpusName = resolved.repoName;
+            }
+          }
+
+          // Heuristic 2: Extract from user rules headers (e.g. <RULE[/Users/.../GEMINI.md]>)
+          if (!detectedWorkspacePath) {
+            const ruleMatch = fullContent.match(/<RULE\[([a-zA-Z0-9_\-./~]+)\/(?:GEMINI|AGENT|AGENTS|RULES|CLAUDE|CURSOR)\.md\]>/i);
+            if (ruleMatch) {
+              const resolved = WorkspaceService.findRepoRoot(ruleMatch[1]);
+              if (resolved) {
+                detectedWorkspacePath = resolved.rootPath;
+                detectedCorpusName = resolved.repoName;
+              }
+            }
+          }
+
+          // Heuristic 3: Check tool call arguments (Cwd, SearchPath, TargetFile, AbsolutePath)
+          if (step.tool_calls && Array.isArray(step.tool_calls)) {
+            for (const tc of step.tool_calls) {
+              const args = tc.args || tc.arguments || tc.parameters || {};
+              for (const key of ['Cwd', 'cwd', 'TargetFile', 'SearchPath', 'AbsolutePath', 'DirectoryPath']) {
+                if (args[key] && typeof args[key] === 'string') {
+                  const resolved = WorkspaceService.findRepoRoot(args[key]);
+                  if (resolved) {
+                    detectedWorkspacePath = resolved.rootPath;
+                    detectedCorpusName = resolved.repoName;
+                    break;
+                  }
+                }
+              }
+              if (detectedWorkspacePath) break;
+            }
+          }
+
           if (step.type === 'USER_INPUT') {
             if (currentTurn) turns.push(currentTurn);
 
-            const fullContent = String(step.content || '');
             let rawPrompt = fullContent.replace(/<USER_REQUEST>|<\/USER_REQUEST>/g, '').trim();
             if (rawPrompt.includes('<ADDITIONAL_METADATA>')) rawPrompt = rawPrompt.split('<ADDITIONAL_METADATA>')[0].trim();
             if (rawPrompt.includes('{{ CHECKPOINT')) rawPrompt = rawPrompt.split('{{ CHECKPOINT')[0].trim();
@@ -168,37 +214,14 @@ export class AntigravityConnector extends AgentConnector {
               turnModel = modelTagMatch[1].trim();
             }
 
-            // Extract explicit bracketed tags like [repo:org/name]
-            const tagMatches = rawPrompt.match(/\[([^\]]+)\]/g) || [];
-            const tagsList = tagMatches.map(t => t.replace(/[\[\]]/g, '').trim()).filter(Boolean);
-
-            // If no explicit tags, classify intent automatically
-            if (tagsList.length === 0) {
-              const lower = rawPrompt.toLowerCase();
-              if (/\b(fix|bug|issue|error|fail|broken|crash|wrong|duplicate|duplicated|inverted)\b/.test(lower)) {
-                tagsList.push('Fix');
-              } else if (/\b(refactor|clean|cleanup|dedup|reorganize|structure)\b/.test(lower)) {
-                tagsList.push('Refactor');
-              } else if (/\b(implement|feature|add|create|build|support|new|enhance|toolbar|picker)\b/.test(lower)) {
-                tagsList.push('Implement');
-              } else if (/\b(ui|ux|theme|dark|light|style|color|css|layout|motion|button|contrast)\b/.test(lower)) {
-                tagsList.push('UI/UX');
-              } else if (/\b(doc|docs|documentation|guide|readme|help|explain|how to)\b/.test(lower)) {
-                tagsList.push('Docs');
-              } else if (/\b(test|validate|verify|check|audit|benchmark|correct|static)\b/.test(lower)) {
-                tagsList.push('Validate');
-              } else if (/\b(config|rule|skill|agent|model|token|price|env|key|codegraph)\b/.test(lower)) {
-                tagsList.push('Config');
-              } else {
-                tagsList.push('Unknown');
-              }
-            }
+            // Extract canonical intent tags using TagService (filters compiler noise and normalizes)
+            const tagsList = TagService.extractCanonicalTags(rawPrompt);
 
             currentTurn = {
               index: turns.length + 1,
               startedAt: stepTime,
               endedAt: stepTime,
-              summary: rawPrompt.length > 95 ? rawPrompt.substring(0, 92) + '...' : rawPrompt,
+              summary: rawPrompt,
               inputTokens: Math.max(10, Math.ceil(rawPrompt.length / 3.8)),
               outputTokens: 0,
               thinkingChars: 0,
@@ -233,6 +256,12 @@ export class AntigravityConnector extends AgentConnector {
       if (currentTurn) turns.push(currentTurn);
       if (turns.length === 0) return;
 
+      // Resolve workspace record for this conversation
+      const sessionWorkspaceId = await WorkspaceService.resolveOrCreateWorkspace({
+        dirPath: detectedWorkspacePath,
+        corpusName: detectedCorpusName
+      });
+
       // Upsert each turn into the SQLite sessions table
       if (turns.length > 1) {
         await db.delete(sessions).where(eq(sessions.id, sessionId)).catch(() => {});
@@ -266,7 +295,9 @@ export class AntigravityConnector extends AgentConnector {
           thinkingMode: resolvedModel.supportsThinking || thinkingTokens > 0,
           thinkingChars: turn.thinkingChars,
           thinkingSteps: turn.thinkingSteps,
-          thinkingTokens
+          thinkingTokens,
+          workspacePath: detectedWorkspacePath,
+          corpusName: detectedCorpusName
         };
 
         const existing = await db.query.sessions.findFirst({
@@ -275,6 +306,7 @@ export class AntigravityConnector extends AgentConnector {
 
         if (existing) {
           await db.update(sessions).set({
+            workspaceId: sessionWorkspaceId,
             endedAt: turn.endedAt,
             model: resolvedModel.id,
             durationMs,
@@ -291,7 +323,7 @@ export class AntigravityConnector extends AgentConnector {
           await db.insert(sessions).values({
             id: turnSessionId,
             agentId: this.id,
-            workspaceId: this.defaultWorkspaceId!,
+            workspaceId: sessionWorkspaceId,
             model: resolvedModel.id,
             startedAt: turn.startedAt,
             endedAt: turn.endedAt,
@@ -307,7 +339,9 @@ export class AntigravityConnector extends AgentConnector {
           }).onConflictDoNothing();
         }
 
-        // Link extracted intent tags in database
+        // Refresh and link extracted intent tags in database
+        await db.delete(sessionTags).where(eq(sessionTags.sessionId, turnSessionId));
+
         for (const tagName of turn.extractedTags) {
           const tagRaw = `[${tagName}]`;
           let tagRecord = await db.query.tags.findFirst({
@@ -315,15 +349,7 @@ export class AntigravityConnector extends AgentConnector {
           });
           if (!tagRecord) {
             const newTagId = `tag-${tagName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-            let color = '#6b7280';
-            if (tagName === 'Fix') color = '#ef4444';
-            else if (tagName === 'Refactor') color = '#8b5cf6';
-            else if (tagName === 'Implement') color = '#10b981';
-            else if (tagName === 'UI/UX') color = '#3b82f6';
-            else if (tagName === 'Docs') color = '#06b6d4';
-            else if (tagName === 'Validate') color = '#f59e0b';
-            else if (tagName === 'Config') color = '#ec4899';
-            else if (tagName === 'Unknown') color = '#64748b';
+            const color = TagService.getTagColor(tagName);
 
             await db.insert(tags).values({
               id: newTagId,
