@@ -107,15 +107,24 @@
 /* Sidebar Collapse & Resize Styles */
 .sidebar {
   position: relative;
-  overflow: visible; /* to allow drag handle to be clickable */
+  overflow: visible; /* to allow drag handle and tooltips to float */
 }
 
 .sidebar.collapsed {
   border-right: 1px solid var(--color-border-subtle);
+  overflow: visible;
 }
 
 .sidebar-inner {
   overflow: hidden;
+}
+
+.sidebar.collapsed .sidebar-inner {
+  overflow: visible;
+}
+
+.sidebar.collapsed .sidebar-nav {
+  overflow: visible;
 }
 
 .sidebar-link.icon-only {
@@ -126,6 +135,7 @@
   align-items: center;
   border-radius: var(--radius-lg);
   margin: 0 auto;
+  position: relative;
 }
 
 .sidebar-link.icon-only:hover {
@@ -137,6 +147,58 @@
   top: 8px;
   bottom: 8px;
   width: 3px;
+}
+
+/* ==============================================================================
+   Sidebar Hover Tooltips (When Sidebar is Collapsed)
+   ============================================================================== */
+
+.sidebar-tooltip {
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-8px);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 10000;
+  transition: opacity var(--duration-fast) var(--ease-spring-snappy),
+              transform var(--duration-fast) var(--ease-spring-snappy),
+              visibility var(--duration-fast);
+}
+
+/* Tooltip caret / arrow pointer */
+.sidebar-tooltip::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-bg-surface);
+  border-left: 1px solid var(--color-border-default);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+/* Tooltip trigger states */
+.sidebar-link.icon-only:hover .sidebar-tooltip,
+.sidebar-toggle-btn.collapsed-toggle:hover .sidebar-tooltip,
+button:hover > .sidebar-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
 }
 
 .sidebar-link-icon {

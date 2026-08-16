@@ -117,8 +117,8 @@ export const Sidebar: React.FC = () => {
             <button 
               onClick={toggleSidebar}
               className="sidebar-toggle-btn collapsed-toggle"
-              title="Expand Sidebar"
               style={{
+                position: 'relative',
                 width: '40px',
                 height: '40px',
                 borderRadius: 'var(--radius-md)',
@@ -132,6 +132,7 @@ export const Sidebar: React.FC = () => {
               }}
             >
               <PanelLeftOpen size={18} />
+              <span className="sidebar-tooltip">Expand Sidebar</span>
             </button>
           )}
         </div>
@@ -146,10 +147,13 @@ export const Sidebar: React.FC = () => {
               key={item.path}
               to={item.path} 
               className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''} ${!isSidebarOpen ? 'icon-only' : ''}`}
-              title={!isSidebarOpen ? item.name : undefined}
             >
               <span className="sidebar-link-icon">{item.icon}</span>
-              {isSidebarOpen && <span className="sidebar-link-text">{item.name}</span>}
+              {isSidebarOpen ? (
+                <span className="sidebar-link-text">{item.name}</span>
+              ) : (
+                <span className="sidebar-tooltip">{item.name}</span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -163,8 +167,8 @@ export const Sidebar: React.FC = () => {
         }}>
           <button 
             onClick={toggleTheme}
-            title={!isSidebarOpen ? (theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode') : undefined}
             style={{
+              position: 'relative',
               display: 'flex',
               alignItems: 'center',
               justifyContent: isSidebarOpen ? 'flex-start' : 'center',
@@ -184,7 +188,11 @@ export const Sidebar: React.FC = () => {
             onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            {isSidebarOpen && <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
+            {isSidebarOpen ? (
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            ) : (
+              <span className="sidebar-tooltip">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            )}
           </button>
         </div>
       </div>
