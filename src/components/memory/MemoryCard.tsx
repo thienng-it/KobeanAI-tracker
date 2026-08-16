@@ -122,8 +122,8 @@ export const MemoryCard: React.FC<MemoryCardProps> = ({ memory }) => {
             <span
               style={{
                 fontSize: '0.6875rem',
-                color: 'var(--color-text-tertiary)',
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                color: 'var(--color-text-secondary)',
+                backgroundColor: 'var(--color-bg-surface-hover)',
                 border: '1px solid var(--color-border-subtle)',
                 padding: '2px 6px',
                 borderRadius: 'var(--radius-sm)',
@@ -166,13 +166,13 @@ export const MemoryCard: React.FC<MemoryCardProps> = ({ memory }) => {
         {/* Content Box */}
         <div
           style={{
-            backgroundColor: '#0d1117',
+            backgroundColor: 'var(--color-bg-surface-hover)',
             borderRadius: 'var(--radius-lg)',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
+            border: '1px solid var(--color-border-subtle)',
             padding: 'var(--space-3)',
             marginBottom: 'var(--space-3)',
             fontSize: '0.8125rem',
-            color: '#e6edf3',
+            color: 'var(--color-text-primary)',
             fontFamily: 'var(--font-mono)',
             lineHeight: 1.5,
             maxHeight: '120px',
@@ -193,8 +193,9 @@ export const MemoryCard: React.FC<MemoryCardProps> = ({ memory }) => {
                 style={{
                   fontSize: '0.6875rem',
                   fontFamily: 'var(--font-mono)',
-                  color: 'var(--color-text-tertiary)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                  color: 'var(--color-text-secondary)',
+                  backgroundColor: 'var(--color-bg-surface)',
+                  border: '1px solid var(--color-border-subtle)',
                   padding: '1px 6px',
                   borderRadius: 'var(--radius-sm)'
                 }}

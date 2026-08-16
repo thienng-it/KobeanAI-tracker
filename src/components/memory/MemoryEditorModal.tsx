@@ -111,12 +111,12 @@ export const MemoryEditorModal: React.FC = () => {
           maxWidth: '680px',
           maxHeight: '90vh',
           borderRadius: 'var(--radius-2xl)',
-          backgroundColor: '#0d1117',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          backgroundColor: 'var(--color-bg-surface)',
+          border: '1px solid var(--color-border-subtle)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--color-border-subtle)'
         }}
         onClick={e => e.stopPropagation()}
       >
@@ -198,7 +198,6 @@ export const MemoryEditorModal: React.FC = () => {
             </label>
             <input
               type="text"
-              className="glass-panel"
               placeholder="e.g. Gitleaks CI Secret Scanning Compliance"
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -208,7 +207,7 @@ export const MemoryEditorModal: React.FC = () => {
                 padding: '10px 14px',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--color-border-subtle)',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                backgroundColor: 'var(--color-bg-surface)',
                 color: 'var(--color-text-primary)',
                 fontSize: '0.875rem',
                 boxSizing: 'border-box'
@@ -230,10 +229,12 @@ export const MemoryEditorModal: React.FC = () => {
                   padding: '10px 12px',
                   borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--color-border-subtle)',
-                  backgroundColor: '#161b22',
+                  backgroundColor: 'var(--color-bg-surface)',
                   color: 'var(--color-text-primary)',
                   fontSize: '0.875rem',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  cursor: 'pointer',
+                  outline: 'none'
                 }}
               >
                 <option value="architecture">Architecture Standard</option>
@@ -257,10 +258,12 @@ export const MemoryEditorModal: React.FC = () => {
                   padding: '10px 12px',
                   borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--color-border-subtle)',
-                  backgroundColor: '#161b22',
+                  backgroundColor: 'var(--color-bg-surface)',
                   color: 'var(--color-text-primary)',
                   fontSize: '0.875rem',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  cursor: 'pointer',
+                  outline: 'none'
                 }}
               >
                 <option value="critical">Critical (Mandatory Directive)</option>
@@ -283,7 +286,6 @@ export const MemoryEditorModal: React.FC = () => {
               </span>
             </div>
             <textarea
-              className="glass-panel"
               placeholder="Detailed fact, failure mode to avoid, or architectural rule..."
               rows={6}
               value={content}
@@ -294,8 +296,8 @@ export const MemoryEditorModal: React.FC = () => {
                 padding: '12px 14px',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--color-border-subtle)',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                color: '#e6edf3',
+                backgroundColor: 'var(--color-bg-surface)',
+                color: 'var(--color-text-primary)',
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.8125rem',
                 lineHeight: 1.5,
@@ -312,7 +314,6 @@ export const MemoryEditorModal: React.FC = () => {
             </label>
             <input
               type="text"
-              className="glass-panel"
               placeholder="e.g. gitleaks, secrets, testing, ci"
               value={tagsInput}
               onChange={e => setTagsInput(e.target.value)}
@@ -321,7 +322,7 @@ export const MemoryEditorModal: React.FC = () => {
                 padding: '8px 12px',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--color-border-subtle)',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                backgroundColor: 'var(--color-bg-surface)',
                 color: 'var(--color-text-primary)',
                 fontSize: '0.8125rem',
                 boxSizing: 'border-box'
@@ -330,7 +331,7 @@ export const MemoryEditorModal: React.FC = () => {
           </div>
 
           {/* Scope & Pin Options */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', padding: 'var(--space-3)', backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border-subtle)' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', padding: 'var(--space-3)', backgroundColor: 'var(--color-bg-surface-hover)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border-subtle)' }}>
             <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.8125rem', color: 'var(--color-text-primary)' }}>
               <input
                 type="checkbox"

@@ -52,12 +52,12 @@ export const MemoryCatalogModal: React.FC = () => {
           maxWidth: '850px',
           maxHeight: '88vh',
           borderRadius: 'var(--radius-2xl)',
-          backgroundColor: '#0d1117',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          backgroundColor: 'var(--color-bg-surface)',
+          border: '1px solid var(--color-border-subtle)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--color-border-subtle)'
         }}
         onClick={e => e.stopPropagation()}
       >
@@ -129,7 +129,8 @@ export const MemoryCatalogModal: React.FC = () => {
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   gap: '10px',
-                  border: '1px solid var(--color-border-subtle)'
+                  border: '1px solid var(--color-border-subtle)',
+                  backgroundColor: 'var(--color-bg-surface-hover)'
                 }}
               >
                 <div>
@@ -176,12 +177,13 @@ export const MemoryCatalogModal: React.FC = () => {
 
                   <div
                     style={{
-                      backgroundColor: '#05080f',
+                      backgroundColor: 'var(--color-bg-surface)',
+                      border: '1px solid var(--color-border-subtle)',
                       padding: '8px 10px',
                       borderRadius: 'var(--radius-md)',
                       fontSize: '0.75rem',
                       fontFamily: 'var(--font-mono)',
-                      color: '#a5d6ff',
+                      color: 'var(--color-text-primary)',
                       lineHeight: 1.4,
                       maxHeight: '75px',
                       overflowY: 'auto'

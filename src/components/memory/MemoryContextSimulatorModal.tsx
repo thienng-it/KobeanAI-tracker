@@ -60,12 +60,12 @@ export const MemoryContextSimulatorModal: React.FC = () => {
           maxWidth: '820px',
           maxHeight: '90vh',
           borderRadius: 'var(--radius-2xl)',
-          backgroundColor: '#0d1117',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          backgroundColor: 'var(--color-bg-surface)',
+          border: '1px solid var(--color-border-subtle)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--color-border-subtle)'
         }}
         onClick={e => e.stopPropagation()}
       >
@@ -125,7 +125,6 @@ export const MemoryContextSimulatorModal: React.FC = () => {
             <div style={{ position: 'relative', flex: 1 }}>
               <input
                 type="text"
-                className="glass-panel"
                 placeholder="Enter any user prompt to simulate memory recall..."
                 value={inputPrompt}
                 onChange={e => setInputPrompt(e.target.value)}
@@ -134,7 +133,7 @@ export const MemoryContextSimulatorModal: React.FC = () => {
                   padding: '10px 14px',
                   borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--color-border-subtle)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                  backgroundColor: 'var(--color-bg-surface)',
                   color: 'var(--color-text-primary)',
                   fontSize: '0.875rem',
                   boxSizing: 'border-box'
@@ -174,7 +173,7 @@ export const MemoryContextSimulatorModal: React.FC = () => {
                   fontSize: '0.6875rem',
                   padding: '2px 8px',
                   borderRadius: 'var(--radius-full)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                  backgroundColor: 'var(--color-bg-surface-hover)',
                   border: '1px solid var(--color-border-subtle)',
                   color: 'var(--color-text-secondary)',
                   cursor: 'pointer',
@@ -235,6 +234,7 @@ export const MemoryContextSimulatorModal: React.FC = () => {
                       padding: 'var(--space-4)',
                       borderRadius: 'var(--radius-lg)',
                       border: '1px solid var(--color-border-subtle)',
+                      backgroundColor: 'var(--color-bg-surface-hover)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '8px'
@@ -282,7 +282,7 @@ export const MemoryContextSimulatorModal: React.FC = () => {
                       </div>
                     </div>
 
-                    <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.4, fontFamily: 'var(--font-mono)', backgroundColor: '#05080f', padding: '6px 10px', borderRadius: 'var(--radius-md)' }}>
+                    <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-text-primary)', lineHeight: 1.4, fontFamily: 'var(--font-mono)', backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-subtle)', padding: '6px 10px', borderRadius: 'var(--radius-md)' }}>
                       {item.memory.content}
                     </p>
 

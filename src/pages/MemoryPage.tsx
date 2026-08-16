@@ -179,7 +179,7 @@ export const MemoryPage: React.FC = () => {
                 padding: '8px 12px 8px 36px',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--color-border-subtle)',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                backgroundColor: 'var(--color-bg-surface)',
                 color: 'var(--color-text-primary)',
                 fontSize: '0.8125rem',
                 boxSizing: 'border-box'
@@ -188,7 +188,7 @@ export const MemoryPage: React.FC = () => {
           </div>
 
           {/* Scope Tab Pill Group */}
-          <div style={{ display: 'flex', backgroundColor: 'rgba(255, 255, 255, 0.04)', padding: '2px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border-subtle)' }}>
+          <div style={{ display: 'flex', backgroundColor: 'var(--color-bg-surface-hover)', padding: '2px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border-subtle)' }}>
             {[
               { id: 'all', label: 'All Scopes' },
               { id: 'workspace', label: 'Workspace' },
@@ -203,9 +203,10 @@ export const MemoryPage: React.FC = () => {
                   border: 'none',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
-                  backgroundColor: selectedScope === s.id ? 'var(--color-bg-surface-active)' : 'transparent',
+                  backgroundColor: selectedScope === s.id ? 'var(--color-bg-surface)' : 'transparent',
                   color: selectedScope === s.id ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                   fontWeight: selectedScope === s.id ? 600 : 400,
+                  boxShadow: selectedScope === s.id ? 'var(--shadow-sm)' : 'none',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -222,9 +223,11 @@ export const MemoryPage: React.FC = () => {
               padding: '8px 12px',
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--color-border-subtle)',
-              backgroundColor: '#161b22',
+              backgroundColor: 'var(--color-bg-surface)',
               color: 'var(--color-text-primary)',
-              fontSize: '0.8125rem'
+              fontSize: '0.8125rem',
+              cursor: 'pointer',
+              outline: 'none'
             }}
           >
             <option value="all">All Priorities</option>
@@ -241,7 +244,7 @@ export const MemoryPage: React.FC = () => {
               padding: '7px 12px',
               borderRadius: 'var(--radius-md)',
               border: showPinnedOnly ? '1px solid rgba(236, 72, 153, 0.5)' : '1px solid var(--color-border-subtle)',
-              backgroundColor: showPinnedOnly ? 'rgba(236, 72, 153, 0.15)' : 'transparent',
+              backgroundColor: showPinnedOnly ? 'rgba(236, 72, 153, 0.15)' : 'var(--color-bg-surface)',
               color: showPinnedOnly ? '#ec4899' : 'var(--color-text-secondary)',
               fontSize: '0.75rem',
               cursor: 'pointer',
@@ -266,7 +269,7 @@ export const MemoryPage: React.FC = () => {
                 padding: '4px 12px',
                 borderRadius: 'var(--radius-full)',
                 border: selectedCategory === cat.id ? '1px solid rgba(59, 130, 246, 0.5)' : '1px solid var(--color-border-subtle)',
-                backgroundColor: selectedCategory === cat.id ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+                backgroundColor: selectedCategory === cat.id ? 'rgba(59, 130, 246, 0.15)' : 'var(--color-bg-surface)',
                 color: selectedCategory === cat.id ? 'var(--color-brand-primary)' : 'var(--color-text-secondary)',
                 fontSize: '0.75rem',
                 cursor: 'pointer',
