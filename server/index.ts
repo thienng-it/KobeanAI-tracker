@@ -18,6 +18,7 @@ import commandsRoutes from './routes/commands.js';
 import rulesRoutes from './routes/rules.js';
 import mcpsRoutes from './routes/mcps.js';
 import pluginsRoutes from './routes/plugins.js';
+import { hooksRouter } from './routes/hooks.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -64,6 +65,7 @@ app.use('/api/commands', commandsRoutes);
 app.use('/api/rules', rulesRoutes);
 app.use('/api/mcps', mcpsRoutes);
 app.use('/api/plugins', pluginsRoutes);
+app.use('/api/hooks', hooksRouter);
 
 app.get('/api/setup/check', (req, res) => {
   res.json({
@@ -134,6 +136,13 @@ const server = app.listen(PORT, async () => {
     await PluginScanner.syncAll();
   } catch (err) {
     console.error('[Server] Plugin discovery error:', err);
+  }
+
+  try {
+    const { HookScanner } = await import('./services/hook-scanner.js');
+    await HookScanner.syncAll();
+  } catch (err) {
+    console.error('[Server] Hook discovery error:', err);
   }
 
   // Graceful shutdown handler

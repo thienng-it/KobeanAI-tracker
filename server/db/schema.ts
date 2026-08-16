@@ -185,6 +185,30 @@ export const plugins = sqliteTable("plugins", {
   statusIdx: index("idx_plugin_status").on(table.status),
 }));
 
+export const hooks = sqliteTable("hooks", {
+  id: text("id").primaryKey(),
+  workspaceId: text("workspace_id").notNull().references(() => workspaces.id),
+  name: text("name").notNull(),
+  slug: text("slug"),
+  description: text("description"),
+  event: text("event").notNull(), // 'PreToolUse' | 'PostToolUse' | 'SessionStart' | 'SessionEnd' | 'UserPrompt' | 'PreCommit'
+  matcher: text("matcher"), // 'run_command' | 'write_to_file' | '*'
+  type: text("type").notNull().default('command'), // 'command' | 'script' | 'http'
+  command: text("command"),
+  timeout: integer("timeout").notNull().default(5),
+  scope: text("scope").notNull().default('workspace'), // 'workspace' | 'git' | 'global'
+  enabled: integer("enabled", { mode: 'boolean' }).notNull().default(true),
+  status: text("status").notNull().default('active'), // 'active' | 'disabled'
+  executionCount: integer("execution_count").notNull().default(0),
+  lastExecutedAt: text("last_executed_at"),
+  metadata: text("metadata", { mode: 'json' }),
+  ...timestamps
+}, (table) => ({
+  nameIdx: index("idx_hook_name").on(table.name),
+  eventIdx: index("idx_hook_event").on(table.event),
+  scopeIdx: index("idx_hook_scope").on(table.scope),
+}));
+
 // Junction Tables
 
 export const sessionTags = sqliteTable("session_tags", {
@@ -220,6 +244,7 @@ export const workspacesRelations = relations(workspaces, ({ many }) => ({
   rules: many(rules),
   mcpServers: many(mcpServers),
   plugins: many(plugins),
+  hooks: many(hooks),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one, many }) => ({
@@ -295,6 +320,10 @@ export const pluginsRelations = relations(plugins, ({ one }) => ({
   workspace: one(workspaces, { fields: [plugins.workspaceId], references: [workspaces.id] }),
 }));
 
+export const hooksRelations = relations(hooks, ({ one }) => ({
+  workspace: one(workspaces, { fields: [hooks.workspaceId], references: [workspaces.id] }),
+}));
+
 // Export Types
 export type Workspace = typeof workspaces.$inferSelect;
 export type InsertWorkspace = typeof workspaces.$inferInsert;
@@ -316,3 +345,5 @@ export type McpTool = typeof mcpTools.$inferSelect;
 export type InsertMcpTool = typeof mcpTools.$inferInsert;
 export type Plugin = typeof plugins.$inferSelect;
 export type InsertPlugin = typeof plugins.$inferInsert;
+export type Hook = typeof hooks.$inferSelect;
+export type InsertHook = typeof hooks.$inferInsert;

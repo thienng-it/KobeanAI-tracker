@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-16T12:49:20.987Z",
-  "totalFiles": 130,
+  "generatedAt": "2026-08-16T12:59:33.453Z",
+  "totalFiles": 143,
   "nodes": [
     {
       "relativePath": "server/connectors/antigravity.js",
@@ -152,6 +152,8 @@
         "server/routes/dashboard.js",
         "server/routes/dashboard.ts",
         "server/routes/health.ts",
+        "server/routes/hooks.js",
+        "server/routes/hooks.ts",
         "server/routes/mcps.js",
         "server/routes/mcps.ts",
         "server/routes/plugins.js",
@@ -164,6 +166,8 @@
         "server/routes/skills.ts",
         "server/scripts/seed.js",
         "server/scripts/seed.ts",
+        "server/services/hook-scanner.js",
+        "server/services/hook-scanner.ts",
         "server/services/mcp-scanner.js",
         "server/services/mcp-scanner.ts",
         "server/services/plugin-scanner.js",
@@ -209,6 +213,8 @@
         "server/routes/commands.ts",
         "server/routes/dashboard.js",
         "server/routes/dashboard.ts",
+        "server/routes/hooks.js",
+        "server/routes/hooks.ts",
         "server/routes/mcps.js",
         "server/routes/mcps.ts",
         "server/routes/plugins.js",
@@ -221,6 +227,8 @@
         "server/routes/skills.ts",
         "server/scripts/seed.js",
         "server/scripts/seed.ts",
+        "server/services/hook-scanner.js",
+        "server/services/hook-scanner.ts",
         "server/services/mcp-scanner.js",
         "server/services/mcp-scanner.ts",
         "server/services/plugin-scanner.js",
@@ -251,7 +259,8 @@
         "server/routes/commands.js",
         "server/routes/rules.js",
         "server/routes/mcps.js",
-        "server/routes/plugins.js"
+        "server/routes/plugins.js",
+        "server/routes/hooks.js"
       ],
       "importedBy": []
     },
@@ -270,7 +279,8 @@
         "server/routes/commands.js",
         "server/routes/rules.js",
         "server/routes/mcps.js",
-        "server/routes/plugins.js"
+        "server/routes/plugins.js",
+        "server/routes/hooks.js"
       ],
       "importedBy": []
     },
@@ -362,6 +372,35 @@
         "server/index.js",
         "server/index.ts"
       ]
+    },
+    {
+      "relativePath": "server/routes/hooks.d.ts",
+      "category": "API Routes",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/routes/hooks.js",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js",
+        "server/services/hook-scanner.js"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/hooks.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js",
+        "server/services/hook-scanner.js"
+      ],
+      "importedBy": []
     },
     {
       "relativePath": "server/routes/mcps.d.ts",
@@ -527,6 +566,33 @@
       "relativePath": "server/services/date-utils.ts",
       "category": "Service Layer",
       "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/hook-scanner.d.ts",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/hook-scanner.js",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js"
+      ],
+      "importedBy": [
+        "server/routes/hooks.js",
+        "server/routes/hooks.ts"
+      ]
+    },
+    {
+      "relativePath": "server/services/hook-scanner.ts",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js"
+      ],
       "importedBy": []
     },
     {
@@ -738,6 +804,7 @@
         "src/pages/RulesPage.tsx",
         "src/pages/McpsPage.tsx",
         "src/pages/PluginsPage.tsx",
+        "src/pages/HooksPage.tsx",
         "src/pages/DocsPage.tsx",
         "src/pages/WikiPage.tsx",
         "src/components/layout/AppLayout.tsx",
@@ -899,6 +966,56 @@
       ],
       "importedBy": [
         "src/components/layout/Header.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/hooks/GitHookBanner.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useHookStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/HooksPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/hooks/HookCard.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useHookStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/HooksPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/hooks/HookCatalogModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useHookStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/HooksPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/hooks/HookEditorModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useHookStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/HooksPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/hooks/HookSimulatorModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/useHookStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/HooksPage.tsx"
       ]
     },
     {
@@ -1211,6 +1328,21 @@
       ]
     },
     {
+      "relativePath": "src/pages/HooksPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/useHookStore.ts",
+        "src/components/hooks/HookCard.tsx",
+        "src/components/hooks/HookSimulatorModal.tsx",
+        "src/components/hooks/HookEditorModal.tsx",
+        "src/components/hooks/HookCatalogModal.tsx",
+        "src/components/hooks/GitHookBanner.tsx"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
       "relativePath": "src/pages/McpsPage.tsx",
       "category": "Pages",
       "imports": [
@@ -1350,6 +1482,19 @@
         "src/pages/DashboardPage.tsx",
         "src/stores/useSessionsStore.ts",
         "src/stores/useSkillsStore.ts"
+      ]
+    },
+    {
+      "relativePath": "src/stores/useHookStore.ts",
+      "category": "Zustand Stores",
+      "imports": [],
+      "importedBy": [
+        "src/components/hooks/GitHookBanner.tsx",
+        "src/components/hooks/HookCard.tsx",
+        "src/components/hooks/HookCatalogModal.tsx",
+        "src/components/hooks/HookEditorModal.tsx",
+        "src/components/hooks/HookSimulatorModal.tsx",
+        "src/pages/HooksPage.tsx"
       ]
     },
     {

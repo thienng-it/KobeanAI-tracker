@@ -107,6 +107,27 @@ sqlite.exec(`
     updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS hooks (
+    id text PRIMARY KEY NOT NULL,
+    workspace_id text NOT NULL REFERENCES workspaces(id),
+    name text NOT NULL,
+    slug text,
+    description text,
+    event text NOT NULL,
+    matcher text,
+    type text DEFAULT 'command' NOT NULL,
+    command text,
+    timeout integer DEFAULT 5 NOT NULL,
+    scope text DEFAULT 'workspace' NOT NULL,
+    enabled integer DEFAULT 1 NOT NULL,
+    status text DEFAULT 'active' NOT NULL,
+    execution_count integer DEFAULT 0 NOT NULL,
+    last_executed_at text,
+    metadata text,
+    created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
+  );
+
   CREATE UNIQUE INDEX IF NOT EXISTS idx_mcp_server_agent ON mcp_server_agents (server_id, agent_id);
   CREATE INDEX IF NOT EXISTS idx_mcp_server_name ON mcp_servers (name);
   CREATE INDEX IF NOT EXISTS idx_mcp_server_scope ON mcp_servers (scope);
@@ -116,6 +137,9 @@ sqlite.exec(`
   CREATE INDEX IF NOT EXISTS idx_plugin_name ON plugins (name);
   CREATE INDEX IF NOT EXISTS idx_plugin_scope ON plugins (scope);
   CREATE INDEX IF NOT EXISTS idx_plugin_status ON plugins (status);
+  CREATE INDEX IF NOT EXISTS idx_hook_name ON hooks (name);
+  CREATE INDEX IF NOT EXISTS idx_hook_event ON hooks (event);
+  CREATE INDEX IF NOT EXISTS idx_hook_scope ON hooks (scope);
 `);
 
 export const db = drizzle(sqlite, { schema });
