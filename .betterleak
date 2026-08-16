@@ -27,6 +27,7 @@ regexes = [
     '''EXAMPLE''',
     '''your_api_key_here''',
     '''AIzaSy[0-9a-zA-Z_-]{7}EXAMPLE''',
+    '''postgresql://localhost''',
 ]
 
 # ==============================================================================

@@ -32,7 +32,7 @@ export class McpScanner {
         author: 'Model Context Protocol',
         transport: 'stdio',
         command: 'npx',
-        defaultArgs: ['-y', '@modelcontextprotocol/server-postgres', 'postgresql://user:password@localhost:5432/mydb'],
+        defaultArgs: ['-y', '@modelcontextprotocol/server-postgres', 'postgresql://localhost:5432/mydb'],
         requiredEnv: [],
         docsUrl: 'https://github.com/modelcontextprotocol/servers/tree/main/src/postgres',
         icon: 'Database',
