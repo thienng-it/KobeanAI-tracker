@@ -11,7 +11,8 @@ import {
   Moon, 
   BookOpen, 
   PanelLeftClose, 
-  PanelLeftOpen 
+  PanelLeftOpen,
+  Library
 } from 'lucide-react';
 import './Sidebar.css';
 import { useThemeStore } from '../../stores/useThemeStore';
@@ -60,6 +61,7 @@ export const Sidebar: React.FC = () => {
     { name: 'Rules', path: '/rules', icon: <ShieldAlert size={20} /> },
     { name: 'Agents', path: '/settings/agents', icon: <Cpu size={20} /> },
     { name: 'Docs & Guide', path: '/docs', icon: <BookOpen size={20} /> },
+    { name: 'Wiki', path: '/wiki', icon: <Library size={20} /> },
   ];
 
   const currentWidth = isSidebarOpen ? `${sidebarWidth}px` : '68px';

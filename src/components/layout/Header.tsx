@@ -32,6 +32,7 @@ export const Header: React.FC = () => {
     if (path.startsWith('/rules')) return 'Rules Engine';
     if (path.startsWith('/settings/agents')) return 'Agents Configuration';
     if (path.startsWith('/docs')) return 'Documentation';
+    if (path.startsWith('/wiki')) return 'Knowledge Base & Wiki';
     if (path.startsWith('/setup')) return 'Setup Wizard';
     return 'KobeanAI Tracker';
   };

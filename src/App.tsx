@@ -9,6 +9,7 @@ import AgentsConfigPage from './pages/AgentsConfigPage.tsx';
 import CommandsPage from './pages/CommandsPage.tsx';
 import RulesPage from './pages/RulesPage.tsx';
 import DocsPage from './pages/DocsPage.tsx';
+import WikiPage from './pages/WikiPage.tsx';
 import { AppLayout } from './components/layout/AppLayout.tsx';
 import { ErrorBoundary } from './components/common/ErrorBoundary.tsx';
 import { useThemeStore } from './stores/useThemeStore.ts';
@@ -41,6 +42,7 @@ function App() {
           <Route path="/rules" element={<RulesPage />} />
           <Route path="/settings/agents" element={<AgentsConfigPage />} />
           <Route path="/docs" element={<DocsPage />} />
+          <Route path="/wiki" element={<WikiPage />} />
         </Route>
       </Routes>
     </ErrorBoundary>
