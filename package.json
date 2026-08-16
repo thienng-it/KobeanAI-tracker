@@ -43,6 +43,10 @@
   },
   "keywords": [],
   "author": "thienng-it",
+  "contributors": [
+    "thienng-it",
+    "kobenguyent"
+  ],
   "license": "MIT",
   "type": "module",
   "dependencies": {

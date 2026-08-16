@@ -220,5 +220,5 @@ KobeanAI-tracker/
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 <div align="center">
-Built with ❤️ by <strong><a href="https://github.com/thienng-it">thienng-it</a></strong>
+Built with ❤️ by <strong><a href="https://github.com/thienng-it">thienng-it</a></strong> and <strong><a href="https://github.com/kobenguyent">kobenguyent</a></strong>
 </div>
