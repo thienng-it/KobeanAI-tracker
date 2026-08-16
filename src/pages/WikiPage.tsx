@@ -316,6 +316,30 @@ KobeanAI Tracker features a real-time **Hook Simulator Sandbox** where you can t
     `
   },
   {
+    id: 'agent-memory-knowledge-bank',
+    title: 'Agent Long-Term Memory & Context Budgeting',
+    category: 'agent-protocols',
+    summary: 'How AI agents recall past decisions, store failure gotchas, and manage active context window token budgets.',
+    icon: <Sparkles size={18} color="#10b981" />,
+    tags: ['Memory', 'Context Window', 'Knowledge Bank', 'Token Budget', 'Gotchas'],
+    readTime: '4 min read',
+    content: `
+# AI Agent Memory & Knowledge Bank
+
+Autonomous AI coding agents need structured, persistent memory to retain project standards across sessions without consuming massive LLM context windows.
+
+## Memory Architecture & Storage
+1. **Workspace Memory (\`.agents/memory/MEMORY.md\`)**: Human-readable Markdown file committed to git containing architecture decisions, gotchas, and conventions.
+2. **Serialized Directives (\`.agents/memories.json\`)**: JSON-encoded directives with priority flags, category taxonomy, and estimated token counts.
+3. **Global Knowledge Items (\`~/.gemini/antigravity-ide/knowledge/\`)**: Workstation-wide knowledge items learned from task interactions.
+
+## Context Budgeting & Pinned Directives
+- **Pinned Memories**: Automatically prioritized and injected into LLM prompt turns (e.g. Critical security rules).
+- **Token Budget Gauge**: Tracks total memory footprint against recommended headroom (16k token limit).
+- **Relevance Simulator**: Evaluates query terms and semantic tags to simulate real-time agent memory retrieval.
+    `
+  },
+  {
     id: 'troubleshooting-faq',
     title: 'Troubleshooting & Frequently Asked Questions',
     category: 'troubleshooting',

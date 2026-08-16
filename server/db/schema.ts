@@ -209,6 +209,30 @@ export const hooks = sqliteTable("hooks", {
   scopeIdx: index("idx_hook_scope").on(table.scope),
 }));
 
+export const memories = sqliteTable("memories", {
+  id: text("id").primaryKey(),
+  workspaceId: text("workspace_id").references(() => workspaces.id),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  category: text("category").notNull().default('architecture'), // 'architecture' | 'gotchas' | 'user-preference' | 'workflow' | 'api-conventions' | 'learned-pattern'
+  scope: text("scope").notNull().default('workspace'), // 'workspace' | 'global'
+  pinned: integer("pinned", { mode: 'boolean' }).notNull().default(false),
+  priority: text("priority").notNull().default('normal'), // 'critical' | 'high' | 'normal' | 'low'
+  tokens: integer("tokens").notNull().default(0),
+  recallCount: integer("recall_count").notNull().default(0),
+  lastRecalledAt: text("last_recalled_at"),
+  source: text("source").notNull().default('manual'), // 'manual' | 'learned' | 'conversation' | 'file'
+  sourceReference: text("source_reference"),
+  tags: text("tags", { mode: 'json' }).$type<string[]>(),
+  status: text("status").notNull().default('active'), // 'active' | 'archived'
+  ...timestamps
+}, (table) => ({
+  categoryIdx: index("idx_memory_category").on(table.category),
+  scopeIdx: index("idx_memory_scope").on(table.scope),
+  pinnedIdx: index("idx_memory_pinned").on(table.pinned),
+  priorityIdx: index("idx_memory_priority").on(table.priority),
+}));
+
 // Junction Tables
 
 export const sessionTags = sqliteTable("session_tags", {
@@ -245,6 +269,7 @@ export const workspacesRelations = relations(workspaces, ({ many }) => ({
   mcpServers: many(mcpServers),
   plugins: many(plugins),
   hooks: many(hooks),
+  memories: many(memories),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one, many }) => ({
@@ -324,6 +349,10 @@ export const hooksRelations = relations(hooks, ({ one }) => ({
   workspace: one(workspaces, { fields: [hooks.workspaceId], references: [workspaces.id] }),
 }));
 
+export const memoriesRelations = relations(memories, ({ one }) => ({
+  workspace: one(workspaces, { fields: [memories.workspaceId], references: [workspaces.id] }),
+}));
+
 // Export Types
 export type Workspace = typeof workspaces.$inferSelect;
 export type InsertWorkspace = typeof workspaces.$inferInsert;
@@ -347,3 +376,6 @@ export type Plugin = typeof plugins.$inferSelect;
 export type InsertPlugin = typeof plugins.$inferInsert;
 export type Hook = typeof hooks.$inferSelect;
 export type InsertHook = typeof hooks.$inferInsert;
+export type Memory = typeof memories.$inferSelect;
+export type InsertMemory = typeof memories.$inferInsert;
+

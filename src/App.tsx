@@ -11,6 +11,7 @@ import RulesPage from './pages/RulesPage.tsx';
 import McpsPage from './pages/McpsPage.tsx';
 import PluginsPage from './pages/PluginsPage.tsx';
 import HooksPage from './pages/HooksPage.tsx';
+import MemoryPage from './pages/MemoryPage.tsx';
 import DocsPage from './pages/DocsPage.tsx';
 import WikiPage from './pages/WikiPage.tsx';
 import { AppLayout } from './components/layout/AppLayout.tsx';
@@ -44,6 +45,7 @@ function App() {
           <Route path="/mcps" element={<McpsPage />} />
           <Route path="/plugins" element={<PluginsPage />} />
           <Route path="/hooks" element={<HooksPage />} />
+          <Route path="/memory" element={<MemoryPage />} />
           <Route path="/commands" element={<CommandsPage />} />
           <Route path="/rules" element={<RulesPage />} />
           <Route path="/settings/agents" element={<AgentsConfigPage />} />

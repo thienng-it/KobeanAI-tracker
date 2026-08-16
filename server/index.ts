@@ -19,6 +19,7 @@ import rulesRoutes from './routes/rules.js';
 import mcpsRoutes from './routes/mcps.js';
 import pluginsRoutes from './routes/plugins.js';
 import { hooksRouter } from './routes/hooks.js';
+import { memoriesRouter } from './routes/memories.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -66,6 +67,7 @@ app.use('/api/rules', rulesRoutes);
 app.use('/api/mcps', mcpsRoutes);
 app.use('/api/plugins', pluginsRoutes);
 app.use('/api/hooks', hooksRouter);
+app.use('/api/memories', memoriesRouter);
 
 app.get('/api/setup/check', (req, res) => {
   res.json({
@@ -116,7 +118,7 @@ const server = app.listen(PORT, async () => {
   const telemetryService = TelemetryService.getInstance();
   await telemetryService.start();
 
-  // Auto-discover workspace & global skills, rules, commands, MCP servers, and plugins
+  // Auto-discover workspace & global skills, rules, commands, MCP servers, plugins, hooks, and memories
   try {
     const { SkillScanner } = await import('./services/skill-scanner.js');
     await SkillScanner.syncAll();
@@ -143,6 +145,13 @@ const server = app.listen(PORT, async () => {
     await HookScanner.syncAll();
   } catch (err) {
     console.error('[Server] Hook discovery error:', err);
+  }
+
+  try {
+    const { MemoryScanner } = await import('./services/memory-scanner.js');
+    await MemoryScanner.syncAll();
+  } catch (err) {
+    console.error('[Server] Memory discovery error:', err);
   }
 
   // Graceful shutdown handler

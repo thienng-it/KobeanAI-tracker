@@ -1,0 +1,197 @@
+[
+  {
+    "id": "mem-b963a777",
+    "title": "Model Observability Standard",
+    "content": "Model resolution and filtering must strictly use ModelRegistry and support granular model specs and per-model statistics isolation.",
+    "category": "architecture",
+    "priority": "high",
+    "pinned": true,
+    "tokens": 35,
+    "tags": [
+      "model",
+      "telemetry",
+      "registry"
+    ],
+    "updatedAt": "2026-08-16 13:27:52"
+  },
+  {
+    "id": "mem-gitleaks-ci-avoidance-8320f4",
+    "title": "Gitleaks CI Secret Scanning Compliance",
+    "content": "Gitleaks CI scans for database URIs with passwords. Never write mock connection strings formatted like 'postgresql://user:password@localhost'. Use 'postgresql://localhost:5432/mydb' or environment variables.",
+    "category": "gotchas",
+    "priority": "high",
+    "pinned": true,
+    "tokens": 55,
+    "tags": [
+      "ci",
+      "gitleaks",
+      "testing",
+      "secrets"
+    ],
+    "updatedAt": "2026-08-16T13:27:30.781Z"
+  },
+  {
+    "id": "mem-esm-nodenext-imports-988cd7",
+    "title": "Node.js ESM NodeNext Relative Import Standard",
+    "content": "Backend runs Node.js ESM (\"type\": \"module\" with NodeNext resolution). All relative TypeScript imports must use the '.js' extension (e.g. import { db } from '../db/index.js';).",
+    "category": "architecture",
+    "priority": "high",
+    "pinned": true,
+    "tokens": 47,
+    "tags": [
+      "esm",
+      "typescript",
+      "backend",
+      "nodenext"
+    ],
+    "updatedAt": "2026-08-16T13:27:30.783Z"
+  },
+  {
+    "id": "mem-ponytail-decision-ladder-2d76a4",
+    "title": "Ponytail Anti-Overengineering Decision Ladder",
+    "content": "Apply the 6-step Ponytail Decision Ladder before adding new packages: 1. YAGNI • 2. Standard Library First • 3. Native Web APIs • 4. Direct 10-line Implementation • 5. Clean Architecture • 6. Zero Dead Code.",
+    "category": "workflow",
+    "priority": "high",
+    "pinned": true,
+    "tokens": 55,
+    "tags": [
+      "ponytail",
+      "yagni",
+      "simplicity",
+      "architecture"
+    ],
+    "updatedAt": "2026-08-16T13:27:30.783Z"
+  },
+  {
+    "id": "mem-local-first-security-2cebca",
+    "title": "Local-First Zero Telemetry Protocol",
+    "content": "Never transmit source code, environment variables, or private API keys outside the local machine. All database operations must utilize SQLite in WAL mode with local file watchers.",
+    "category": "gotchas",
+    "priority": "critical",
+    "pinned": true,
+    "tokens": 48,
+    "tags": [
+      "security",
+      "privacy",
+      "sqlite",
+      "local-first"
+    ],
+    "updatedAt": "2026-08-16T13:27:30.783Z"
+  },
+  {
+    "id": "mem-taste-skill-motion-d67bb4",
+    "title": "Taste-Skill Motion & Spring Easing Tokens",
+    "content": "Use 'cubic-bezier(0.16, 1, 0.3, 1)' spring curves for all interactive panels, modal transitions, and card elevations. Adhere to glassmorphism panels with backdrop-filter: blur(16px).",
+    "category": "user-preference",
+    "priority": "normal",
+    "pinned": false,
+    "tokens": 48,
+    "tags": [
+      "ui-ux",
+      "taste-skill",
+      "animation",
+      "glassmorphism"
+    ],
+    "updatedAt": "2026-08-16T13:27:30.783Z"
+  },
+  {
+    "id": "mem-drizzle-query-builder-42ba07",
+    "title": "Drizzle ORM Type-Safe Query Callback Standard",
+    "content": "When querying via Drizzle relational API (db.query.table.findFirst), use callback syntax for type safety: where: (t, { eq }) => eq(t.id, req.params.id). For direct SQL updates, use eq(table.id, req.params.id).",
+    "category": "api-conventions",
+    "priority": "normal",
+    "pinned": false,
+    "tokens": 55,
+    "tags": [
+      "database",
+      "drizzle",
+      "sqlite",
+      "orm"
+    ],
+    "updatedAt": "2026-08-16T13:27:30.784Z"
+  },
+  {
+    "id": "mem-kobeanai-agent-memory-bank",
+    "title": "KobeanAI Agent Memory Bank",
+    "content": "> This file contains persistent architectural decisions, lessons learned, and behavioral guardrails for AI coding assistants.",
+    "category": "architecture",
+    "priority": "normal",
+    "pinned": false,
+    "tokens": 33,
+    "tags": [
+      "memory-bank",
+      "workspace"
+    ],
+    "updatedAt": "2026-08-16 13:24:33"
+  },
+  {
+    "id": "mem-gotchas",
+    "title": "GOTCHAS",
+    "content": "### 📌 [Pinned] Gitleaks CI Secret Scanning Compliance [Priority: HIGH]\nGitleaks CI scans for database URIs with passwords. Never write mock connection strings formatted like 'postgresql://user:password@localhost'. Use 'postgresql://localhost:5432/mydb' or environment variables.\n*Tags: ci, gitleaks, testing, secrets*\n\n### 📌 [Pinned] Local-First Zero Telemetry Protocol [Priority: CRITICAL]\nNever transmit source code, environment variables, or private API keys outside the local machine. All database operations must utilize SQLite in WAL mode with local file watchers.\n*Tags: security, privacy, sqlite, local-first*",
+    "category": "architecture",
+    "priority": "normal",
+    "pinned": false,
+    "tokens": 163,
+    "tags": [
+      "memory-bank",
+      "workspace"
+    ],
+    "updatedAt": "2026-08-16 13:24:33"
+  },
+  {
+    "id": "mem-architecture",
+    "title": "ARCHITECTURE",
+    "content": "### 📌 [Pinned] Node.js ESM NodeNext Relative Import Standard [Priority: HIGH]\nBackend runs Node.js ESM (\"type\": \"module\" with NodeNext resolution). All relative TypeScript imports must use the '.js' extension (e.g. import { db } from '../db/index.js';).\n*Tags: esm, typescript, backend, nodenext*",
+    "category": "architecture",
+    "priority": "normal",
+    "pinned": false,
+    "tokens": 79,
+    "tags": [
+      "memory-bank",
+      "workspace"
+    ],
+    "updatedAt": "2026-08-16 13:24:33"
+  },
+  {
+    "id": "mem-workflow",
+    "title": "WORKFLOW",
+    "content": "### 📌 [Pinned] Ponytail Anti-Overengineering Decision Ladder [Priority: HIGH]\nApply the 6-step Ponytail Decision Ladder before adding new packages: 1. YAGNI • 2. Standard Library First • 3. Native Web APIs • 4. Direct 10-line Implementation • 5. Clean Architecture • 6. Zero Dead Code.\n*Tags: ponytail, yagni, simplicity, architecture*",
+    "category": "architecture",
+    "priority": "normal",
+    "pinned": false,
+    "tokens": 89,
+    "tags": [
+      "memory-bank",
+      "workspace"
+    ],
+    "updatedAt": "2026-08-16 13:24:33"
+  },
+  {
+    "id": "mem-user-preference",
+    "title": "USER-PREFERENCE",
+    "content": "### Taste-Skill Motion & Spring Easing Tokens [Priority: NORMAL]\nUse 'cubic-bezier(0.16, 1, 0.3, 1)' spring curves for all interactive panels, modal transitions, and card elevations. Adhere to glassmorphism panels with backdrop-filter: blur(16px).\n*Tags: ui-ux, taste-skill, animation, glassmorphism*",
+    "category": "architecture",
+    "priority": "normal",
+    "pinned": false,
+    "tokens": 79,
+    "tags": [
+      "memory-bank",
+      "workspace"
+    ],
+    "updatedAt": "2026-08-16 13:24:33"
+  },
+  {
+    "id": "mem-api-conventions",
+    "title": "API-CONVENTIONS",
+    "content": "### Drizzle ORM Type-Safe Query Callback Standard [Priority: NORMAL]\nWhen querying via Drizzle relational API (db.query.table.findFirst), use callback syntax for type safety: where: (t, { eq }) => eq(t.id, req.params.id). For direct SQL updates, use eq(table.id, req.params.id).\n*Tags: database, drizzle, sqlite, orm*",
+    "category": "architecture",
+    "priority": "normal",
+    "pinned": false,
+    "tokens": 84,
+    "tags": [
+      "memory-bank",
+      "workspace"
+    ],
+    "updatedAt": "2026-08-16 13:24:33"
+  }
+]

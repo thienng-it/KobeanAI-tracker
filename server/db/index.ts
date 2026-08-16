@@ -128,6 +128,26 @@ sqlite.exec(`
     updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS memories (
+    id text PRIMARY KEY NOT NULL,
+    workspace_id text REFERENCES workspaces(id),
+    title text NOT NULL,
+    content text NOT NULL,
+    category text DEFAULT 'architecture' NOT NULL,
+    scope text DEFAULT 'workspace' NOT NULL,
+    pinned integer DEFAULT 0 NOT NULL,
+    priority text DEFAULT 'normal' NOT NULL,
+    tokens integer DEFAULT 0 NOT NULL,
+    recall_count integer DEFAULT 0 NOT NULL,
+    last_recalled_at text,
+    source text DEFAULT 'manual' NOT NULL,
+    source_reference text,
+    tags text,
+    status text DEFAULT 'active' NOT NULL,
+    created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
+  );
+
   CREATE UNIQUE INDEX IF NOT EXISTS idx_mcp_server_agent ON mcp_server_agents (server_id, agent_id);
   CREATE INDEX IF NOT EXISTS idx_mcp_server_name ON mcp_servers (name);
   CREATE INDEX IF NOT EXISTS idx_mcp_server_scope ON mcp_servers (scope);
@@ -140,6 +160,10 @@ sqlite.exec(`
   CREATE INDEX IF NOT EXISTS idx_hook_name ON hooks (name);
   CREATE INDEX IF NOT EXISTS idx_hook_event ON hooks (event);
   CREATE INDEX IF NOT EXISTS idx_hook_scope ON hooks (scope);
+  CREATE INDEX IF NOT EXISTS idx_memory_category ON memories (category);
+  CREATE INDEX IF NOT EXISTS idx_memory_scope ON memories (scope);
+  CREATE INDEX IF NOT EXISTS idx_memory_pinned ON memories (pinned);
+  CREATE INDEX IF NOT EXISTS idx_memory_priority ON memories (priority);
 `);
 
 export const db = drizzle(sqlite, { schema });

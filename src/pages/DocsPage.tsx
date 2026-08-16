@@ -15,12 +15,13 @@ import {
   FolderGit2,
   ExternalLink,
   Boxes,
-  Puzzle
+  Puzzle,
+  Brain
 } from 'lucide-react';
 
 export default function DocsPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'tokens' | 'agents' | 'mcps' | 'extensions' | 'taxonomy' | 'telemetry' | 'security' | 'frameworks'>('tokens');
+  const [activeTab, setActiveTab] = useState<'tokens' | 'agents' | 'mcps' | 'extensions' | 'memory' | 'taxonomy' | 'telemetry' | 'security' | 'frameworks'>('tokens');
 
   return (
     <div style={{ padding: 'var(--space-6)', maxWidth: '1280px', margin: '0 auto' }}>
@@ -73,6 +74,7 @@ export default function DocsPage() {
           { id: 'agents', label: 'Multi-Agent Folder Architectures', icon: <FolderGit2 size={16} /> },
           { id: 'mcps', label: 'MCP Servers & Tools', icon: <Boxes size={16} /> },
           { id: 'extensions', label: 'Plugins & Lifecycle Hooks', icon: <Puzzle size={16} /> },
+          { id: 'memory', label: 'Agent Memory & Knowledge Bank', icon: <Brain size={16} /> },
           { id: 'taxonomy', label: 'Intent Taxonomy & Tagging', icon: <Tag size={16} /> },
           { id: 'telemetry', label: 'Model Observability & Costs', icon: <Zap size={16} /> },
           { id: 'security', label: 'Secret Leaks (.betterleak)', icon: <ShieldCheck size={16} /> },
@@ -393,6 +395,61 @@ export default function DocsPage() {
                 &nbsp;&nbsp;&nbsp;&nbsp;]<br />
                 &nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>&#125;</span><br />
                 <span style={{ color: '#ff7b72' }}>&#125;</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Agent Memory & Knowledge Bank */}
+        {activeTab === 'memory' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+            <div className="glass-panel" style={{ padding: 'var(--space-6)', borderRadius: 'var(--radius-xl)' }}>
+              <h2 className="text-xl" style={{ margin: '0 0 var(--space-3)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Brain size={20} color="var(--color-brand-primary)" />
+                AI Agent Long-Term Memory & Context Budgeting
+              </h2>
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: 'var(--space-5)' }}>
+                Autonomous coding agents need persistent memory across sessions to avoid repeating past mistakes, respect team conventions, and maintain codebase architecture standards. KobeanAI Tracker introduces a local-first Knowledge Bank with real-time context token budgeting.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+                <div className="glass-panel" style={{ padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)' }}>
+                  <h3 style={{ margin: '0 0 var(--space-2)', fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-brand-primary)' }}>
+                    1. Workspace Memory (.agents/memory/MEMORY.md)
+                  </h3>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                    Architectural directives, fail-safes, and lessons learned formatted in clean Markdown and shared with the repository.
+                  </p>
+                </div>
+                <div className="glass-panel" style={{ padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)' }}>
+                  <h3 style={{ margin: '0 0 var(--space-2)', fontSize: '0.9375rem', fontWeight: 600, color: '#ec4899' }}>
+                    2. Pinned Directives & Priorities
+                  </h3>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                    Mark critical security rules and standards as Pinned to prioritize them in the active LLM context window.
+                  </p>
+                </div>
+                <div className="glass-panel" style={{ padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)' }}>
+                  <h3 style={{ margin: '0 0 var(--space-2)', fontSize: '0.9375rem', fontWeight: 600, color: '#f59e0b' }}>
+                    3. Interactive Context Simulator
+                  </h3>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                    Test prompt queries against the memory bank to verify relevance ranking and token footprint before execution.
+                  </p>
+                </div>
+              </div>
+
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: '0 0 var(--space-3)' }}>Serialized Memory Standard (.agents/memories.json)</h3>
+              <div style={{ backgroundColor: '#0d1117', padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border-subtle)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#e6edf3', lineHeight: 1.5 }}>
+                <span style={{ color: '#ff7b72' }}>[</span><br />
+                &nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>&#123;</span><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"title"</span>: <span style={{ color: '#a5d6ff' }}>"Local-First Zero Telemetry Protocol"</span>,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"category"</span>: <span style={{ color: '#a5d6ff' }}>"gotchas"</span>,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"priority"</span>: <span style={{ color: '#a5d6ff' }}>"critical"</span>,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"pinned"</span>: <span style={{ color: '#79c0ff' }}>true</span>,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: '#79c0ff' }}>"content"</span>: <span style={{ color: '#a5d6ff' }}>"Never transmit source code or API keys outside the local machine..."</span><br />
+                &nbsp;&nbsp;<span style={{ color: '#ff7b72' }}>&#125;</span><br />
+                <span style={{ color: '#ff7b72' }}>]</span>
               </div>
             </div>
           </div>
