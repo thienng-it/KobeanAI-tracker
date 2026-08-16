@@ -7,6 +7,9 @@
   height: 100%;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  position: relative;
+  z-index: 50;
+  overflow: visible;
   transition: background-color var(--duration-normal) var(--ease-spring-smooth),
               border-color var(--duration-normal) ease;
 }
@@ -45,7 +48,14 @@
   gap: var(--space-1);
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-app-region: no-drag;
+}
+
+.sidebar.collapsed .sidebar-nav {
+  overflow: visible !important;
+  overflow-y: visible !important;
+  overflow-x: visible !important;
 }
 
 .sidebar-link {
@@ -112,19 +122,23 @@
 
 .sidebar.collapsed {
   border-right: 1px solid var(--color-border-subtle);
-  overflow: visible;
+  overflow: visible !important;
+  z-index: 100 !important;
 }
 
 .sidebar-inner {
   overflow: hidden;
+  height: 100%;
 }
 
 .sidebar.collapsed .sidebar-inner {
-  overflow: visible;
+  overflow: visible !important;
 }
 
 .sidebar.collapsed .sidebar-nav {
-  overflow: visible;
+  overflow: visible !important;
+  overflow-y: visible !important;
+  overflow-x: visible !important;
 }
 
 .sidebar-link.icon-only {
