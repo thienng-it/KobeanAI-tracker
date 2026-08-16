@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-16T12:41:15.456Z",
-  "totalFiles": 118,
+  "generatedAt": "2026-08-16T12:49:20.987Z",
+  "totalFiles": 130,
   "nodes": [
     {
       "relativePath": "server/connectors/antigravity.js",
@@ -154,6 +154,8 @@
         "server/routes/health.ts",
         "server/routes/mcps.js",
         "server/routes/mcps.ts",
+        "server/routes/plugins.js",
+        "server/routes/plugins.ts",
         "server/routes/rules.js",
         "server/routes/rules.ts",
         "server/routes/sessions.js",
@@ -164,6 +166,8 @@
         "server/scripts/seed.ts",
         "server/services/mcp-scanner.js",
         "server/services/mcp-scanner.ts",
+        "server/services/plugin-scanner.js",
+        "server/services/plugin-scanner.ts",
         "server/services/skill-scanner.js",
         "server/services/skill-scanner.ts",
         "server/services/telemetry-service.js",
@@ -207,6 +211,8 @@
         "server/routes/dashboard.ts",
         "server/routes/mcps.js",
         "server/routes/mcps.ts",
+        "server/routes/plugins.js",
+        "server/routes/plugins.ts",
         "server/routes/rules.js",
         "server/routes/rules.ts",
         "server/routes/sessions.js",
@@ -217,6 +223,8 @@
         "server/scripts/seed.ts",
         "server/services/mcp-scanner.js",
         "server/services/mcp-scanner.ts",
+        "server/services/plugin-scanner.js",
+        "server/services/plugin-scanner.ts",
         "server/services/skill-scanner.js",
         "server/services/skill-scanner.ts",
         "server/services/workspace-service.js",
@@ -242,7 +250,8 @@
         "server/routes/agents.js",
         "server/routes/commands.js",
         "server/routes/rules.js",
-        "server/routes/mcps.js"
+        "server/routes/mcps.js",
+        "server/routes/plugins.js"
       ],
       "importedBy": []
     },
@@ -260,7 +269,8 @@
         "server/routes/agents.js",
         "server/routes/commands.js",
         "server/routes/rules.js",
-        "server/routes/mcps.js"
+        "server/routes/mcps.js",
+        "server/routes/plugins.js"
       ],
       "importedBy": []
     },
@@ -379,6 +389,35 @@
         "server/db/index.js",
         "server/db/schema.js",
         "server/services/mcp-scanner.js"
+      ],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/routes/plugins.d.ts",
+      "category": "API Routes",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/routes/plugins.js",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js",
+        "server/services/plugin-scanner.js"
+      ],
+      "importedBy": [
+        "server/index.js",
+        "server/index.ts"
+      ]
+    },
+    {
+      "relativePath": "server/routes/plugins.ts",
+      "category": "API Routes",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js",
+        "server/services/plugin-scanner.js"
       ],
       "importedBy": []
     },
@@ -547,6 +586,33 @@
       "importedBy": []
     },
     {
+      "relativePath": "server/services/plugin-scanner.d.ts",
+      "category": "Service Layer",
+      "imports": [],
+      "importedBy": []
+    },
+    {
+      "relativePath": "server/services/plugin-scanner.js",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js"
+      ],
+      "importedBy": [
+        "server/routes/plugins.js",
+        "server/routes/plugins.ts"
+      ]
+    },
+    {
+      "relativePath": "server/services/plugin-scanner.ts",
+      "category": "Service Layer",
+      "imports": [
+        "server/db/index.js",
+        "server/db/schema.js"
+      ],
+      "importedBy": []
+    },
+    {
       "relativePath": "server/services/skill-scanner.d.ts",
       "category": "Service Layer",
       "imports": [],
@@ -671,6 +737,7 @@
         "src/pages/CommandsPage.tsx",
         "src/pages/RulesPage.tsx",
         "src/pages/McpsPage.tsx",
+        "src/pages/PluginsPage.tsx",
         "src/pages/DocsPage.tsx",
         "src/pages/WikiPage.tsx",
         "src/components/layout/AppLayout.tsx",
@@ -932,6 +999,46 @@
       ]
     },
     {
+      "relativePath": "src/components/plugins/PluginCard.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/usePluginStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/PluginsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/plugins/PluginCatalogModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/usePluginStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/PluginsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/plugins/PluginCreatorModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/usePluginStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/PluginsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/components/plugins/PluginInspectorModal.tsx",
+      "category": "UI Components",
+      "imports": [
+        "src/stores/usePluginStore.ts"
+      ],
+      "importedBy": [
+        "src/pages/PluginsPage.tsx"
+      ]
+    },
+    {
       "relativePath": "src/components/rules/RuleDetailModal.tsx",
       "category": "UI Components",
       "imports": [
@@ -1119,6 +1226,20 @@
       ]
     },
     {
+      "relativePath": "src/pages/PluginsPage.tsx",
+      "category": "Pages",
+      "imports": [
+        "src/stores/usePluginStore.ts",
+        "src/components/plugins/PluginCard.tsx",
+        "src/components/plugins/PluginInspectorModal.tsx",
+        "src/components/plugins/PluginCatalogModal.tsx",
+        "src/components/plugins/PluginCreatorModal.tsx"
+      ],
+      "importedBy": [
+        "src/App.tsx"
+      ]
+    },
+    {
       "relativePath": "src/pages/RulesPage.tsx",
       "category": "Pages",
       "imports": [
@@ -1252,6 +1373,18 @@
         "src/components/mcps/McpServerCard.tsx",
         "src/components/mcps/McpToolInspectorModal.tsx",
         "src/pages/McpsPage.tsx"
+      ]
+    },
+    {
+      "relativePath": "src/stores/usePluginStore.ts",
+      "category": "Zustand Stores",
+      "imports": [],
+      "importedBy": [
+        "src/components/plugins/PluginCard.tsx",
+        "src/components/plugins/PluginCatalogModal.tsx",
+        "src/components/plugins/PluginCreatorModal.tsx",
+        "src/components/plugins/PluginInspectorModal.tsx",
+        "src/pages/PluginsPage.tsx"
       ]
     },
     {

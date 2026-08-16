@@ -17,6 +17,7 @@ import agentsRoutes from './routes/agents.js';
 import commandsRoutes from './routes/commands.js';
 import rulesRoutes from './routes/rules.js';
 import mcpsRoutes from './routes/mcps.js';
+import pluginsRoutes from './routes/plugins.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -62,6 +63,7 @@ app.use('/api/agents', agentsRoutes);
 app.use('/api/commands', commandsRoutes);
 app.use('/api/rules', rulesRoutes);
 app.use('/api/mcps', mcpsRoutes);
+app.use('/api/plugins', pluginsRoutes);
 
 app.get('/api/setup/check', (req, res) => {
   res.json({
@@ -112,7 +114,7 @@ const server = app.listen(PORT, async () => {
   const telemetryService = TelemetryService.getInstance();
   await telemetryService.start();
 
-  // Auto-discover workspace & global skills, rules, commands, and MCP servers
+  // Auto-discover workspace & global skills, rules, commands, MCP servers, and plugins
   try {
     const { SkillScanner } = await import('./services/skill-scanner.js');
     await SkillScanner.syncAll();
@@ -125,6 +127,13 @@ const server = app.listen(PORT, async () => {
     await McpScanner.syncAll();
   } catch (err) {
     console.error('[Server] MCP discovery error:', err);
+  }
+
+  try {
+    const { PluginScanner } = await import('./services/plugin-scanner.js');
+    await PluginScanner.syncAll();
+  } catch (err) {
+    console.error('[Server] Plugin discovery error:', err);
   }
 
   // Graceful shutdown handler

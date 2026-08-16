@@ -156,6 +156,35 @@ export const mcpServerAgents = sqliteTable("mcp_server_agents", {
   pk: uniqueIndex("idx_mcp_server_agent").on(table.serverId, table.agentId)
 }));
 
+export const plugins = sqliteTable("plugins", {
+  id: text("id").primaryKey(),
+  workspaceId: text("workspace_id").notNull().references(() => workspaces.id),
+  name: text("name").notNull(),
+  slug: text("slug"),
+  version: text("version").notNull().default('1.0.0'),
+  description: text("description"),
+  author: text("author"),
+  scope: text("scope").notNull().default('workspace'), // 'workspace' | 'global'
+  path: text("path"),
+  repository: text("repository"),
+  license: text("license"),
+  keywords: text("keywords", { mode: 'json' }), // string[]
+  skillsCount: integer("skills_count").notNull().default(0),
+  agentsCount: integer("agents_count").notNull().default(0),
+  hasMcp: integer("has_mcp", { mode: 'boolean' }).notNull().default(false),
+  hasHooks: integer("has_hooks", { mode: 'boolean' }).notNull().default(false),
+  enabled: integer("enabled", { mode: 'boolean' }).notNull().default(true),
+  status: text("status").notNull().default('active'), // 'active' | 'installed' | 'disabled'
+  readme: text("readme"),
+  manifest: text("manifest", { mode: 'json' }),
+  metadata: text("metadata", { mode: 'json' }),
+  ...timestamps
+}, (table) => ({
+  nameIdx: index("idx_plugin_name").on(table.name),
+  scopeIdx: index("idx_plugin_scope").on(table.scope),
+  statusIdx: index("idx_plugin_status").on(table.status),
+}));
+
 // Junction Tables
 
 export const sessionTags = sqliteTable("session_tags", {
@@ -190,6 +219,7 @@ export const workspacesRelations = relations(workspaces, ({ many }) => ({
   skills: many(skills),
   rules: many(rules),
   mcpServers: many(mcpServers),
+  plugins: many(plugins),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one, many }) => ({
@@ -261,6 +291,10 @@ export const mcpServerAgentsRelations = relations(mcpServerAgents, ({ one }) => 
   agent: one(agents, { fields: [mcpServerAgents.agentId], references: [agents.id] }),
 }));
 
+export const pluginsRelations = relations(plugins, ({ one }) => ({
+  workspace: one(workspaces, { fields: [plugins.workspaceId], references: [workspaces.id] }),
+}));
+
 // Export Types
 export type Workspace = typeof workspaces.$inferSelect;
 export type InsertWorkspace = typeof workspaces.$inferInsert;
@@ -280,4 +314,5 @@ export type McpServer = typeof mcpServers.$inferSelect;
 export type InsertMcpServer = typeof mcpServers.$inferInsert;
 export type McpTool = typeof mcpTools.$inferSelect;
 export type InsertMcpTool = typeof mcpTools.$inferInsert;
-
+export type Plugin = typeof plugins.$inferSelect;
+export type InsertPlugin = typeof plugins.$inferInsert;

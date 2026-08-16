@@ -81,12 +81,41 @@ sqlite.exec(`
     agent_id text NOT NULL REFERENCES agents(id)
   );
 
+  CREATE TABLE IF NOT EXISTS plugins (
+    id text PRIMARY KEY NOT NULL,
+    workspace_id text NOT NULL REFERENCES workspaces(id),
+    name text NOT NULL,
+    slug text,
+    version text DEFAULT '1.0.0' NOT NULL,
+    description text,
+    author text,
+    scope text DEFAULT 'workspace' NOT NULL,
+    path text,
+    repository text,
+    license text,
+    keywords text,
+    skills_count integer DEFAULT 0 NOT NULL,
+    agents_count integer DEFAULT 0 NOT NULL,
+    has_mcp integer DEFAULT 0 NOT NULL,
+    has_hooks integer DEFAULT 0 NOT NULL,
+    enabled integer DEFAULT 1 NOT NULL,
+    status text DEFAULT 'active' NOT NULL,
+    readme text,
+    manifest text,
+    metadata text,
+    created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
+  );
+
   CREATE UNIQUE INDEX IF NOT EXISTS idx_mcp_server_agent ON mcp_server_agents (server_id, agent_id);
   CREATE INDEX IF NOT EXISTS idx_mcp_server_name ON mcp_servers (name);
   CREATE INDEX IF NOT EXISTS idx_mcp_server_scope ON mcp_servers (scope);
   CREATE INDEX IF NOT EXISTS idx_mcp_server_status ON mcp_servers (status);
   CREATE INDEX IF NOT EXISTS idx_mcp_tool_server ON mcp_tools (server_id);
   CREATE INDEX IF NOT EXISTS idx_mcp_tool_name ON mcp_tools (name);
+  CREATE INDEX IF NOT EXISTS idx_plugin_name ON plugins (name);
+  CREATE INDEX IF NOT EXISTS idx_plugin_scope ON plugins (scope);
+  CREATE INDEX IF NOT EXISTS idx_plugin_status ON plugins (status);
 `);
 
 export const db = drizzle(sqlite, { schema });
